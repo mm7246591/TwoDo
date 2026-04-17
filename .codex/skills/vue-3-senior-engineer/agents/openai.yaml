@@ -1,0 +1,4 @@
+interface:
+  display_name: "資深 Vue 3 工程師"
+  short_description: "專注 Vue 3 Composition API 與 SFC 實作"
+  default_prompt: "使用 $vue-3-senior-engineer 以資深 Vue 3 工程師標準撰寫、重構或審查元件。"

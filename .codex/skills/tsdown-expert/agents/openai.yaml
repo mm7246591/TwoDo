@@ -1,0 +1,4 @@
+interface:
+  display_name: "tsdown 專家"
+  short_description: "資深 JS/TS 函式庫打包、型別宣告、輸出格式與遷移專家"
+  default_prompt: "Use $tsdown-expert to diagnose and fix this tsdown、函式庫打包、型別宣告、多格式輸出或 tsup 遷移問題。"

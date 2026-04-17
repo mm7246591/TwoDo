@@ -1,0 +1,4 @@
+interface:
+  display_name: "資深 Pinia 工程師"
+  short_description: "專注 Pinia store 設計、型別安全與狀態模式"
+  default_prompt: "使用 $pinia-senior-engineer 以資深 Pinia 工程師標準設計、重構或審查 Vue 狀態管理。"

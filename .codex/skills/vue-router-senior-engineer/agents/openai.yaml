@@ -1,0 +1,4 @@
+interface:
+  display_name: "資深 Vue Router 工程師"
+  short_description: "專注 Vue Router 4 路由設計、導航守衛與生命週期"
+  default_prompt: "使用 $vue-router-senior-engineer 以資深 Vue Router 工程師標準設計、重構或審查 Vue 路由系統。"

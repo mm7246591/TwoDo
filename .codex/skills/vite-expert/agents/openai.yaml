@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vite 專家"
+  short_description: "資深 Vite 設定、SSR、Plugin 與遷移專家"
+  default_prompt: "Use $vite-expert to diagnose and fix this Vite 設定、plugin、SSR 或 Rolldown 遷移問題。"
