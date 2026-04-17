@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import AuthScreenShell from '@/components/AuthScreenShell.vue'
 import { useAuthStore } from '@/pinia/auth'
@@ -9,49 +9,82 @@ const router = useRouter()
 
 const email = ref('')
 const password = ref('')
+const isEmailSubmitting = ref(false)
+const isGoogleSubmitting = ref(false)
+const isViewActive = ref(true)
 
 const trimmedEmail = computed(() => email.value.trim())
 const trimmedPassword = computed(() => password.value.trim())
 const isEmailReady = computed(() => trimmedEmail.value !== '')
 const isPasswordReady = computed(() => trimmedPassword.value.length >= 6)
 const canUseEmailAuth = computed(() => isEmailReady.value && isPasswordReady.value)
+const isAuthActionPending = computed(() => isEmailSubmitting.value || isGoogleSubmitting.value)
+
+onMounted(() => {
+  isViewActive.value = true
+  authStore.clearError()
+})
+
+onBeforeUnmount(() => {
+  isViewActive.value = false
+  isEmailSubmitting.value = false
+  isGoogleSubmitting.value = false
+  authStore.clearError()
+})
 
 async function handleSignIn() {
-  if (!canUseEmailAuth.value) {
+  if (!canUseEmailAuth.value || isAuthActionPending.value) {
     return
   }
 
   try {
+    isEmailSubmitting.value = true
     await authStore.signIn(trimmedEmail.value, trimmedPassword.value)
     await router.push({ name: 'home' })
   } catch {
+    if (!isViewActive.value) {
+      authStore.clearError()
+    }
+
     // The store already exposes a user-facing error message.
+  } finally {
+    isEmailSubmitting.value = false
   }
 }
 
 async function handleGoogleSignIn() {
+  if (isAuthActionPending.value) {
+    return
+  }
+
   try {
+    isGoogleSubmitting.value = true
     await authStore.signInWithGoogle()
     await router.push({ name: 'home' })
   } catch {
+    if (!isViewActive.value) {
+      authStore.clearError()
+    }
+
     // The store already exposes a user-facing error message.
+  } finally {
+    isGoogleSubmitting.value = false
   }
 }
 </script>
 
 <template>
   <AuthScreenShell
-    shell-class="bg-[linear-gradient(180deg,_#dbeafe_0%,_#eff6ff_28%,_#f8fafc_100%)]"
-    title="回到你們的日常節奏。"
-    description="登入後就能接續共享清單、任務安排和兩人的小目標，不用重新整理彼此的步調。"
-    card-title="Sign In"
-    card-description="用你常用的方式回到共享空間。"
+    title="登入開始你的專注節奏"
+    description="延續你的任務與習慣進度，快速回到 TwoDo 的每日安排。"
+    card-title="登入 TwoDo"
+    card-description="你可以使用 Google 或 Email 登入，接著繼續整理今天的重要事項。"
   >
     <div class="space-y-4">
       <button
-        class="flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-slate-800 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:bg-slate-300"
+        class="app-secondary-button w-full justify-center"
         type="button"
-        :disabled="authStore.isSubmitting"
+        :disabled="isAuthActionPending"
         @click="handleGoogleSignIn"
       >
         <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24">
@@ -72,59 +105,55 @@ async function handleGoogleSignIn() {
             fill="#EA4335"
           />
         </svg>
-        <span>{{ authStore.isSubmitting ? 'Opening Google...' : 'Continue with Google' }}</span>
+        <span>{{ isGoogleSubmitting ? '正在開啟 Google...' : '使用 Google 登入' }}</span>
       </button>
 
-      <div class="flex items-center gap-3">
-        <div class="h-px flex-1 bg-slate-800" />
-        <span class="text-[11px] font-medium uppercase tracking-[0.25em] text-slate-400">Email</span>
-        <div class="h-px flex-1 bg-slate-800" />
-      </div>
+      <div class="app-divider-label">或使用 Email</div>
     </div>
 
     <form class="mt-5 space-y-4" @submit.prevent="handleSignIn">
       <label class="block space-y-2">
-        <span class="text-sm font-medium text-slate-200">Email</span>
+        <span class="app-field-label">Email</span>
         <input
           v-model="email"
-          class="w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3.5 text-white outline-none transition placeholder:text-slate-500 focus:border-sky-400"
+          class="app-input"
           type="email"
           autocomplete="email"
-          placeholder="you@example.com"
+          placeholder="輸入你的 Email"
         />
       </label>
 
       <label class="block space-y-2">
-        <span class="text-sm font-medium text-slate-200">Password</span>
+        <span class="app-field-label">密碼</span>
         <input
           v-model="password"
-          class="w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3.5 text-white outline-none transition placeholder:text-slate-500 focus:border-sky-400"
+          class="app-input"
           type="password"
           autocomplete="current-password"
-          placeholder="至少 6 碼"
+          placeholder="輸入你的密碼"
         />
       </label>
 
-      <p class="text-xs leading-5 text-slate-400">
-        使用你已建立過的帳號登入。密碼至少需要 6 碼。
+      <p class="app-banner-info app-text-muted min-h-[4.5rem] px-4 py-3 text-xs leading-5">
+        登入後可以接續你的任務清單、專注紀錄與目前進度，快速回到今天的安排。
       </p>
 
-      <p v-if="authStore.errorMessage" class="rounded-2xl bg-rose-500/15 px-4 py-3 text-sm text-rose-200">
+      <p v-if="authStore.errorMessage" class="app-banner-danger app-text-danger px-4 py-3 text-sm">
         {{ authStore.errorMessage }}
       </p>
 
       <button
-        class="w-full rounded-full bg-sky-400 px-5 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+        class="app-primary-button w-full"
         type="submit"
-        :disabled="authStore.isSubmitting || !canUseEmailAuth"
+        :disabled="isAuthActionPending || !canUseEmailAuth"
       >
-        {{ authStore.isSubmitting ? 'Submitting...' : 'Sign in with Email' }}
+        {{ isEmailSubmitting ? '登入中...' : '登入 TwoDo' }}
       </button>
 
-      <p class="pt-1 text-center text-sm text-slate-400">
-        還沒有帳號？
-        <RouterLink class="font-medium text-white underline decoration-slate-600 underline-offset-4" :to="{ name: 'register' }">
-          建立帳號
+      <p class="app-text-soft pt-1 text-center text-sm">
+        還沒有 TwoDo 帳號？
+        <RouterLink class="app-link font-semibold" :to="{ name: 'register' }">
+          立即建立帳號
         </RouterLink>
       </p>
     </form>

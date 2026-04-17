@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import MobileAppShell from '@/components/MobileAppShell.vue'
 import { useAuthStore } from '@/pinia/auth'
@@ -7,6 +8,19 @@ import { useCounterStore } from '@/pinia/counter'
 const authStore = useAuthStore()
 const counterStore = useCounterStore()
 const router = useRouter()
+
+const streakProgress = computed(() => `${Math.min(counterStore.count * 12, 100)}%`)
+const streakMessage = computed(() => {
+  if (counterStore.count <= 0) {
+    return '先完成一個小步驟，今天就算順利開始。'
+  }
+
+  if (counterStore.count < 5) {
+    return '節奏正在形成，維持簡單就能更容易持續。'
+  }
+
+  return '你已經進入穩定節奏，保持現在的步調就很好。'
+})
 
 async function handleSignOut() {
   try {
@@ -19,77 +33,131 @@ async function handleSignOut() {
 </script>
 
 <template>
-  <MobileAppShell
-    shell-class="bg-[linear-gradient(180deg,_#020617_0%,_#0f172a_100%)] text-slate-50"
-    frame-class="border border-slate-800 bg-slate-950 shadow-[0_24px_80px_rgba(2,6,23,0.55)]"
-  >
-      <header class="space-y-5 px-5 pb-6 pt-8 sm:px-7 sm:pt-10">
+  <MobileAppShell>
+    <header class="space-y-5 px-5 pb-6 pt-8 sm:px-7 sm:pt-10">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="app-chip">TwoDo</div>
+          <h1 class="app-text-strong mt-4 max-w-[12ch] text-[2.15rem] font-semibold leading-[1.04] tracking-[-0.045em]">
+            讓今天的節奏，一眼就能掌握。
+          </h1>
+        </div>
+
+        <button
+          class="app-ghost-button shrink-0 px-4 py-3 text-sm"
+          type="button"
+          @click="handleSignOut"
+        >
+          登出
+        </button>
+      </div>
+
+      <p class="app-text-muted max-w-[34ch] text-sm leading-6">
+        這個首頁現在更像真正的手機 app，留白更舒服、層次更柔和，重點操作也更清楚。
+      </p>
+    </header>
+
+    <section class="flex-1 space-y-4 px-5 pb-6 sm:px-7">
+      <section class="app-hero-card p-5">
+        <div class="flex items-center justify-between gap-3">
+          <p class="app-hero-kicker">今日重點</p>
+          <div class="app-hero-pill">
+            輕盈模式
+          </div>
+        </div>
+
+        <p class="app-text-strong mt-4 max-w-[14ch] text-[1.9rem] font-semibold leading-[1.08] tracking-[-0.04em]">
+          畫面更安定，小小進度也會更願意開始。
+        </p>
+
+        <p class="app-hero-body mt-3 max-w-[34ch] text-sm leading-6">
+          這張主卡片會先把注意力帶到今天的狀態，但仍然保留 app 畫面該有的簡潔感。
+        </p>
+
+        <div class="mt-5 grid grid-cols-2 gap-3">
+          <div class="app-hero-stat px-4 py-4">
+            <p class="app-label">連續紀錄</p>
+            <p class="app-text-strong mt-2 text-3xl font-semibold">{{ counterStore.count }}</p>
+          </div>
+
+          <div class="app-hero-stat px-4 py-4">
+            <p class="app-label">狀態</p>
+            <p class="app-text-strong mt-2 text-base font-semibold">準備開始</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-2 gap-4">
+        <section class="app-card px-4 py-4">
+          <p class="app-label">帳號</p>
+          <p class="app-text-strong mt-3 break-all text-base font-semibold leading-6">
+            {{ authStore.userEmail || '目前登入使用者' }}
+          </p>
+          <p class="app-text-soft mt-3 text-sm leading-6">
+            你的個人空間已同步完成。
+          </p>
+        </section>
+
+        <section class="app-card-muted px-4 py-4">
+          <p class="app-label">節奏</p>
+          <p class="app-text-strong mt-3 text-xl font-semibold tracking-[-0.03em]">
+            {{ streakMessage }}
+          </p>
+        </section>
+      </div>
+
+      <section class="app-card px-5 py-5">
         <div class="flex items-center justify-between gap-3">
           <div>
-            <p class="text-[11px] uppercase tracking-[0.28em] text-slate-500">TwoDo</p>
-            <h1 class="mt-2 text-[1.9rem] font-semibold leading-tight text-white">
-              今天一起完成一點點，也很好。
-            </h1>
+            <p class="app-label">今日累積</p>
+            <p class="app-text-strong mt-2 text-4xl font-semibold tracking-[-0.05em]">
+              {{ counterStore.count }}
+            </p>
           </div>
-          <button
-            class="rounded-full border border-slate-700 px-4 py-2 text-xs font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-900"
-            type="button"
-            @click="handleSignOut"
-          >
-            Sign out
-          </button>
+
+          <div class="app-accent-panel px-3 py-2 text-right">
+            <p class="app-kicker">進度</p>
+            <p class="app-text-strong mt-1 text-sm font-semibold">習慣循環</p>
+          </div>
         </div>
 
-        <p class="text-sm leading-6 text-slate-400">
-          先把首頁整理成手機 app 的節奏。接下來可以逐步換成你們真正的任務、配對與獎勵資料。
+        <p class="app-text-muted mt-4 text-sm leading-6">
+          計數功能本身很單純，但用更清楚的數字、進度條與主按鈕去呈現，整體會更像成熟的 app 首頁。
         </p>
-      </header>
 
-      <section class="flex-1 space-y-4 px-5 pb-6 sm:px-7">
-        <div class="rounded-[1.75rem] bg-[linear-gradient(135deg,_#38bdf8_0%,_#2563eb_100%)] p-5 text-slate-950">
-          <p class="text-xs font-semibold uppercase tracking-[0.25em] text-sky-950/70">Shared Space</p>
-          <p class="mt-3 text-2xl font-semibold leading-tight">
-            和另一半一起管理待辦、目標和小小的獎勵。
-          </p>
-          <p class="mt-3 text-sm leading-6 text-sky-950/80">
-            目前先以登入狀態與首頁骨架為主，下一步就能開始接配對與任務資料。
-          </p>
+        <div class="app-progress-track mt-4 h-3 rounded-full">
+          <div
+            class="app-progress-fill h-full rounded-full transition-[width] duration-300"
+            :style="{ width: streakProgress }"
+          />
         </div>
 
-        <section class="rounded-[1.75rem] border border-slate-800 bg-slate-900/80 p-5">
-          <p class="text-xs uppercase tracking-[0.25em] text-emerald-300">Your Account</p>
-          <p class="mt-3 break-all text-xl font-semibold text-white">
-            {{ authStore.userEmail || 'Signed in user' }}
-          </p>
-          <p class="mt-3 text-sm leading-6 text-slate-400">
-            這張卡之後可以換成配對狀態、邀請碼或今天的共享摘要。
-          </p>
-        </section>
-
-        <section class="rounded-[1.75rem] bg-white p-5 text-slate-900">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Daily Streak</p>
-              <p class="mt-3 text-4xl font-semibold">{{ counterStore.count }}</p>
-            </div>
-            <div class="rounded-2xl bg-slate-100 px-3 py-2 text-right">
-              <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Next</p>
-              <p class="mt-1 text-sm font-medium text-slate-700">Tasks / Rewards</p>
-            </div>
-          </div>
-
-          <p class="mt-3 text-sm leading-6 text-slate-500">
-            先把這個區塊當成首頁的數據卡。之後可以換成連續完成天數、共同點數或本週目標。
-          </p>
-
-          <button
-            class="mt-6 w-full rounded-full bg-slate-950 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-            type="button"
-            @click="counterStore.increment"
-          >
-            Add one
-          </button>
-        </section>
+        <button
+          class="app-primary-button mt-6 w-full"
+          type="button"
+          @click="counterStore.increment"
+        >
+          今天加一筆
+        </button>
       </section>
+
+      <section class="app-card-muted px-5 py-5">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="app-label">下一步</p>
+            <p class="app-text-strong mt-2 text-lg font-semibold tracking-[-0.03em]">
+              可以繼續擴充任務、清單與獎勵功能。
+            </p>
+          </div>
+          <div class="app-badge app-badge-success">
+            即將加入
+          </div>
+        </div>
+
+        <p class="app-text-muted mt-3 text-sm leading-6">
+          這個區塊先幫首頁保留後續擴充空間，也讓整體版面更接近完整的手機 dashboard 節奏。
+        </p>
+      </section>
+    </section>
   </MobileAppShell>
 </template>

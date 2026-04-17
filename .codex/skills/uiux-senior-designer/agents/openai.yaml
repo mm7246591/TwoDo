@@ -1,0 +1,7 @@
+interface:
+  display_name: "UI/UX 資深設計師"
+  short_description: "將畫面打磨成精緻、當代、具大眾吸引力的產品 UI，並直接實作到程式碼中。"
+  default_prompt: "使用 $uiux-senior-designer 將這個畫面重新設計成精緻、當代、具大眾吸引力的產品 UI，並把變更直接實作到程式碼中。"
+
+policy:
+  allow_implicit_invocation: true
