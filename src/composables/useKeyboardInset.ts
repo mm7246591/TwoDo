@@ -1,6 +1,6 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-export function useKeyboardInset() {
+const useKeyboardInset = () => {
   const keyboardInset = ref(0)
   const isKeyboardOpen = computed(() => keyboardInset.value > 0)
 
@@ -32,3 +32,5 @@ export function useKeyboardInset() {
     isKeyboardOpen,
   }
 }
+
+export { useKeyboardInset }

@@ -1,5 +1,4 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const getRequiredEnv = (name: keyof ImportMetaEnv) => {
@@ -21,7 +20,7 @@ const firebaseConfig = {
   appId: getRequiredEnv('VITE_FIREBASE_APP_ID'),
 }
 
-const app = initializeApp(firebaseConfig)
+const firebaseApp = initializeApp(firebaseConfig)
+const db = getFirestore(firebaseApp)
 
-export const auth = getAuth(app)
-export const db = getFirestore(app)
+export { db, firebaseApp }

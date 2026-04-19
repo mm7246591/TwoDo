@@ -22,7 +22,7 @@ const streakMessage = computed(() => {
   return '你已經進入穩定節奏，保持現在的步調就很好。'
 })
 
-async function handleSignOut() {
+const handleSignOut = async () => {
   try {
     await authStore.signOutUser()
     await router.push({ name: 'login' })
@@ -43,11 +43,7 @@ async function handleSignOut() {
           </h1>
         </div>
 
-        <button
-          class="app-ghost-button shrink-0 px-4 py-3 text-sm"
-          type="button"
-          @click="handleSignOut"
-        >
+        <button class="app-ghost-button shrink-0 px-4 py-3 text-sm" type="button" @click="handleSignOut">
           登出
         </button>
       </div>
@@ -126,17 +122,11 @@ async function handleSignOut() {
         </p>
 
         <div class="app-progress-track mt-4 h-3 rounded-full">
-          <div
-            class="app-progress-fill h-full rounded-full transition-[width] duration-300"
-            :style="{ width: streakProgress }"
-          />
+          <div class="app-progress-fill h-full rounded-full transition-[width] duration-300"
+            :style="{ width: streakProgress }" />
         </div>
 
-        <button
-          class="app-primary-button mt-6 w-full"
-          type="button"
-          @click="counterStore.increment"
-        >
+        <button class="app-primary-button mt-6 w-full" type="button" @click="counterStore.increment">
           今天加一筆
         </button>
       </section>
