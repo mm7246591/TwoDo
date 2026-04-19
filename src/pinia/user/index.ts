@@ -1,6 +1,6 @@
 import type { User as FirebaseUser } from 'firebase/auth'
 import type { Unsubscribe } from 'firebase/firestore'
-import { computed, ref } from 'vue'
+import { computed, reactive, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import { useCoupleStore } from '@/pinia/couple'
 import {
@@ -9,27 +9,30 @@ import {
   updateUserDisplayName,
 } from '@/services/userService'
 import type { UserProfile } from '@/views/settings/types/interface'
+import type { UserStoreState } from '@/pinia/user/types/interface'
 
 const normalizeErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
     return error.message
   }
 
-  return '目前無法處理使用者資料，請稍後再試。'
+  return '使用者資料同步時發生錯誤，請稍後再試。'
 }
 
 const useUserStore = defineStore('user', () => {
   const profile = ref<UserProfile | null>(null)
-  const isLoading = ref(false)
-  const isUpdatingProfile = ref(false)
-  const errorMessage = ref('')
+  const state = reactive<UserStoreState>({
+    errorMessage: '',
+    isLoading: false,
+    isUpdatingProfile: false,
+  })
   let unsubscribeProfile: Unsubscribe | null = null
 
   const isPaired = computed(() => Boolean(profile.value?.partnerUid))
   const hasCoupleContext = computed(() => Boolean(profile.value?.coupleId))
 
   const clearError = () => {
-    errorMessage.value = ''
+    state.errorMessage = ''
   }
 
   const stopSync = () => {
@@ -39,7 +42,7 @@ const useUserStore = defineStore('user', () => {
 
   const syncProfileForSession = async (authUser: FirebaseUser) => {
     stopSync()
-    isLoading.value = true
+    state.isLoading = true
     clearError()
 
     try {
@@ -47,7 +50,7 @@ const useUserStore = defineStore('user', () => {
 
       unsubscribeProfile = subscribeToUserProfile(authUser.uid, (nextProfile) => {
         profile.value = nextProfile
-        isLoading.value = false
+        state.isLoading = false
 
         const coupleStore = useCoupleStore()
 
@@ -60,8 +63,8 @@ const useUserStore = defineStore('user', () => {
       })
     } catch (error) {
       profile.value = null
-      isLoading.value = false
-      errorMessage.value = normalizeErrorMessage(error)
+      state.isLoading = false
+      state.errorMessage = normalizeErrorMessage(error)
       throw error
     }
   }
@@ -74,38 +77,36 @@ const useUserStore = defineStore('user', () => {
     }
 
     if (!trimmedDisplayName) {
-      throw new Error('暱稱不能是空白。')
+      throw new Error('請先輸入暱稱。')
     }
 
-    isUpdatingProfile.value = true
+    state.isUpdatingProfile = true
     clearError()
 
     try {
       await updateUserDisplayName(profile.value.uid, trimmedDisplayName)
     } catch (error) {
-      errorMessage.value = normalizeErrorMessage(error)
+      state.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      isUpdatingProfile.value = false
+      state.isUpdatingProfile = false
     }
   }
 
   const reset = () => {
     stopSync()
     profile.value = null
-    isLoading.value = false
-    isUpdatingProfile.value = false
+    state.isLoading = false
+    state.isUpdatingProfile = false
     clearError()
     useCoupleStore().reset()
   }
 
   return {
+    ...toRefs(state),
     clearError,
-    errorMessage,
     hasCoupleContext,
-    isLoading,
     isPaired,
-    isUpdatingProfile,
     profile,
     reset,
     saveDisplayName,

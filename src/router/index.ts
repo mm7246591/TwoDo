@@ -29,6 +29,14 @@ const router = createRouter({
         requiresGuest: true,
       },
     },
+    {
+      path: '/pairing',
+      name: 'pairing',
+      component: () => import('@/views/PairingView.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
   ],
 })
 

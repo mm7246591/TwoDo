@@ -33,16 +33,16 @@ defineProps<{
 
         <div class="grid grid-cols-2 gap-3">
           <div class="app-card-muted flex h-full flex-col px-4 py-3">
-            <p class="app-label">任務延續</p>
+            <p class="app-label">雙人配對</p>
             <p class="app-text-strong mt-2 text-sm font-semibold">
-              用同一個帳號接續今天的待辦，不用重新整理節奏。
+              先把彼此綁進同一組 couple，後面的任務、積分與獎勵才有共享上下文。
             </p>
           </div>
 
           <div class="app-card-muted flex h-full flex-col px-4 py-3">
-            <p class="app-label">快速進入</p>
+            <p class="app-label">MVP 節奏</p>
             <p class="app-text-strong mt-2 text-sm font-semibold">
-              先順利登入或建立帳號，再回到你真正要完成的事。
+              先做登入、配對、任務與積分主流程，再把通知和推播補上。
             </p>
           </div>
         </div>

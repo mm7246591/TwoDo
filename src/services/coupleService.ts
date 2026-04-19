@@ -2,6 +2,7 @@ import {
   onSnapshot,
   runTransaction,
   serverTimestamp,
+  type Timestamp,
   type Unsubscribe,
 } from 'firebase/firestore'
 import { db } from '@/services/firebase/app'
@@ -12,7 +13,6 @@ import type {
 } from '@/services/firebase/types/firestore-couple.interface'
 import { generateInviteCode, normalizeInviteCode } from '@/utils/inviteCode'
 import type { Couple } from '@/views/pairing/types/interface'
-import type { Timestamp } from 'firebase/firestore'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : null
 
@@ -50,13 +50,13 @@ const createCoupleInviteForUser = async (uid: string) => {
         const currentCoupleSnapshot = await transaction.get(currentCoupleRef)
 
         if (!currentUserSnapshot.exists()) {
-          throw new Error('找不到目前登入者的資料，請重新登入後再試。')
+          throw new Error('找不到目前使用者資料，請重新登入後再試。')
         }
 
         const currentUserState = currentUserSnapshot.data() as FirestoreUserState
 
         if (currentUserState.coupleId) {
-          throw new Error('你已經在配對流程中，不能再建立新的邀請碼。')
+          throw new Error('你已經有配對資料，不能再建立新的邀請碼。')
         }
 
         if (currentCoupleSnapshot.exists()) {
@@ -90,7 +90,7 @@ const createCoupleInviteForUser = async (uid: string) => {
     }
   }
 
-  throw new Error('邀請碼產生失敗，請稍後再試。')
+  throw new Error('邀請碼建立失敗，請稍後再試。')
 }
 
 const joinCoupleByInviteCode = async (uid: string, rawInviteCode: string) => {
@@ -107,7 +107,7 @@ const joinCoupleByInviteCode = async (uid: string, rawInviteCode: string) => {
     const targetCoupleSnapshot = await transaction.get(targetCoupleRef)
 
     if (!currentUserSnapshot.exists()) {
-      throw new Error('找不到目前登入者的資料，請重新登入後再試。')
+      throw new Error('找不到目前使用者資料，請重新登入後再試。')
     }
 
     if (!targetCoupleSnapshot.exists()) {
