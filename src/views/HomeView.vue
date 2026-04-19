@@ -11,30 +11,30 @@ const userStore = useUserStore()
 const coupleStore = useCoupleStore()
 const router = useRouter()
 
-const userName = computed(() => userStore.profile?.displayName || 'TwoDo User')
-const pointsText = computed(() => String(userStore.profile?.points ?? 0))
-const coupleStatus = computed(() => {
-  if (coupleStore.isPaired) {
-    return '已配對成功'
+const getUserName = computed(() => userStore.profile?.displayName || 'TwoDo User')
+const getPointsText = computed(() => String(userStore.profile?.points ?? 0))
+const getCoupleStatus = computed(() => {
+  if (coupleStore.getIsPaired) {
+    return '已完成配對'
   }
 
   if (coupleStore.currentCoupleId) {
-    return '等待另一半加入'
+    return '等待同步'
   }
 
   return '尚未配對'
 })
 
-const coupleDescription = computed(() => {
-  if (coupleStore.isPaired) {
-    return '你們已經綁定到同一組 couple，下一步可以開始接任務與積分流程。'
+const getCoupleDescription = computed(() => {
+  if (coupleStore.getIsPaired) {
+    return '你們已經綁定在同一組 couple，接下來可以開始建立任務、累積積分與兌換獎勵。'
   }
 
   if (coupleStore.currentCoupleId) {
-    return `目前邀請碼是 ${coupleStore.currentCoupleId}，分享給另一半後就能完成配對。`
+    return `目前已進入配對流程，coupleId 為 ${coupleStore.currentCoupleId}。接下來可以直接往任務頁測試資料流。`
   }
 
-  return '先前往配對頁建立邀請碼，這樣後面的 tasks、rewards 和 notifications 才能有共同 coupleId。'
+  return '每位使用者都有自己的邀請碼。先完成配對，之後 tasks、rewards、notifications 等主資料都會依附在同一個 coupleId 下面。'
 })
 
 const handleSignOut = async () => {
@@ -49,21 +49,25 @@ const handleSignOut = async () => {
 const goToPairing = async () => {
   await router.push({ name: 'pairing' })
 }
+
+const goToTasks = async () => {
+  await router.push({ name: 'tasks' })
+}
 </script>
 
 <template>
   <MobileAppShell>
-    <header class="space-y-5 px-5 pb-6 pt-8 sm:px-7 sm:pt-10">
-      <div class="flex items-start justify-between gap-3">
+    <header class="space-y-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]">
+      <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
           <div class="app-chip">TwoDo MVP</div>
-          <h1 class="app-text-strong mt-4 max-w-[12ch] text-[2.15rem] font-semibold leading-[1.04] tracking-[-0.045em]">
-            {{ userName }} 的共享任務首頁
+          <h1 class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]">
+            {{ getUserName }} 的共享面板
           </h1>
         </div>
 
         <button
-          class="app-ghost-button shrink-0 px-4 py-3 text-sm"
+          class="app-ghost-button shrink-0 px-[16px] py-[12px] text-[14px]"
           type="button"
           @click="handleSignOut"
         >
@@ -71,85 +75,93 @@ const goToPairing = async () => {
         </button>
       </div>
 
-      <p class="app-text-muted max-w-[34ch] text-sm leading-6">
-        這一版先把帳號、`users` 文件、`couples` 文件與配對流程接穩，後面再往任務與積分擴充。
+      <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
+        目前首頁先讓你檢查 `users`、`couples`、`tasks` 的 schema 狀態，再往下接積分與獎勵流程。
       </p>
     </header>
 
-    <section class="flex-1 space-y-4 px-5 pb-6 sm:px-7">
-      <section class="app-hero-card p-5">
-        <div class="flex items-center justify-between gap-3">
+    <section class="flex-1 space-y-[16px] px-[20px] pb-[24px] sm:px-[28px]">
+      <section class="app-hero-card p-[20px]">
+        <div class="flex items-center justify-between gap-[12px]">
           <p class="app-hero-kicker">Schema Status</p>
           <div class="app-hero-pill">
-            Phase 1
+            Phase 2
           </div>
         </div>
 
-        <p class="app-text-strong mt-4 max-w-[14ch] text-[1.9rem] font-semibold leading-[1.08] tracking-[-0.04em]">
-          `users` 與 `couples` 已經開始連動
+        <p class="app-text-strong mt-[16px] max-w-[14ch] text-[30px] font-semibold leading-[1.08] tracking-[-0.04em]">
+          `users`、`couples`、`tasks` 已接上流程
         </p>
 
-        <p class="app-hero-body mt-3 max-w-[34ch] text-sm leading-6">
-          {{ coupleDescription }}
+        <p class="app-hero-body mt-[12px] max-w-[34ch] text-[14px] leading-[24px]">
+          {{ getCoupleDescription }}
         </p>
 
-        <div class="mt-5 grid grid-cols-2 gap-3">
-          <div class="app-hero-stat px-4 py-4">
-            <p class="app-label">目前積分</p>
-            <p class="app-text-strong mt-2 text-3xl font-semibold">{{ pointsText }}</p>
+        <div class="mt-[20px] grid grid-cols-2 gap-[12px]">
+          <div class="app-hero-stat px-[16px] py-[16px]">
+            <p class="app-label">目前點數</p>
+            <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ getPointsText }}</p>
           </div>
 
-          <div class="app-hero-stat px-4 py-4">
+          <div class="app-hero-stat px-[16px] py-[16px]">
             <p class="app-label">配對狀態</p>
-            <p class="app-text-strong mt-2 text-base font-semibold">{{ coupleStatus }}</p>
+            <p class="app-text-strong mt-[8px] text-[16px] font-semibold">{{ getCoupleStatus }}</p>
           </div>
         </div>
       </section>
 
-      <section class="grid grid-cols-2 gap-4">
-        <article class="app-card px-4 py-4">
+      <section class="grid grid-cols-2 gap-[16px]">
+        <article class="app-card px-[16px] py-[16px]">
           <p class="app-label">Email</p>
-          <p class="app-text-strong mt-3 break-all text-base font-semibold leading-6">
-            {{ authStore.userEmail || '尚未取得 Email' }}
+          <p class="app-text-strong mt-[12px] break-all text-[16px] font-semibold leading-[24px]">
+            {{ authStore.getUserEmail || '尚未取得 Email' }}
           </p>
-          <p class="app-text-soft mt-3 text-sm leading-6">
-            這會同步到 `users.email`。
+          <p class="app-text-soft mt-[12px] text-[14px] leading-[24px]">
+            這筆資料會同步到 `users.email`
           </p>
         </article>
 
-        <article class="app-card-muted px-4 py-4">
-          <p class="app-label">coupleId</p>
-          <p class="app-text-strong mt-3 text-xl font-semibold tracking-[-0.03em]">
-            {{ userStore.profile?.coupleId || '尚未建立' }}
+        <article class="app-card-muted px-[16px] py-[16px]">
+          <p class="app-label">我的邀請碼</p>
+          <p class="app-text-strong mt-[12px] text-[20px] font-semibold tracking-[-0.03em]">
+            {{ userStore.profile?.inviteCode || '尚未建立' }}
           </p>
         </article>
       </section>
 
-      <section class="app-card px-5 py-5">
-        <div class="flex items-center justify-between gap-3">
+      <section class="app-card px-[20px] py-[20px]">
+        <div class="flex items-center justify-between gap-[12px]">
           <div>
-            <p class="app-label">下一步</p>
-            <p class="app-text-strong mt-2 text-2xl font-semibold tracking-[-0.04em]">
-              完成雙人配對
+            <p class="app-label">目前進度</p>
+            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
+              配對與任務主流程
             </p>
           </div>
 
-          <div class="app-accent-panel px-3 py-2 text-right">
+          <div class="app-accent-panel px-[12px] py-[8px] text-right">
             <p class="app-kicker">MVP</p>
-            <p class="app-text-strong mt-1 text-sm font-semibold">配對頁</p>
+            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">Step by step</p>
           </div>
         </div>
 
-        <p class="app-text-muted mt-4 text-sm leading-6">
-          你可以建立邀請碼，或輸入另一半給你的邀請碼。配對成功後，兩位使用者都會指向同一個 `coupleId`。
+        <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
+          你現在可以先去配對頁查看自己的邀請碼，或直接輸入另一半的邀請碼完成綁定，再到任務頁建立第一筆共享待辦。
         </p>
 
         <button
-          class="app-primary-button mt-6 w-full"
+          class="app-primary-button mt-[24px] w-full"
           type="button"
           @click="goToPairing"
         >
-          前往配對頁
+          前往配對
+        </button>
+
+        <button
+          class="app-secondary-button mt-[12px] w-full"
+          type="button"
+          @click="goToTasks"
+        >
+          前往任務
         </button>
       </section>
     </section>

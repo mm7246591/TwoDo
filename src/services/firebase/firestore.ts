@@ -11,6 +11,7 @@ const notificationsCollection = collection(db, 'notifications')
 const userDoc = (uid: string) => doc(db, 'users', uid)
 
 const coupleDoc = (coupleId: string) => doc(db, 'couples', coupleId)
+const taskDoc = (taskId: string) => doc(db, 'tasks', taskId)
 
 export {
   coupleDoc,
@@ -18,6 +19,7 @@ export {
   notificationsCollection,
   pointLogsCollection,
   rewardsCollection,
+  taskDoc,
   tasksCollection,
   userDoc,
   usersCollection,

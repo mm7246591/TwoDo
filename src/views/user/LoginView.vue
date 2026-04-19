@@ -71,19 +71,19 @@ const handleGoogleSignIn = async () => {
 
 <template>
   <AuthScreenShell
-    title="登入後開始建立你們的共享任務空間"
-    description="登入成功後會自動同步 Firebase Auth 與 Firestore 中的 users 文件。"
+    title="登入後開始共享待辦與獎勵"
+    description="登入完成後，系統會透過 Firebase Auth 與 Firestore 同步目前使用者資料。"
     card-title="登入 TwoDo"
-    card-description="支援 Google 與 Email / Password，適合先把 MVP 的帳號與配對流程接穩。"
+    card-description="先支援 Google 與 Email / Password，讓 MVP 的帳號流程穩定可測。"
   >
-    <div class="space-y-4">
+    <div class="space-y-[16px]">
       <button
         class="app-secondary-button w-full justify-center"
         type="button"
         :disabled="isAuthActionPending"
         @click="handleGoogleSignIn"
       >
-        <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24">
+        <svg aria-hidden="true" class="h-[20px] w-[20px]" viewBox="0 0 24 24">
           <path
             d="M21.35 11.1h-9.18v2.98h5.27c-.23 1.51-1.14 2.79-2.43 3.65v2.43h3.13c1.83-1.69 2.88-4.18 2.88-7.11 0-.66-.06-1.3-.17-1.92Z"
             fill="#4285F4"
@@ -101,40 +101,40 @@ const handleGoogleSignIn = async () => {
             fill="#EA4335"
           />
         </svg>
-        <span>{{ isGoogleSubmitting ? '登入 Google 中...' : '使用 Google 登入' }}</span>
+        <span>{{ isGoogleSubmitting ? 'Google 登入中...' : '使用 Google 登入' }}</span>
       </button>
 
       <div class="app-divider-label">或使用 Email</div>
     </div>
 
-    <form class="mt-5 space-y-4" @submit.prevent="handleSignIn">
-      <label class="block space-y-2">
+    <form class="mt-[20px] space-y-[16px]" @submit.prevent="handleSignIn">
+      <label class="block space-y-[8px]">
         <span class="app-field-label">Email</span>
         <input
           v-model="email"
           class="app-input"
           type="email"
           autocomplete="email"
-          placeholder="輸入你的 Email"
+          placeholder="請輸入你的 Email"
         />
       </label>
 
-      <label class="block space-y-2">
+      <label class="block space-y-[8px]">
         <span class="app-field-label">密碼</span>
         <input
           v-model="password"
           class="app-input"
           type="password"
           autocomplete="current-password"
-          placeholder="輸入你的密碼"
+          placeholder="請輸入你的密碼"
         />
       </label>
 
-      <p class="app-banner-info app-text-muted min-h-[4.5rem] px-4 py-3 text-xs leading-5">
-        這一步會先確認你能穩定登入，並把目前登入者對應到 `users/{uid}` 文件。
+      <p class="app-banner-info app-text-muted min-h-[72px] px-[16px] py-[12px] text-[12px] leading-[20px]">
+        首次登入完成後，系統會自動建立 `users/{uid}` 文件，作為後續配對與任務流程的基礎資料。
       </p>
 
-      <p v-if="authStore.errorMessage" class="app-banner-danger app-text-danger px-4 py-3 text-sm">
+      <p v-if="authStore.errorMessage" class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]">
         {{ authStore.errorMessage }}
       </p>
 
@@ -146,7 +146,7 @@ const handleGoogleSignIn = async () => {
         {{ isEmailSubmitting ? '登入中...' : '登入 TwoDo' }}
       </button>
 
-      <p class="app-text-soft pt-1 text-center text-sm">
+      <p class="app-text-soft pt-[4px] text-center text-[14px]">
         還沒有帳號？
         <RouterLink class="app-link font-semibold" :to="{ name: 'register' }">
           前往註冊

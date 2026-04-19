@@ -11,11 +11,16 @@ import {
 import { defineStore } from 'pinia'
 import { firebaseAuth, googleProvider } from '@/services/firebase/auth'
 import { useUserStore } from '@/pinia/user'
-import type { AuthErrorLike, AuthErrorMessages, AuthStoreState } from '@/pinia/auth/types/interface'
+import type {
+  AuthErrorLike,
+  AuthErrorMessages,
+  AuthSession,
+  AuthStoreState,
+} from '@/pinia/auth/types/interface'
 
 const AUTH_ERROR_MESSAGES: AuthErrorMessages = {
   'auth/account-exists-with-different-credential': '這個 Email 已經綁定其他登入方式，請改用原本的方法登入。',
-  'auth/cancelled-popup-request': 'Google 登入流程已被新的請求取代，請再試一次。',
+  'auth/cancelled-popup-request': 'Google 登入流程被新的請求取代，請再試一次。',
   'auth/email-already-in-use': '這個 Email 已經被註冊過了。',
   'auth/invalid-credential': '登入資訊無效，請重新確認帳號或密碼。',
   'auth/invalid-email': 'Email 格式不正確。',
@@ -58,21 +63,40 @@ const normalizeAuthError = (error: unknown) => {
   return '登入流程發生未預期錯誤，請稍後再試。'
 }
 
+const mapAuthSession = (user: User | null): AuthSession | null => {
+  if (!user) {
+    return null
+  }
+
+  return {
+    displayName: user.displayName ?? '',
+    email: user.email ?? '',
+    photoURL: user.photoURL ?? '',
+    uid: user.uid,
+  }
+}
+
 let authReadyPromise: Promise<User | null> | null = null
+let authStateProcessingPromise: Promise<void> = Promise.resolve()
 
 const useAuthStore = defineStore('auth', () => {
-  const currentUser = ref<User | null>(null)
+  const authSession = ref<AuthSession | null>(null)
   const state = reactive<AuthStoreState>({
     errorMessage: '',
     isReady: false,
     isSubmitting: false,
   })
 
-  const isLoggedIn = computed(() => currentUser.value !== null)
-  const userEmail = computed(() => currentUser.value?.email ?? '')
+  const getIsLoggedIn = computed(() => authSession.value !== null)
+  const getUserEmail = computed(() => authSession.value?.email ?? '')
+  const getUserUid = computed(() => authSession.value?.uid ?? '')
 
   const clearError = () => {
     state.errorMessage = ''
+  }
+
+  const waitForAuthStateProcessing = async () => {
+    await authStateProcessingPromise
   }
 
   const init = () => {
@@ -85,27 +109,29 @@ const useAuthStore = defineStore('auth', () => {
 
       onAuthStateChanged(
         firebaseAuth,
-        async (user) => {
-          const userStore = useUserStore()
-          currentUser.value = user
-          clearError()
+        (user) => {
+          authStateProcessingPromise = (async () => {
+            const userStore = useUserStore()
+            authSession.value = mapAuthSession(user)
+            clearError()
 
-          try {
-            if (user) {
-              await userStore.syncProfileForSession(user)
-            } else {
-              userStore.reset()
-            }
-          } catch (error) {
-            state.errorMessage = normalizeAuthError(error)
-          } finally {
-            state.isReady = true
+            try {
+              if (user) {
+                await userStore.syncProfileForSession(user)
+              } else {
+                userStore.reset()
+              }
+            } catch (error) {
+              state.errorMessage = normalizeAuthError(error)
+            } finally {
+              state.isReady = true
 
-            if (!hasResolved) {
-              hasResolved = true
-              resolve(user)
+              if (!hasResolved) {
+                hasResolved = true
+                resolve(user)
+              }
             }
-          }
+          })()
         },
         (error) => {
           state.errorMessage = normalizeAuthError(error)
@@ -132,6 +158,8 @@ const useAuthStore = defineStore('auth', () => {
       if (displayName.trim()) {
         await updateProfile(credential.user, { displayName: displayName.trim() })
       }
+
+      await waitForAuthStateProcessing()
     } catch (error) {
       state.errorMessage = normalizeAuthError(error)
       throw error
@@ -146,6 +174,7 @@ const useAuthStore = defineStore('auth', () => {
 
     try {
       await signInWithEmailAndPassword(firebaseAuth, email, password)
+      await waitForAuthStateProcessing()
     } catch (error) {
       state.errorMessage = normalizeAuthError(error)
       throw error
@@ -160,6 +189,7 @@ const useAuthStore = defineStore('auth', () => {
 
     try {
       await signInWithPopup(firebaseAuth, googleProvider)
+      await waitForAuthStateProcessing()
     } catch (error) {
       state.errorMessage = normalizeAuthError(error)
       throw error
@@ -174,6 +204,7 @@ const useAuthStore = defineStore('auth', () => {
 
     try {
       await signOut(firebaseAuth)
+      await waitForAuthStateProcessing()
     } catch (error) {
       state.errorMessage = normalizeAuthError(error)
       throw error
@@ -184,15 +215,17 @@ const useAuthStore = defineStore('auth', () => {
 
   return {
     ...toRefs(state),
+    authSession,
     clearError,
-    currentUser,
+    getIsLoggedIn,
+    getUserEmail,
+    getUserUid,
     init,
-    isLoggedIn,
     signIn,
     signInWithGoogle,
     signOutUser,
     signUp,
-    userEmail,
+    waitForAuthStateProcessing,
   }
 })
 

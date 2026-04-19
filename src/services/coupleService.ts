@@ -1,17 +1,22 @@
 import {
+  doc,
+  getDocs,
+  limit,
   onSnapshot,
+  query,
   runTransaction,
   serverTimestamp,
+  where,
   type Timestamp,
   type Unsubscribe,
 } from 'firebase/firestore'
 import { db } from '@/services/firebase/app'
-import { coupleDoc, userDoc } from '@/services/firebase/firestore'
+import { coupleDoc, couplesCollection, userDoc, usersCollection } from '@/services/firebase/firestore'
 import type {
   FirestoreCouple,
   FirestoreUserState,
 } from '@/services/firebase/types/firestore-couple.interface'
-import { generateInviteCode, normalizeInviteCode } from '@/utils/inviteCode'
+import { normalizeInviteCode } from '@/utils/inviteCode'
 import type { Couple } from '@/views/pairing/types/interface'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : null
@@ -38,59 +43,18 @@ const subscribeToCouple = (
   callback(mapCouple(snapshot.data() as FirestoreCouple))
 })
 
-const createCoupleInviteForUser = async (uid: string) => {
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    const inviteCode = generateInviteCode()
+const findUserByInviteCode = async (inviteCode: string) => {
+  const snapshot = await getDocs(query(
+    usersCollection,
+    where('inviteCode', '==', inviteCode),
+    limit(1),
+  ))
 
-    try {
-      await runTransaction(db, async (transaction) => {
-        const currentUserRef = userDoc(uid)
-        const currentCoupleRef = coupleDoc(inviteCode)
-        const currentUserSnapshot = await transaction.get(currentUserRef)
-        const currentCoupleSnapshot = await transaction.get(currentCoupleRef)
-
-        if (!currentUserSnapshot.exists()) {
-          throw new Error('找不到目前使用者資料，請重新登入後再試。')
-        }
-
-        const currentUserState = currentUserSnapshot.data() as FirestoreUserState
-
-        if (currentUserState.coupleId) {
-          throw new Error('你已經有配對資料，不能再建立新的邀請碼。')
-        }
-
-        if (currentCoupleSnapshot.exists()) {
-          throw new Error('invite-code-collision')
-        }
-
-        transaction.set(currentCoupleRef, {
-          id: inviteCode,
-          memberUids: [uid],
-          inviteCode,
-          status: 'waiting_partner',
-          createdBy: uid,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        })
-
-        transaction.update(currentUserRef, {
-          coupleId: inviteCode,
-          partnerUid: null,
-          updatedAt: serverTimestamp(),
-        })
-      })
-
-      return inviteCode
-    } catch (error) {
-      if (error instanceof Error && error.message === 'invite-code-collision') {
-        continue
-      }
-
-      throw error
-    }
+  if (snapshot.empty) {
+    return null
   }
 
-  throw new Error('邀請碼建立失敗，請稍後再試。')
+  return snapshot.docs[0]
 }
 
 const joinCoupleByInviteCode = async (uid: string, rawInviteCode: string) => {
@@ -100,62 +64,71 @@ const joinCoupleByInviteCode = async (uid: string, rawInviteCode: string) => {
     throw new Error('請先輸入邀請碼。')
   }
 
+  const targetUserSnapshot = await findUserByInviteCode(inviteCode)
+
+  if (!targetUserSnapshot) {
+    throw new Error('找不到這組邀請碼，請重新確認。')
+  }
+
+  if (targetUserSnapshot.id === uid) {
+    throw new Error('不能輸入自己的邀請碼。')
+  }
+
+  const coupleReference = doc(couplesCollection)
+
   await runTransaction(db, async (transaction) => {
     const currentUserRef = userDoc(uid)
-    const targetCoupleRef = coupleDoc(inviteCode)
+    const targetUserRef = userDoc(targetUserSnapshot.id)
     const currentUserSnapshot = await transaction.get(currentUserRef)
-    const targetCoupleSnapshot = await transaction.get(targetCoupleRef)
+    const latestTargetUserSnapshot = await transaction.get(targetUserRef)
 
     if (!currentUserSnapshot.exists()) {
-      throw new Error('找不到目前使用者資料，請重新登入後再試。')
+      throw new Error('目前找不到你的使用者資料，請重新登入後再試。')
     }
 
-    if (!targetCoupleSnapshot.exists()) {
-      throw new Error('查無此邀請碼，請確認後再試。')
+    if (!latestTargetUserSnapshot.exists()) {
+      throw new Error('這組邀請碼的使用者資料不存在。')
     }
 
     const currentUserState = currentUserSnapshot.data() as FirestoreUserState
+    const targetUserState = latestTargetUserSnapshot.data() as FirestoreUserState
 
     if (currentUserState.coupleId) {
-      throw new Error('你已經有配對資料，不能再加入新的邀請碼。')
+      throw new Error('你目前已經在一組 couple 內，不能再加入其他邀請碼。')
     }
 
-    const coupleState = targetCoupleSnapshot.data() as FirestoreCouple
-
-    if (coupleState.memberUids.includes(uid)) {
-      throw new Error('你已經在這組配對裡了。')
+    if (targetUserState.coupleId) {
+      throw new Error('對方已經完成配對，這組邀請碼不能再使用。')
     }
 
-    if (coupleState.memberUids.length >= 2) {
-      throw new Error('這組邀請碼已經被使用完成。')
+    if (targetUserState.inviteCode !== inviteCode) {
+      throw new Error('這組邀請碼已更新，請向對方確認最新邀請碼。')
     }
 
-    const partnerUid = coupleState.memberUids[0]
-    const partnerRef = userDoc(partnerUid)
-    const partnerSnapshot = await transaction.get(partnerRef)
-
-    if (!partnerSnapshot.exists()) {
-      throw new Error('邀請碼對應的配對資料不完整，請重新產生邀請碼。')
-    }
-
-    transaction.update(targetCoupleRef, {
-      memberUids: [...coupleState.memberUids, uid],
+    transaction.set(coupleReference, {
+      id: coupleReference.id,
+      memberUids: [targetUserSnapshot.id, uid],
+      inviteCode,
       status: 'paired',
+      createdBy: targetUserSnapshot.id,
+      createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     })
 
     transaction.update(currentUserRef, {
-      coupleId: inviteCode,
-      partnerUid,
+      coupleId: coupleReference.id,
+      partnerUid: targetUserSnapshot.id,
       updatedAt: serverTimestamp(),
     })
 
-    transaction.update(partnerRef, {
-      coupleId: inviteCode,
+    transaction.update(targetUserRef, {
+      coupleId: coupleReference.id,
       partnerUid: uid,
       updatedAt: serverTimestamp(),
     })
   })
+
+  return coupleReference.id
 }
 
-export { createCoupleInviteForUser, joinCoupleByInviteCode, subscribeToCouple }
+export { joinCoupleByInviteCode, subscribeToCouple }

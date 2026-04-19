@@ -1,0 +1,195 @@
+<script setup lang="ts">
+import { computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import TaskComposerCard from '@/components/task/TaskComposerCard.vue'
+import TaskListCard from '@/components/task/TaskListCard.vue'
+import MobileAppShell from '@/components/MobileAppShell.vue'
+import { useTasksStore } from '@/pinia/tasks'
+import { useUserStore } from '@/pinia/user'
+import type { CreateTaskInput } from '@/pinia/tasks/types/interface'
+import type { Task } from '@/views/tasks/types/interface'
+
+const router = useRouter()
+const userStore = useUserStore()
+const tasksStore = useTasksStore()
+
+const canUseTasks = computed(() => Boolean(userStore.profile?.coupleId && userStore.profile?.partnerUid && userStore.profile?.uid))
+const currentUid = computed(() => userStore.profile?.uid ?? '')
+const myAssignedTasks = computed(() => tasksStore.tasks.filter((task) => task.assignedTo === currentUid.value && task.status === 'pending'))
+const myCreatedTasks = computed(() => tasksStore.tasks.filter((task) => task.createdBy === currentUid.value && task.status === 'pending'))
+const waitingConfirmTasks = computed(() => tasksStore.getCompletedPendingConfirmTasks.filter((task) => task.createdBy === currentUid.value))
+
+watch(
+  () => userStore.profile?.coupleId,
+  (coupleId) => {
+    if (!coupleId) {
+      tasksStore.reset()
+      return
+    }
+
+    void tasksStore.syncTasks(coupleId)
+  },
+  { immediate: true },
+)
+
+const goHome = async () => {
+  await router.push({ name: 'home' })
+}
+
+const handleCreateTask = async (payload: Omit<CreateTaskInput, 'coupleId' | 'createdBy'>) => {
+  if (!userStore.profile?.uid || !userStore.profile?.coupleId) {
+    return
+  }
+
+  try {
+    await tasksStore.createNewTask({
+      ...payload,
+      coupleId: userStore.profile.coupleId,
+      createdBy: userStore.profile.uid,
+    })
+  } catch {
+    // The store already exposes a user-facing error message.
+  }
+}
+
+const handleCompleteTask = async (task: Task) => {
+  if (!userStore.profile?.uid) {
+    return
+  }
+
+  try {
+    await tasksStore.markTaskCompleted(task, userStore.profile.uid)
+  } catch {
+    // The store already exposes a user-facing error message.
+  }
+}
+
+const handleConfirmTask = async (task: Task) => {
+  if (!userStore.profile?.uid) {
+    return
+  }
+
+  try {
+    await tasksStore.confirmTaskCompletion(task, userStore.profile.uid)
+  } catch {
+    // The store already exposes a user-facing error message.
+  }
+}
+
+const handleCancelTask = async (task: Task) => {
+  if (!userStore.profile?.uid) {
+    return
+  }
+
+  try {
+    await tasksStore.cancelExistingTask(task, userStore.profile.uid)
+  } catch {
+    // The store already exposes a user-facing error message.
+  }
+}
+</script>
+
+<template>
+  <MobileAppShell>
+    <header class="space-y-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]">
+      <div class="flex items-start justify-between gap-[12px]">
+        <div class="min-w-0">
+          <div class="app-chip">Tasks MVP</div>
+          <h1 class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]">
+            兩人共享任務板
+          </h1>
+        </div>
+
+        <button class="app-ghost-button shrink-0 px-[16px] py-[12px] text-[14px]" type="button" @click="goHome">
+          返回首頁
+        </button>
+      </div>
+
+      <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
+        這一版先把 `tasks` collection 接起來，做到建立任務、完成任務、確認完成三個主流程。
+      </p>
+    </header>
+
+    <section class="flex-1 space-y-[16px] px-[20px] pb-[24px] sm:px-[28px]">
+      <section v-if="!canUseTasks" class="app-card px-[20px] py-[20px]">
+        <p class="app-label">目前狀態</p>
+        <p class="app-text-strong mt-[12px] text-[24px] font-semibold tracking-[-0.04em]">
+          還不能建立任務
+        </p>
+        <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
+          需要先完成配對，並且讓 `users.coupleId` 和 `users.partnerUid` 都有值，任務才知道要屬於哪一組 couple。
+        </p>
+      </section>
+
+      <TaskComposerCard
+        v-else
+        :default-assigned-to="userStore.profile?.partnerUid ?? ''"
+        :is-submitting="tasksStore.isSubmitting"
+        @submit="handleCreateTask"
+      />
+
+      <section class="grid grid-cols-2 gap-[16px]">
+        <article class="app-card px-[16px] py-[16px]">
+          <p class="app-label">指派給我的</p>
+          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ myAssignedTasks.length }}</p>
+        </article>
+
+        <article class="app-card-muted px-[16px] py-[16px]">
+          <p class="app-label">待我確認</p>
+          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ waitingConfirmTasks.length }}</p>
+        </article>
+      </section>
+
+      <section class="app-card px-[20px] py-[20px]">
+        <div class="flex items-center justify-between gap-[12px]">
+          <div>
+            <p class="app-label">任務列表</p>
+            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
+              本輪同步中的任務
+            </p>
+          </div>
+
+          <div class="app-accent-panel px-[12px] py-[8px] text-right">
+            <p class="app-kicker">同步狀態</p>
+            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
+              {{ tasksStore.isLoading ? '讀取中' : '已同步' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-[20px] space-y-[16px]">
+          <TaskListCard
+            v-for="task in tasksStore.tasks"
+            :key="task.id"
+            :current-uid="currentUid"
+            :is-submitting="tasksStore.isSubmitting"
+            :task="task"
+            @cancel="handleCancelTask"
+            @complete="handleCompleteTask"
+            @confirm="handleConfirmTask"
+          />
+
+          <p v-if="!tasksStore.tasks.length" class="app-text-muted text-[14px] leading-[24px]">
+            目前還沒有任務，先建立第一張待辦卡片吧。
+          </p>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-2 gap-[16px]">
+        <article class="app-card px-[16px] py-[16px]">
+          <p class="app-label">我建立的待辦</p>
+          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ myCreatedTasks.length }}</p>
+        </article>
+
+        <article class="app-card-muted px-[16px] py-[16px]">
+          <p class="app-label">已確認完成</p>
+          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ tasksStore.getConfirmedTasks.length }}</p>
+        </article>
+      </section>
+
+      <p v-if="tasksStore.errorMessage" class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]">
+        {{ tasksStore.errorMessage }}
+      </p>
+    </section>
+  </MobileAppShell>
+</template>

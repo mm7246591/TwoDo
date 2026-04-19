@@ -1,16 +1,20 @@
 import type { User as FirebaseUser } from 'firebase/auth'
 import {
+  getDocs,
   getDoc,
   onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
   updateDoc,
+  where,
   type Unsubscribe,
 } from 'firebase/firestore'
-import { userDoc } from '@/services/firebase/firestore'
+import { userDoc, usersCollection } from '@/services/firebase/firestore'
 import type { FirestoreUserProfile } from '@/services/firebase/types/firestore-user-profile.interface'
 import type { UserProfile } from '@/views/settings/types/interface'
 import type { Timestamp } from 'firebase/firestore'
+import { generateInviteCode } from '@/utils/inviteCode'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : null
 
@@ -35,6 +39,7 @@ const mapUserProfile = (data: FirestoreUserProfile): UserProfile => ({
   email: data.email,
   displayName: data.displayName,
   photoURL: data.photoURL,
+  inviteCode: data.inviteCode,
   coupleId: data.coupleId ?? null,
   partnerUid: data.partnerUid ?? null,
   points: typeof data.points === 'number' ? data.points : 0,
@@ -43,17 +48,33 @@ const mapUserProfile = (data: FirestoreUserProfile): UserProfile => ({
   fcmTokens: Array.isArray(data.fcmTokens) ? data.fcmTokens : [],
 })
 
+const generateUniqueInviteCode = async () => {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const inviteCode = generateInviteCode()
+    const snapshot = await getDocs(query(usersCollection, where('inviteCode', '==', inviteCode)))
+
+    if (snapshot.empty) {
+      return inviteCode
+    }
+  }
+
+  throw new Error('邀請碼建立失敗，請稍後再試。')
+}
+
 const ensureUserProfile = async (authUser: FirebaseUser) => {
   const reference = userDoc(authUser.uid)
   const snapshot = await getDoc(reference)
   const fallbackDisplayName = resolveDisplayName(authUser)
 
   if (!snapshot.exists()) {
+    const inviteCode = await generateUniqueInviteCode()
+
     await setDoc(reference, {
       uid: authUser.uid,
       email: authUser.email ?? '',
       displayName: fallbackDisplayName,
       photoURL: authUser.photoURL ?? '',
+      inviteCode,
       coupleId: null,
       partnerUid: null,
       points: 0,
@@ -66,6 +87,7 @@ const ensureUserProfile = async (authUser: FirebaseUser) => {
   }
 
   const existingProfile = snapshot.data() as Partial<FirestoreUserProfile>
+  const inviteCode = existingProfile.inviteCode?.trim() || await generateUniqueInviteCode()
 
   await setDoc(
     reference,
@@ -74,6 +96,7 @@ const ensureUserProfile = async (authUser: FirebaseUser) => {
       email: authUser.email ?? existingProfile.email ?? '',
       displayName: existingProfile.displayName?.trim() || fallbackDisplayName,
       photoURL: authUser.photoURL ?? existingProfile.photoURL ?? '',
+      inviteCode,
       coupleId: existingProfile.coupleId ?? null,
       partnerUid: existingProfile.partnerUid ?? null,
       points: typeof existingProfile.points === 'number' ? existingProfile.points : 0,

@@ -5,6 +5,7 @@ interface FirestoreUserProfile {
   email: string
   displayName: string
   photoURL: string
+  inviteCode: string
   coupleId: string | null
   partnerUid: string | null
   points: number

@@ -1,14 +1,9 @@
 import type { Unsubscribe } from 'firebase/firestore'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
-import {
-  createCoupleInviteForUser,
-  joinCoupleByInviteCode,
-  subscribeToCouple,
-} from '@/services/coupleService'
-import { normalizeInviteCode } from '@/utils/inviteCode'
-import type { Couple } from '@/views/pairing/types/interface'
 import type { CoupleStoreState } from '@/pinia/couple/types/interface'
+import { joinCoupleByInviteCode, subscribeToCouple } from '@/services/coupleService'
+import type { Couple } from '@/views/pairing/types/interface'
 
 const normalizeErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
@@ -28,9 +23,8 @@ const useCoupleStore = defineStore('couple', () => {
   })
   let unsubscribeCouple: Unsubscribe | null = null
 
-  const inviteCode = computed(() => currentCouple.value?.inviteCode ?? currentCoupleId.value ?? '')
-  const isPaired = computed(() => currentCouple.value?.status === 'paired')
-  const isWaitingPartner = computed(() => Boolean(currentCouple.value) && currentCouple.value?.status === 'waiting_partner')
+  const getIsPaired = computed(() => currentCouple.value?.status === 'paired')
+  const getIsWaitingPartner = computed(() => Boolean(currentCouple.value) && currentCouple.value?.status === 'waiting_partner')
 
   const clearError = () => {
     state.errorMessage = ''
@@ -57,29 +51,13 @@ const useCoupleStore = defineStore('couple', () => {
     })
   }
 
-  const createInviteCode = async (uid: string) => {
-    state.isSubmitting = true
-    clearError()
-
-    try {
-      const newInviteCode = await createCoupleInviteForUser(uid)
-      await syncCouple(newInviteCode)
-    } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
-      throw error
-    } finally {
-      state.isSubmitting = false
-    }
-  }
-
   const joinByInviteCode = async (uid: string, rawInviteCode: string) => {
     state.isSubmitting = true
     clearError()
 
     try {
-      const inviteCodeValue = normalizeInviteCode(rawInviteCode)
-      await joinCoupleByInviteCode(uid, inviteCodeValue)
-      await syncCouple(inviteCodeValue)
+      const coupleId = await joinCoupleByInviteCode(uid, rawInviteCode)
+      await syncCouple(coupleId)
     } catch (error) {
       state.errorMessage = normalizeErrorMessage(error)
       throw error
@@ -100,12 +78,10 @@ const useCoupleStore = defineStore('couple', () => {
   return {
     ...toRefs(state),
     clearError,
-    createInviteCode,
     currentCouple,
     currentCoupleId,
-    inviteCode,
-    isPaired,
-    isWaitingPartner,
+    getIsPaired,
+    getIsWaitingPartner,
     joinByInviteCode,
     reset,
     syncCouple,

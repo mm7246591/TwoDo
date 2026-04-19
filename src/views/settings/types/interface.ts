@@ -3,6 +3,7 @@ interface UserProfile {
   email: string
   displayName: string
   photoURL: string
+  inviteCode: string
   coupleId: string | null
   partnerUid: string | null
   points: number

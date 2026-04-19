@@ -12,6 +12,7 @@ interface FirestoreCouple {
 }
 
 interface FirestoreUserState {
+  inviteCode?: string
   coupleId?: string | null
   partnerUid?: string | null
 }

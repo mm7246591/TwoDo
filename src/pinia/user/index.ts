@@ -3,13 +3,14 @@ import type { Unsubscribe } from 'firebase/firestore'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import { useCoupleStore } from '@/pinia/couple'
+import { useTasksStore } from '@/pinia/tasks'
 import {
   ensureUserProfile,
   subscribeToUserProfile,
   updateUserDisplayName,
 } from '@/services/userService'
-import type { UserProfile } from '@/views/settings/types/interface'
 import type { UserStoreState } from '@/pinia/user/types/interface'
+import type { UserProfile } from '@/views/settings/types/interface'
 
 const normalizeErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
@@ -28,8 +29,8 @@ const useUserStore = defineStore('user', () => {
   })
   let unsubscribeProfile: Unsubscribe | null = null
 
-  const isPaired = computed(() => Boolean(profile.value?.partnerUid))
-  const hasCoupleContext = computed(() => Boolean(profile.value?.coupleId))
+  const getIsPaired = computed(() => Boolean(profile.value?.partnerUid))
+  const getHasCoupleContext = computed(() => Boolean(profile.value?.coupleId))
 
   const clearError = () => {
     state.errorMessage = ''
@@ -100,13 +101,14 @@ const useUserStore = defineStore('user', () => {
     state.isUpdatingProfile = false
     clearError()
     useCoupleStore().reset()
+    useTasksStore().reset()
   }
 
   return {
     ...toRefs(state),
     clearError,
-    hasCoupleContext,
-    isPaired,
+    getHasCoupleContext,
+    getIsPaired,
     profile,
     reset,
     saveDisplayName,

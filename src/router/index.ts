@@ -37,6 +37,14 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/tasks',
+      name: 'tasks',
+      component: () => import('@/views/tasks/TasksView.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
   ],
 })
 
@@ -45,11 +53,11 @@ router.beforeEach(async (to) => {
 
   await authStore.init()
 
-  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
+  if (to.meta.requiresAuth && !authStore.getIsLoggedIn) {
     return { name: 'login' }
   }
 
-  if (to.meta.requiresGuest && authStore.isLoggedIn) {
+  if (to.meta.requiresGuest && authStore.getIsLoggedIn) {
     return { name: 'home' }
   }
 })
