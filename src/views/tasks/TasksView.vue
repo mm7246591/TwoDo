@@ -18,6 +18,8 @@ const currentUid = computed(() => userStore.profile?.uid ?? '')
 const myAssignedTasks = computed(() => tasksStore.tasks.filter((task) => task.assignedTo === currentUid.value && task.status === 'pending'))
 const myCreatedTasks = computed(() => tasksStore.tasks.filter((task) => task.createdBy === currentUid.value && task.status === 'pending'))
 const waitingConfirmTasks = computed(() => tasksStore.getCompletedPendingConfirmTasks.filter((task) => task.createdBy === currentUid.value))
+const confirmedTasks = computed(() => tasksStore.getConfirmedTasks)
+const cancelledTasks = computed(() => tasksStore.getCancelledTasks)
 
 watch(
   () => userStore.profile?.coupleId,
@@ -143,9 +145,9 @@ const handleCancelTask = async (task: Task) => {
       <section class="app-card px-[20px] py-[20px]">
         <div class="flex items-center justify-between gap-[12px]">
           <div>
-            <p class="app-label">任務列表</p>
+            <p class="app-label">指派給我的</p>
             <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              本輪同步中的任務
+              我現在要完成的任務
             </p>
           </div>
 
@@ -159,7 +161,7 @@ const handleCancelTask = async (task: Task) => {
 
         <div class="mt-[20px] space-y-[16px]">
           <TaskListCard
-            v-for="task in tasksStore.tasks"
+            v-for="task in myAssignedTasks"
             :key="task.id"
             :current-uid="currentUid"
             :is-submitting="tasksStore.isSubmitting"
@@ -169,22 +171,162 @@ const handleCancelTask = async (task: Task) => {
             @confirm="handleConfirmTask"
           />
 
-          <p v-if="!tasksStore.tasks.length" class="app-text-muted text-[14px] leading-[24px]">
-            目前還沒有任務，先建立第一張待辦卡片吧。
+          <p v-if="!myAssignedTasks.length" class="app-text-muted text-[14px] leading-[24px]">
+            目前沒有指派給你的待處理任務。
+          </p>
+        </div>
+      </section>
+
+      <section class="app-card px-[20px] py-[20px]">
+        <div class="flex items-center justify-between gap-[12px]">
+          <div>
+            <p class="app-label">等待我確認</p>
+            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
+              已完成待確認
+            </p>
+          </div>
+
+          <div class="app-accent-panel px-[12px] py-[8px] text-right">
+            <p class="app-kicker">需要動作</p>
+            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
+              {{ waitingConfirmTasks.length }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-[20px] space-y-[16px]">
+          <TaskListCard
+            v-for="task in waitingConfirmTasks"
+            :key="task.id"
+            :current-uid="currentUid"
+            :is-submitting="tasksStore.isSubmitting"
+            :task="task"
+            @cancel="handleCancelTask"
+            @complete="handleCompleteTask"
+            @confirm="handleConfirmTask"
+          />
+
+          <p v-if="!waitingConfirmTasks.length" class="app-text-muted text-[14px] leading-[24px]">
+            目前沒有待你確認的任務。
+          </p>
+        </div>
+      </section>
+
+      <section class="app-card px-[20px] py-[20px]">
+        <div class="flex items-center justify-between gap-[12px]">
+          <div>
+            <p class="app-label">我指派出去的</p>
+            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
+              尚未完成的任務
+            </p>
+          </div>
+
+          <div class="app-accent-panel px-[12px] py-[8px] text-right">
+            <p class="app-kicker">Pending</p>
+            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
+              {{ myCreatedTasks.length }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-[20px] space-y-[16px]">
+          <TaskListCard
+            v-for="task in myCreatedTasks"
+            :key="task.id"
+            :current-uid="currentUid"
+            :is-submitting="tasksStore.isSubmitting"
+            :task="task"
+            @cancel="handleCancelTask"
+            @complete="handleCompleteTask"
+            @confirm="handleConfirmTask"
+          />
+
+          <p v-if="!myCreatedTasks.length" class="app-text-muted text-[14px] leading-[24px]">
+            目前沒有你指派出去且尚未完成的任務。
           </p>
         </div>
       </section>
 
       <section class="grid grid-cols-2 gap-[16px]">
         <article class="app-card px-[16px] py-[16px]">
-          <p class="app-label">我建立的待辦</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ myCreatedTasks.length }}</p>
+          <p class="app-label">已確認完成</p>
+          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ confirmedTasks.length }}</p>
         </article>
 
         <article class="app-card-muted px-[16px] py-[16px]">
-          <p class="app-label">已確認完成</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ tasksStore.getConfirmedTasks.length }}</p>
+          <p class="app-label">已取消</p>
+          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ cancelledTasks.length }}</p>
         </article>
+      </section>
+
+      <section class="app-card px-[20px] py-[20px]">
+        <div class="flex items-center justify-between gap-[12px]">
+          <div>
+            <p class="app-label">已確認完成</p>
+            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
+              已完成的任務紀錄
+            </p>
+          </div>
+
+          <div class="app-accent-panel px-[12px] py-[8px] text-right">
+            <p class="app-kicker">Done</p>
+            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
+              {{ confirmedTasks.length }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-[20px] space-y-[16px]">
+          <TaskListCard
+            v-for="task in confirmedTasks"
+            :key="task.id"
+            :current-uid="currentUid"
+            :is-submitting="tasksStore.isSubmitting"
+            :task="task"
+            @cancel="handleCancelTask"
+            @complete="handleCompleteTask"
+            @confirm="handleConfirmTask"
+          />
+
+          <p v-if="!confirmedTasks.length" class="app-text-muted text-[14px] leading-[24px]">
+            目前還沒有已確認完成的任務。
+          </p>
+        </div>
+      </section>
+
+      <section class="app-card px-[20px] py-[20px]">
+        <div class="flex items-center justify-between gap-[12px]">
+          <div>
+            <p class="app-label">已取消</p>
+            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
+              已取消的任務紀錄
+            </p>
+          </div>
+
+          <div class="app-accent-panel px-[12px] py-[8px] text-right">
+            <p class="app-kicker">Cancelled</p>
+            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
+              {{ cancelledTasks.length }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-[20px] space-y-[16px]">
+          <TaskListCard
+            v-for="task in cancelledTasks"
+            :key="task.id"
+            :current-uid="currentUid"
+            :is-submitting="tasksStore.isSubmitting"
+            :task="task"
+            @cancel="handleCancelTask"
+            @complete="handleCompleteTask"
+            @confirm="handleConfirmTask"
+          />
+
+          <p v-if="!cancelledTasks.length" class="app-text-muted text-[14px] leading-[24px]">
+            目前沒有已取消的任務。
+          </p>
+        </div>
       </section>
 
       <p v-if="tasksStore.errorMessage" class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]">
