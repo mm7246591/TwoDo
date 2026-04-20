@@ -45,6 +45,14 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/points',
+      name: 'points',
+      component: () => import('@/views/points/PointsView.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
   ],
 })
 

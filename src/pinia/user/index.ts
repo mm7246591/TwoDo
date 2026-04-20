@@ -3,6 +3,7 @@ import type { Unsubscribe } from 'firebase/firestore'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import { useCoupleStore } from '@/pinia/couple'
+import { usePointsStore } from '@/pinia/points'
 import { useTasksStore } from '@/pinia/tasks'
 import {
   ensureUserProfile,
@@ -101,6 +102,7 @@ const useUserStore = defineStore('user', () => {
     state.isUpdatingProfile = false
     clearError()
     useCoupleStore().reset()
+    usePointsStore().reset()
     useTasksStore().reset()
   }
 

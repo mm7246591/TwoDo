@@ -1,15 +1,19 @@
 import {
   addDoc,
+  doc,
   onSnapshot,
   query,
+  runTransaction,
   serverTimestamp,
   updateDoc,
   where,
   type Timestamp,
   type Unsubscribe,
 } from 'firebase/firestore'
-import { taskDoc, tasksCollection } from '@/services/firebase/firestore'
+import { db } from '@/services/firebase/app'
+import { pointLogsCollection, taskDoc, tasksCollection, userDoc } from '@/services/firebase/firestore'
 import type { CreateTaskPayload, FirestoreTask } from '@/services/firebase/types/firestore-task.interface'
+import type { FirestoreUserProfile } from '@/services/firebase/types/firestore-user-profile.interface'
 import type { Task } from '@/views/tasks/types/interface'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : null
@@ -113,10 +117,58 @@ const confirmTask = async (task: Task, actorUid: string) => {
     throw new Error('只有待確認的任務可以確認完成。')
   }
 
-  await updateDoc(taskDoc(task.id), {
-    confirmedAt: serverTimestamp(),
-    status: 'confirmed',
-    updatedAt: serverTimestamp(),
+  await runTransaction(db, async (transaction) => {
+    const taskReference = taskDoc(task.id)
+    const assignedUserRef = userDoc(task.assignedTo)
+    const pointLogReference = doc(pointLogsCollection)
+    const [latestTaskSnapshot, assignedUserSnapshot] = await Promise.all([
+      transaction.get(taskReference),
+      transaction.get(assignedUserRef),
+    ])
+
+    if (!latestTaskSnapshot.exists()) {
+      throw new Error('找不到這筆任務，請重新整理後再試。')
+    }
+
+    if (!assignedUserSnapshot.exists()) {
+      throw new Error('被指派的使用者資料不存在，無法發放積分。')
+    }
+
+    const latestTask = latestTaskSnapshot.data() as FirestoreTask
+    const assignedUser = assignedUserSnapshot.data() as FirestoreUserProfile
+
+    if (latestTask.createdBy !== actorUid) {
+      throw new Error('只有建立任務的人可以確認完成。')
+    }
+
+    if (latestTask.status !== 'completed_pending_confirm') {
+      throw new Error('這筆任務目前不是待確認狀態，請重新整理後再試。')
+    }
+
+    const nextPoints = (typeof assignedUser.points === 'number' ? assignedUser.points : 0) + latestTask.points
+    const pointLogPayload = {
+      coupleId: latestTask.coupleId,
+      createdAt: serverTimestamp(),
+      points: latestTask.points,
+      rewardId: null,
+      source: 'task_confirmed',
+      taskId: task.id,
+      type: 'task_reward',
+      userUid: latestTask.assignedTo,
+    }
+
+    transaction.update(taskReference, {
+      confirmedAt: serverTimestamp(),
+      status: 'confirmed',
+      updatedAt: serverTimestamp(),
+    })
+
+    transaction.update(assignedUserRef, {
+      points: nextPoints,
+      updatedAt: serverTimestamp(),
+    })
+
+    transaction.set(pointLogReference, pointLogPayload)
   })
 }
 

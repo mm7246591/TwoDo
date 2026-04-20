@@ -106,7 +106,7 @@ const handleCancelTask = async (task: Task) => {
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        這一版先把 `tasks` collection 接起來，做到建立任務、完成任務、確認完成三個主流程。
+        這一版已經把 `tasks` collection 接起來，做到建立任務、完成任務、確認完成，並在確認完成時同步加分與寫入 `pointLogs`。
       </p>
     </header>
 

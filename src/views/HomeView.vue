@@ -53,6 +53,10 @@ const goToPairing = async () => {
 const goToTasks = async () => {
   await router.push({ name: 'tasks' })
 }
+
+const goToPoints = async () => {
+  await router.push({ name: 'points' })
+}
 </script>
 
 <template>
@@ -85,12 +89,12 @@ const goToTasks = async () => {
         <div class="flex items-center justify-between gap-[12px]">
           <p class="app-hero-kicker">Schema Status</p>
           <div class="app-hero-pill">
-            Phase 2
+            Phase 5
           </div>
         </div>
 
         <p class="app-text-strong mt-[16px] max-w-[14ch] text-[30px] font-semibold leading-[1.08] tracking-[-0.04em]">
-          `users`、`couples`、`tasks` 已接上流程
+          `users`、`couples`、`tasks`、`pointLogs` 已接上流程
         </p>
 
         <p class="app-hero-body mt-[12px] max-w-[34ch] text-[14px] leading-[24px]">
@@ -145,7 +149,7 @@ const goToTasks = async () => {
         </div>
 
         <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-          你現在可以先去配對頁查看自己的邀請碼，或直接輸入另一半的邀請碼完成綁定，再到任務頁建立第一筆共享待辦。
+          你現在可以先去配對頁查看自己的邀請碼，完成配對後到任務頁建立待辦，再到積分頁確認任務加分流水有沒有正確寫進 Firestore。
         </p>
 
         <button
@@ -162,6 +166,14 @@ const goToTasks = async () => {
           @click="goToTasks"
         >
           前往任務
+        </button>
+
+        <button
+          class="app-ghost-button mt-[12px] w-full"
+          type="button"
+          @click="goToPoints"
+        >
+          前往積分
         </button>
       </section>
     </section>
