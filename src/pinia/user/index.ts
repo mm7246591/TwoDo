@@ -57,6 +57,10 @@ const useUserStore = defineStore('user', () => {
         state.value.isLoading = false
 
         const coupleStore = useCoupleStore()
+        const notificationsStore = useNotificationsStore()
+        const pointsStore = usePointsStore()
+        const rewardsStore = useRewardsStore()
+        const tasksStore = useTasksStore()
 
         if (nextProfile?.coupleId) {
           void coupleStore.syncCouple(nextProfile.coupleId)
@@ -64,6 +68,10 @@ const useUserStore = defineStore('user', () => {
         }
 
         coupleStore.reset()
+        notificationsStore.reset()
+        pointsStore.reset()
+        rewardsStore.reset()
+        tasksStore.reset()
       })
     } catch (error) {
       profile.value = null

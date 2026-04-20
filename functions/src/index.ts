@@ -258,6 +258,56 @@ export const joinCoupleByInviteCode = onCall(async (request) => {
   return { coupleId: coupleReference.id }
 })
 
+export const unpairCouple = onCall(async (request) => {
+  const uid = getAuthenticatedUid(request.auth)
+  const currentUser = await getUserProfile(uid)
+
+  if (!currentUser.coupleId) {
+    throw new HttpsError('failed-precondition', '你目前沒有配對資料，無法解除配對。')
+  }
+
+  const coupleReference = couplesCollection.doc(currentUser.coupleId)
+  const currentUserReference = usersCollection.doc(uid)
+  const partnerReference = currentUser.partnerUid
+    ? usersCollection.doc(currentUser.partnerUid)
+    : null
+
+  await db.runTransaction(async (transaction) => {
+    const coupleSnapshotPromise = transaction.get(coupleReference)
+    const partnerSnapshotPromise = partnerReference
+      ? transaction.get(partnerReference)
+      : Promise.resolve(null)
+    const [coupleSnapshot, partnerSnapshot] = await Promise.all([
+      coupleSnapshotPromise,
+      partnerSnapshotPromise,
+    ])
+
+    if (coupleSnapshot.exists) {
+      transaction.delete(coupleReference)
+    }
+
+    transaction.update(currentUserReference, {
+      coupleId: null,
+      partnerUid: null,
+      updatedAt: FieldValue.serverTimestamp(),
+    })
+
+    if (partnerReference && partnerSnapshot?.exists) {
+      const partner = partnerSnapshot.data() as UserProfile
+
+      if (partner.coupleId === currentUser.coupleId) {
+        transaction.update(partnerReference, {
+          coupleId: null,
+          partnerUid: null,
+          updatedAt: FieldValue.serverTimestamp(),
+        })
+      }
+    }
+  })
+
+  return { success: true as const }
+})
+
 export const createTask = onCall(async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const title = typeof request.data?.title === 'string' ? request.data.title.trim() : ''

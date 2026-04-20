@@ -58,4 +58,21 @@ const joinCoupleByInviteCode = async (uid: string, rawInviteCode: string) => {
   }
 }
 
-export { joinCoupleByInviteCode, subscribeToCouple }
+const unpairCouple = async () => {
+  try {
+    const unpairCoupleCallable = httpsCallable<
+      Record<string, never>,
+      { success: true }
+    >(firebaseFunctions, 'unpairCouple')
+
+    await unpairCoupleCallable({})
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      throw new Error(String((error as FunctionsError).message))
+    }
+
+    throw error
+  }
+}
+
+export { joinCoupleByInviteCode, subscribeToCouple, unpairCouple }

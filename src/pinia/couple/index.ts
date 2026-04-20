@@ -2,7 +2,7 @@ import type { Unsubscribe } from 'firebase/firestore'
 import { computed, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import type { CoupleStoreState } from '@/pinia/couple/types/interface'
-import { joinCoupleByInviteCode, subscribeToCouple } from '@/services/coupleService'
+import { joinCoupleByInviteCode, subscribeToCouple, unpairCouple } from '@/services/coupleService'
 import type { Couple } from '@/views/pairing/types/interface'
 
 const normalizeErrorMessage = (error: unknown) => {
@@ -66,6 +66,20 @@ const useCoupleStore = defineStore('couple', () => {
     }
   }
 
+  const unpairCurrentCouple = async () => {
+    state.value.isSubmitting = true
+    clearError()
+
+    try {
+      await unpairCouple()
+    } catch (error) {
+      state.value.errorMessage = normalizeErrorMessage(error)
+      throw error
+    } finally {
+      state.value.isSubmitting = false
+    }
+  }
+
   const reset = () => {
     stopSync()
     currentCouple.value = null
@@ -84,6 +98,7 @@ const useCoupleStore = defineStore('couple', () => {
     joinByInviteCode,
     reset,
     syncCouple,
+    unpairCurrentCouple,
   }
 })
 

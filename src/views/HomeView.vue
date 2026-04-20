@@ -84,6 +84,10 @@ const goToRewards = async () => {
 const goToNotifications = async () => {
   await router.push({ name: 'notifications' })
 }
+
+const goToSettings = async () => {
+  await router.push({ name: 'settings' })
+}
 </script>
 
 <template>
@@ -222,6 +226,14 @@ const goToNotifications = async () => {
           @click="goToNotifications"
         >
           前往通知
+        </button>
+
+        <button
+          class="app-ghost-button mt-[12px] w-full"
+          type="button"
+          @click="goToSettings"
+        >
+          前往設定
         </button>
       </section>
     </section>
