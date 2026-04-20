@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app'
+import { getFunctions } from 'firebase/functions'
 import { getFirestore } from 'firebase/firestore'
 
 const getRequiredEnv = (name: keyof ImportMetaEnv) => {
@@ -22,5 +23,6 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig)
 const db = getFirestore(firebaseApp)
+const firebaseFunctions = getFunctions(firebaseApp)
 
-export { db, firebaseApp }
+export { db, firebaseApp, firebaseFunctions }

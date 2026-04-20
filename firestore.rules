@@ -1,0 +1,107 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function hasCurrentUserProfile() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function currentUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isSameCouple(coupleId) {
+      return hasCurrentUserProfile()
+        && currentUserData().coupleId != null
+        && currentUserData().coupleId == coupleId;
+    }
+
+    match /users/{userId} {
+      allow read: if isSelf(userId)
+        || (
+          isSignedIn()
+          && resource.data.partnerUid == request.auth.uid
+          && isSameCouple(resource.data.coupleId)
+        );
+
+      allow create: if isSelf(userId)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.coupleId == null
+        && request.resource.data.partnerUid == null
+        && request.resource.data.points == 0
+        && request.resource.data.inviteCode is string
+        && request.resource.data.email is string
+        && request.resource.data.displayName is string
+        && request.resource.data.photoURL is string
+        && request.resource.data.fcmTokens is list;
+
+      allow update: if isSelf(userId)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.coupleId == resource.data.coupleId
+        && request.resource.data.partnerUid == resource.data.partnerUid
+        && request.resource.data.points == resource.data.points
+        && request.resource.data.inviteCode == resource.data.inviteCode
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.email is string
+        && request.resource.data.displayName is string
+        && request.resource.data.photoURL is string
+        && request.resource.data.fcmTokens is list;
+
+      allow delete: if false;
+    }
+
+    match /couples/{coupleId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.memberUids;
+      allow write: if false;
+    }
+
+    match /tasks/{taskId} {
+      allow read: if isSameCouple(resource.data.coupleId);
+      allow write: if false;
+    }
+
+    match /rewards/{rewardId} {
+      allow read: if isSameCouple(resource.data.coupleId);
+      allow write: if false;
+    }
+
+    match /pointLogs/{pointLogId} {
+      allow read: if isSameCouple(resource.data.coupleId);
+      allow write: if false;
+    }
+
+    match /redemptions/{redemptionId} {
+      allow read: if isSameCouple(resource.data.coupleId);
+      allow write: if false;
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn()
+        && resource.data.userUid == request.auth.uid
+        && isSameCouple(resource.data.coupleId);
+
+      allow update: if isSignedIn()
+        && resource.data.userUid == request.auth.uid
+        && request.resource.data.userUid == resource.data.userUid
+        && request.resource.data.coupleId == resource.data.coupleId
+        && request.resource.data.type == resource.data.type
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.message == resource.data.message
+        && request.resource.data.refId == resource.data.refId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && resource.data.isRead == false
+        && request.resource.data.isRead == true;
+
+      allow create, delete: if false;
+    }
+  }
+}

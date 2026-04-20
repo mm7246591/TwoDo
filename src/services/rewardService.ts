@@ -1,22 +1,16 @@
 import {
-  addDoc,
-  doc,
   onSnapshot,
   query,
-  runTransaction,
-  serverTimestamp,
   where,
   type Timestamp,
   type Unsubscribe,
 } from 'firebase/firestore'
-import { db } from '@/services/firebase/app'
 import {
-  pointLogsCollection,
-  redemptionsCollection,
-  rewardsCollection,
-  userDoc,
-} from '@/services/firebase/firestore'
-import type { FirestoreUserProfile } from '@/services/firebase/types/firestore-user-profile.interface'
+  type FunctionsError,
+  httpsCallable,
+} from 'firebase/functions'
+import { firebaseFunctions } from '@/services/firebase/app'
+import { rewardsCollection } from '@/services/firebase/firestore'
 import type {
   CreateRewardPayload,
   FirestoreReward,
@@ -75,16 +69,32 @@ const createReward = async (payload: CreateRewardPayload) => {
     throw new Error('獎勵兌換點數至少要大於 0。')
   }
 
-  await addDoc(rewardsCollection, {
-    coupleId: payload.coupleId,
-    title: trimmedTitle,
-    description: trimmedDescription,
-    cost: payload.cost,
-    createdBy: payload.createdBy,
-    isActive: payload.isActive,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  })
+  try {
+    const createRewardCallable = httpsCallable<
+      {
+        coupleId: string
+        title: string
+        description: string
+        cost: number
+        isActive: boolean
+      },
+      { rewardId: string }
+    >(firebaseFunctions, 'createReward')
+
+    await createRewardCallable({
+      coupleId: payload.coupleId,
+      title: trimmedTitle,
+      description: trimmedDescription,
+      cost: payload.cost,
+      isActive: payload.isActive,
+    })
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      throw new Error(String((error as FunctionsError).message))
+    }
+
+    throw error
+  }
 }
 
 const redeemReward = async (reward: Reward, actorUid: string) => {
@@ -92,66 +102,20 @@ const redeemReward = async (reward: Reward, actorUid: string) => {
     throw new Error('不能兌換自己建立的獎勵。')
   }
 
-  await runTransaction(db, async (transaction) => {
-    const rewardReference = doc(rewardsCollection, reward.id)
-    const actorUserRef = userDoc(actorUid)
-    const pointLogReference = doc(pointLogsCollection)
-    const redemptionReference = doc(redemptionsCollection)
-    const [latestRewardSnapshot, actorUserSnapshot] = await Promise.all([
-      transaction.get(rewardReference),
-      transaction.get(actorUserRef),
-    ])
+  try {
+    const redeemRewardCallable = httpsCallable<
+      { rewardId: string },
+      { redemptionId: string }
+    >(firebaseFunctions, 'redeemReward')
 
-    if (!latestRewardSnapshot.exists()) {
-      throw new Error('找不到這筆獎勵，請重新整理後再試。')
+    await redeemRewardCallable({ rewardId: reward.id })
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      throw new Error(String((error as FunctionsError).message))
     }
 
-    if (!actorUserSnapshot.exists()) {
-      throw new Error('目前找不到你的使用者資料，請重新登入後再試。')
-    }
-
-    const latestReward = latestRewardSnapshot.data() as FirestoreReward
-    const actorUser = actorUserSnapshot.data() as FirestoreUserProfile
-    const currentPoints = typeof actorUser.points === 'number' ? actorUser.points : 0
-
-    if (!latestReward.isActive) {
-      throw new Error('這個獎勵目前未啟用，暫時不能兌換。')
-    }
-
-    if (latestReward.createdBy === actorUid) {
-      throw new Error('不能兌換自己建立的獎勵。')
-    }
-
-    if (currentPoints < latestReward.cost) {
-      throw new Error('目前點數不足，還不能兌換這個獎勵。')
-    }
-
-    transaction.update(actorUserRef, {
-      points: currentPoints - latestReward.cost,
-      updatedAt: serverTimestamp(),
-    })
-
-    transaction.set(pointLogReference, {
-      coupleId: latestReward.coupleId,
-      userUid: actorUid,
-      type: 'reward_redeem',
-      points: -latestReward.cost,
-      taskId: null,
-      rewardId: reward.id,
-      source: 'reward_redeemed',
-      createdAt: serverTimestamp(),
-    })
-
-    transaction.set(redemptionReference, {
-      coupleId: latestReward.coupleId,
-      rewardId: reward.id,
-      redeemedBy: actorUid,
-      cost: latestReward.cost,
-      status: 'completed',
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    })
-  })
+    throw error
+  }
 }
 
 export { createReward, redeemReward, subscribeToRewards }

@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import MobileAppShell from '@/components/MobileAppShell.vue'
 import { useAuthStore } from '@/pinia/auth'
 import { useCoupleStore } from '@/pinia/couple'
+import { useNotificationsStore } from '@/pinia/notifications'
 import { useUserStore } from '@/pinia/user'
 
 const authStore = useAuthStore()
 const userStore = useUserStore()
 const coupleStore = useCoupleStore()
+const notificationsStore = useNotificationsStore()
 const router = useRouter()
 
 const getUserName = computed(() => userStore.profile?.displayName || 'TwoDo User')
 const getPointsText = computed(() => String(userStore.profile?.points ?? 0))
+const getUnreadNotificationsText = computed(() => String(notificationsStore.getUnreadCount))
 const getCoupleStatus = computed(() => {
   if (coupleStore.getIsPaired) {
     return '已完成配對'
@@ -37,6 +40,22 @@ const getCoupleDescription = computed(() => {
   return '每位使用者都有自己的邀請碼。先完成配對，之後 tasks、rewards、notifications 等主資料都會依附在同一個 coupleId 下面。'
 })
 
+watch(
+  () => ({
+    coupleId: userStore.profile?.coupleId ?? '',
+    uid: userStore.profile?.uid ?? '',
+  }),
+  ({ coupleId, uid }) => {
+    if (!coupleId || !uid) {
+      notificationsStore.reset()
+      return
+    }
+
+    void notificationsStore.syncNotifications(uid, coupleId)
+  },
+  { immediate: true },
+)
+
 const handleSignOut = async () => {
   try {
     await authStore.signOutUser()
@@ -60,6 +79,10 @@ const goToPoints = async () => {
 
 const goToRewards = async () => {
   await router.push({ name: 'rewards' })
+}
+
+const goToNotifications = async () => {
+  await router.push({ name: 'notifications' })
 }
 </script>
 
@@ -93,19 +116,19 @@ const goToRewards = async () => {
         <div class="flex items-center justify-between gap-[12px]">
           <p class="app-hero-kicker">Schema Status</p>
           <div class="app-hero-pill">
-            Phase 6
+            Phase 7
           </div>
         </div>
 
         <p class="app-text-strong mt-[16px] max-w-[14ch] text-[30px] font-semibold leading-[1.08] tracking-[-0.04em]">
-          `users`、`couples`、`tasks`、`pointLogs`、`rewards` 已接上流程
+          `users`、`couples`、`tasks`、`pointLogs`、`rewards`、`notifications` 已接上流程
         </p>
 
         <p class="app-hero-body mt-[12px] max-w-[34ch] text-[14px] leading-[24px]">
           {{ getCoupleDescription }}
         </p>
 
-        <div class="mt-[20px] grid grid-cols-2 gap-[12px]">
+        <div class="mt-[20px] grid grid-cols-3 gap-[12px]">
           <div class="app-hero-stat px-[16px] py-[16px]">
             <p class="app-label">目前點數</p>
             <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ getPointsText }}</p>
@@ -114,6 +137,11 @@ const goToRewards = async () => {
           <div class="app-hero-stat px-[16px] py-[16px]">
             <p class="app-label">配對狀態</p>
             <p class="app-text-strong mt-[8px] text-[16px] font-semibold">{{ getCoupleStatus }}</p>
+          </div>
+
+          <div class="app-hero-stat px-[16px] py-[16px]">
+            <p class="app-label">未讀通知</p>
+            <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ getUnreadNotificationsText }}</p>
           </div>
         </div>
       </section>
@@ -142,7 +170,7 @@ const goToRewards = async () => {
           <div>
             <p class="app-label">目前進度</p>
             <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              配對、任務與獎勵主流程
+              配對、任務、獎勵與通知主流程
             </p>
           </div>
 
@@ -153,7 +181,7 @@ const goToRewards = async () => {
         </div>
 
         <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-          你現在可以先完成配對、建立任務累積點數，再到獎勵頁建立可兌換項目，最後用積分測試一次兌換流程。
+          你現在可以先完成配對、建立任務累積點數、建立獎勵並測試兌換，最後到通知頁確認每個關鍵事件都有正確寫進站內通知。
         </p>
 
         <button
@@ -186,6 +214,14 @@ const goToRewards = async () => {
           @click="goToRewards"
         >
           前往獎勵
+        </button>
+
+        <button
+          class="app-ghost-button mt-[12px] w-full"
+          type="button"
+          @click="goToNotifications"
+        >
+          前往通知
         </button>
       </section>
     </section>

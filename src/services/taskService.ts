@@ -1,19 +1,17 @@
 import {
-  addDoc,
-  doc,
   onSnapshot,
   query,
-  runTransaction,
-  serverTimestamp,
-  updateDoc,
   where,
   type Timestamp,
   type Unsubscribe,
 } from 'firebase/firestore'
-import { db } from '@/services/firebase/app'
-import { pointLogsCollection, taskDoc, tasksCollection, userDoc } from '@/services/firebase/firestore'
+import {
+  type FunctionsError,
+  httpsCallable,
+} from 'firebase/functions'
+import { firebaseFunctions } from '@/services/firebase/app'
+import { tasksCollection } from '@/services/firebase/firestore'
 import type { CreateTaskPayload, FirestoreTask } from '@/services/firebase/types/firestore-task.interface'
-import type { FirestoreUserProfile } from '@/services/firebase/types/firestore-user-profile.interface'
 import type { Task } from '@/views/tasks/types/interface'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : null
@@ -76,20 +74,34 @@ const createTask = async (payload: CreateTaskPayload) => {
     throw new Error('任務點數至少要大於 0。')
   }
 
-  await addDoc(tasksCollection, {
-    assignedTo: payload.assignedTo,
-    completedAt: null,
-    confirmedAt: null,
-    coupleId: payload.coupleId,
-    createdAt: serverTimestamp(),
-    createdBy: payload.createdBy,
-    description: trimmedDescription,
-    dueDate: payload.dueDate ?? null,
-    points: payload.points,
-    status: 'pending',
-    title: trimmedTitle,
-    updatedAt: serverTimestamp(),
-  })
+  try {
+    const createTaskCallable = httpsCallable<
+      {
+        assignedTo: string
+        coupleId: string
+        description: string
+        dueDateIso: string | null
+        points: number
+        title: string
+      },
+      { taskId: string }
+    >(firebaseFunctions, 'createTask')
+
+    await createTaskCallable({
+      assignedTo: payload.assignedTo,
+      coupleId: payload.coupleId,
+      description: trimmedDescription,
+      dueDateIso: payload.dueDate ? payload.dueDate.toISOString() : null,
+      points: payload.points,
+      title: trimmedTitle,
+    })
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      throw new Error(String((error as FunctionsError).message))
+    }
+
+    throw error
+  }
 }
 
 const completeTask = async (task: Task, actorUid: string) => {
@@ -101,11 +113,20 @@ const completeTask = async (task: Task, actorUid: string) => {
     throw new Error('目前只有待處理的任務可以標記完成。')
   }
 
-  await updateDoc(taskDoc(task.id), {
-    completedAt: serverTimestamp(),
-    status: 'completed_pending_confirm',
-    updatedAt: serverTimestamp(),
-  })
+  try {
+    const completeTaskCallable = httpsCallable<
+      { taskId: string },
+      { success: true }
+    >(firebaseFunctions, 'completeTask')
+
+    await completeTaskCallable({ taskId: task.id })
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      throw new Error(String((error as FunctionsError).message))
+    }
+
+    throw error
+  }
 }
 
 const confirmTask = async (task: Task, actorUid: string) => {
@@ -117,59 +138,20 @@ const confirmTask = async (task: Task, actorUid: string) => {
     throw new Error('只有待確認的任務可以確認完成。')
   }
 
-  await runTransaction(db, async (transaction) => {
-    const taskReference = taskDoc(task.id)
-    const assignedUserRef = userDoc(task.assignedTo)
-    const pointLogReference = doc(pointLogsCollection)
-    const [latestTaskSnapshot, assignedUserSnapshot] = await Promise.all([
-      transaction.get(taskReference),
-      transaction.get(assignedUserRef),
-    ])
+  try {
+    const confirmTaskCallable = httpsCallable<
+      { taskId: string },
+      { success: true }
+    >(firebaseFunctions, 'confirmTask')
 
-    if (!latestTaskSnapshot.exists()) {
-      throw new Error('找不到這筆任務，請重新整理後再試。')
+    await confirmTaskCallable({ taskId: task.id })
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      throw new Error(String((error as FunctionsError).message))
     }
 
-    if (!assignedUserSnapshot.exists()) {
-      throw new Error('被指派的使用者資料不存在，無法發放積分。')
-    }
-
-    const latestTask = latestTaskSnapshot.data() as FirestoreTask
-    const assignedUser = assignedUserSnapshot.data() as FirestoreUserProfile
-
-    if (latestTask.createdBy !== actorUid) {
-      throw new Error('只有建立任務的人可以確認完成。')
-    }
-
-    if (latestTask.status !== 'completed_pending_confirm') {
-      throw new Error('這筆任務目前不是待確認狀態，請重新整理後再試。')
-    }
-
-    const nextPoints = (typeof assignedUser.points === 'number' ? assignedUser.points : 0) + latestTask.points
-    const pointLogPayload = {
-      coupleId: latestTask.coupleId,
-      createdAt: serverTimestamp(),
-      points: latestTask.points,
-      rewardId: null,
-      source: 'task_confirmed',
-      taskId: task.id,
-      type: 'task_reward',
-      userUid: latestTask.assignedTo,
-    }
-
-    transaction.update(taskReference, {
-      confirmedAt: serverTimestamp(),
-      status: 'confirmed',
-      updatedAt: serverTimestamp(),
-    })
-
-    transaction.update(assignedUserRef, {
-      points: nextPoints,
-      updatedAt: serverTimestamp(),
-    })
-
-    transaction.set(pointLogReference, pointLogPayload)
-  })
+    throw error
+  }
 }
 
 const cancelTask = async (task: Task, actorUid: string) => {
@@ -181,10 +163,20 @@ const cancelTask = async (task: Task, actorUid: string) => {
     throw new Error('這個任務目前不能取消。')
   }
 
-  await updateDoc(taskDoc(task.id), {
-    status: 'cancelled',
-    updatedAt: serverTimestamp(),
-  })
+  try {
+    const cancelTaskCallable = httpsCallable<
+      { taskId: string },
+      { success: true }
+    >(firebaseFunctions, 'cancelTask')
+
+    await cancelTaskCallable({ taskId: task.id })
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      throw new Error(String((error as FunctionsError).message))
+    }
+
+    throw error
+  }
 }
 
 export { cancelTask, completeTask, confirmTask, createTask, subscribeToTasks }
