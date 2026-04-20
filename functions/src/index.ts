@@ -4,6 +4,7 @@ import {
   getFirestore,
   Timestamp,
 } from 'firebase-admin/firestore'
+import { getMessaging } from 'firebase-admin/messaging'
 import { HttpsError, onCall } from 'firebase-functions/v2/https'
 
 initializeApp()
@@ -60,6 +61,8 @@ const rewardsCollection = db.collection('rewards')
 const pointLogsCollection = db.collection('pointLogs')
 const redemptionsCollection = db.collection('redemptions')
 const notificationsCollection = db.collection('notifications')
+const WEB_PUSH_FALLBACK_LINK = '/notifications'
+const WEB_PUSH_CLICK_LINK = 'https://twodo-3741f.web.app/notifications'
 
 const getAuthenticatedUid = (auth: { uid: string } | null | undefined) => {
   if (!auth?.uid) {
@@ -93,6 +96,84 @@ const createNotificationPayload = (payload: {
   isRead: false,
   createdAt: FieldValue.serverTimestamp(),
 })
+
+const normalizeFcmTokens = (tokens?: string[]) => Array.from(
+  new Set(
+    (tokens ?? [])
+      .filter((token) => typeof token === 'string')
+      .map((token) => token.trim())
+      .filter(Boolean),
+  ),
+)
+
+const sendPushNotification = async (payload: {
+  userUid: string
+  coupleId: string
+  type: 'new_task' | 'task_completed_pending_confirm' | 'task_confirmed' | 'reward_redeemed'
+  title: string
+  message: string
+  refId: string | null
+}) => {
+  const userSnapshot = await usersCollection.doc(payload.userUid).get()
+
+  if (!userSnapshot.exists) {
+    return
+  }
+
+  const user = userSnapshot.data() as UserProfile
+  const tokens = normalizeFcmTokens(user.fcmTokens)
+
+  if (!tokens.length) {
+    return
+  }
+
+  try {
+    const response = await getMessaging().sendEachForMulticast({
+      tokens,
+      data: {
+        coupleId: payload.coupleId,
+        link: WEB_PUSH_FALLBACK_LINK,
+        message: payload.message,
+        refId: payload.refId ?? '',
+        title: payload.title,
+        type: payload.type,
+      },
+      webpush: {
+        fcmOptions: {
+          link: WEB_PUSH_CLICK_LINK,
+        },
+        headers: {
+          Urgency: 'high',
+        },
+      },
+    })
+
+    const invalidTokens = response.responses.flatMap((result, index) => {
+      if (result.success || !result.error) {
+        return []
+      }
+
+      if (
+        result.error.code === 'messaging/invalid-registration-token'
+        || result.error.code === 'messaging/registration-token-not-registered'
+      ) {
+        return [tokens[index]]
+      }
+
+      console.error(`Failed to send push notification to ${payload.userUid}:`, result.error)
+      return []
+    })
+
+    if (invalidTokens.length) {
+      await usersCollection.doc(payload.userUid).update({
+        fcmTokens: FieldValue.arrayRemove(...invalidTokens),
+        updatedAt: FieldValue.serverTimestamp(),
+      })
+    }
+  } catch (error) {
+    console.error(`Push notification dispatch failed for ${payload.userUid}:`, error)
+  }
+}
 
 export const joinCoupleByInviteCode = onCall(async (request) => {
   const uid = getAuthenticatedUid(request.auth)
@@ -219,14 +300,17 @@ export const createTask = onCall(async (request) => {
     updatedAt: FieldValue.serverTimestamp(),
   })
 
-  await notificationsCollection.add(createNotificationPayload({
+  const notificationPayload = {
     userUid: assignedTo,
     coupleId: currentUser.coupleId,
     type: 'new_task',
     title: '你有新的待辦事項',
     message: `對方指派了「${title}」給你`,
     refId: taskReference.id,
-  }))
+  } as const
+
+  await notificationsCollection.add(createNotificationPayload(notificationPayload))
+  await sendPushNotification(notificationPayload)
 
   return { taskId: taskReference.id }
 })
@@ -240,6 +324,7 @@ export const completeTask = onCall(async (request) => {
   }
 
   const taskReference = tasksCollection.doc(taskId)
+  let pushPayload: Parameters<typeof sendPushNotification>[0] | null = null
 
   await db.runTransaction(async (transaction) => {
     const taskSnapshot = await transaction.get(taskReference)
@@ -264,15 +349,21 @@ export const completeTask = onCall(async (request) => {
       updatedAt: FieldValue.serverTimestamp(),
     })
 
-    transaction.set(notificationsCollection.doc(), createNotificationPayload({
+    pushPayload = {
       userUid: task.createdBy,
       coupleId: task.coupleId,
       type: 'task_completed_pending_confirm',
       title: '有任務等待你確認',
       message: `「${task.title}」已標記完成，等你確認後就會加分。`,
       refId: taskId,
-    }))
+    }
+
+    transaction.set(notificationsCollection.doc(), createNotificationPayload(pushPayload))
   })
+
+  if (pushPayload) {
+    await sendPushNotification(pushPayload)
+  }
 
   return { success: true as const }
 })
@@ -280,6 +371,7 @@ export const completeTask = onCall(async (request) => {
 export const confirmTask = onCall(async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const taskId = typeof request.data?.taskId === 'string' ? request.data.taskId : ''
+  let pushPayload: Parameters<typeof sendPushNotification>[0] | null = null
 
   if (!taskId) {
     throw new HttpsError('invalid-argument', '缺少 taskId。')
@@ -335,15 +427,21 @@ export const confirmTask = onCall(async (request) => {
       createdAt: FieldValue.serverTimestamp(),
     })
 
-    transaction.set(notificationsCollection.doc(), createNotificationPayload({
+    pushPayload = {
       userUid: task.assignedTo,
       coupleId: task.coupleId,
       type: 'task_confirmed',
       title: '任務已確認完成',
       message: `「${task.title}」已確認完成，你獲得 ${task.points} 點。`,
       refId: taskId,
-    }))
+    }
+
+    transaction.set(notificationsCollection.doc(), createNotificationPayload(pushPayload))
   })
+
+  if (pushPayload) {
+    await sendPushNotification(pushPayload)
+  }
 
   return { success: true as const }
 })
@@ -423,6 +521,7 @@ export const createReward = onCall(async (request) => {
 export const redeemReward = onCall(async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const rewardId = typeof request.data?.rewardId === 'string' ? request.data.rewardId : ''
+  let pushPayload: Parameters<typeof sendPushNotification>[0] | null = null
 
   if (!rewardId) {
     throw new HttpsError('invalid-argument', '缺少 rewardId。')
@@ -488,15 +587,21 @@ export const redeemReward = onCall(async (request) => {
       updatedAt: FieldValue.serverTimestamp(),
     })
 
-    transaction.set(notificationsCollection.doc(), createNotificationPayload({
+    pushPayload = {
       userUid: reward.createdBy,
       coupleId: reward.coupleId,
       type: 'reward_redeemed',
       title: '你的獎勵已被兌換',
       message: `另一半兌換了「${reward.title}」，已扣除 ${reward.cost} 點。`,
       refId: rewardId,
-    }))
+    }
+
+    transaction.set(notificationsCollection.doc(), createNotificationPayload(pushPayload))
   })
+
+  if (pushPayload) {
+    await sendPushNotification(pushPayload)
+  }
 
   return { success: true as const }
 })

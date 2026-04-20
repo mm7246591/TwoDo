@@ -12,6 +12,16 @@ const getRequiredEnv = (name: keyof ImportMetaEnv) => {
   return value
 }
 
+const getOptionalEnv = (name: keyof ImportMetaEnv) => {
+  const value = import.meta.env[name]
+
+  if (typeof value !== 'string') {
+    return ''
+  }
+
+  return value.trim()
+}
+
 const firebaseConfig = {
   apiKey: getRequiredEnv('VITE_FIREBASE_API_KEY'),
   authDomain: getRequiredEnv('VITE_FIREBASE_AUTH_DOMAIN'),
@@ -24,5 +34,6 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig)
 const db = getFirestore(firebaseApp)
 const firebaseFunctions = getFunctions(firebaseApp)
+const firebaseWebPushVapidKey = getOptionalEnv('VITE_FIREBASE_VAPID_KEY')
 
-export { db, firebaseApp, firebaseFunctions }
+export { db, firebaseApp, firebaseConfig, firebaseFunctions, firebaseWebPushVapidKey }

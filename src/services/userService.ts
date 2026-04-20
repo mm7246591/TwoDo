@@ -1,5 +1,7 @@
 import type { User as FirebaseUser } from 'firebase/auth'
 import {
+  arrayRemove,
+  arrayUnion,
   getDocs,
   getDoc,
   onSnapshot,
@@ -126,4 +128,36 @@ const updateUserDisplayName = async (uid: string, displayName: string) => {
   })
 }
 
-export { ensureUserProfile, subscribeToUserProfile, updateUserDisplayName }
+const addUserFcmToken = async (uid: string, token: string) => {
+  const normalizedToken = token.trim()
+
+  if (!normalizedToken) {
+    return
+  }
+
+  await updateDoc(userDoc(uid), {
+    fcmTokens: arrayUnion(normalizedToken),
+    updatedAt: serverTimestamp(),
+  })
+}
+
+const removeUserFcmToken = async (uid: string, token: string) => {
+  const normalizedToken = token.trim()
+
+  if (!normalizedToken) {
+    return
+  }
+
+  await updateDoc(userDoc(uid), {
+    fcmTokens: arrayRemove(normalizedToken),
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export {
+  addUserFcmToken,
+  ensureUserProfile,
+  removeUserFcmToken,
+  subscribeToUserProfile,
+  updateUserDisplayName,
+}

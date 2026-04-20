@@ -116,7 +116,7 @@ const goToNotifications = async () => {
         <div class="flex items-center justify-between gap-[12px]">
           <p class="app-hero-kicker">Schema Status</p>
           <div class="app-hero-pill">
-            Phase 7
+            Phase 8
           </div>
         </div>
 
@@ -181,7 +181,7 @@ const goToNotifications = async () => {
         </div>
 
         <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-          你現在可以先完成配對、建立任務累積點數、建立獎勵並測試兌換，最後到通知頁確認每個關鍵事件都有正確寫進站內通知。
+          你現在可以先完成配對、建立任務累積點數、建立獎勵並測試兌換，最後到通知頁開啟 Web Push，確認關鍵事件除了站內通知也會送到這台裝置。
         </p>
 
         <button
