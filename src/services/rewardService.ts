@@ -118,4 +118,36 @@ const redeemReward = async (reward: Reward, actorUid: string) => {
   }
 }
 
-export { createReward, redeemReward, subscribeToRewards }
+const updateRewardStatus = async (
+  reward: Reward,
+  actorUid: string,
+  isActive: boolean,
+) => {
+  if (reward.createdBy !== actorUid) {
+    throw new Error('只有建立獎勵的人可以切換狀態。')
+  }
+
+  if (reward.isActive === isActive) {
+    return
+  }
+
+  try {
+    const updateRewardStatusCallable = httpsCallable<
+      { rewardId: string; isActive: boolean },
+      { success: true }
+    >(firebaseFunctions, 'updateRewardStatus')
+
+    await updateRewardStatusCallable({
+      rewardId: reward.id,
+      isActive,
+    })
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      throw new Error(String((error as FunctionsError).message))
+    }
+
+    throw error
+  }
+}
+
+export { createReward, redeemReward, subscribeToRewards, updateRewardStatus }

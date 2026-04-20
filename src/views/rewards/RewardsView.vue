@@ -71,6 +71,25 @@ const handleRedeemReward = async (reward: Reward) => {
   }
 };
 
+const handleToggleRewardAvailability = async (
+  reward: Reward,
+  isActive: boolean,
+) => {
+  if (!userStore.profile?.uid) {
+    return;
+  }
+
+  try {
+    await rewardsStore.toggleRewardAvailability(
+      reward,
+      userStore.profile.uid,
+      isActive,
+    );
+  } catch {
+    // The store already exposes a user-facing error message.
+  }
+};
+
 watch(
   () => userStore.profile?.coupleId,
   (coupleId) => {
@@ -111,7 +130,7 @@ watch(
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
         這一版把 `rewards`、`redemptions`
-        接起來，先做到建立獎勵、使用積分兌換、同步扣分與寫入紀錄。
+        接起來，除了建立與兌換，也補上建立者後續管理獎勵啟用狀態的能力。
       </p>
     </header>
 
@@ -185,6 +204,7 @@ watch(
             :is-submitting="rewardsStore.isSubmitting"
             :reward="reward"
             @redeem="handleRedeemReward"
+            @toggle-availability="handleToggleRewardAvailability"
           />
 
           <p

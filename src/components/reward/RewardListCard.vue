@@ -4,6 +4,7 @@ import type { Reward } from "@/views/rewards/types/interface";
 
 const emit = defineEmits<{
   redeem: [reward: Reward];
+  toggleAvailability: [reward: Reward, isActive: boolean];
 }>();
 const props = defineProps<{
   currentPoints: number;
@@ -45,6 +46,22 @@ const getRedeemHint = computed(() => {
 
   return "可以直接兌換，系統會同步扣分並寫入 redemption 紀錄。";
 });
+
+const getManageButtonText = computed(() =>
+  props.reward.isActive ? "停用獎勵" : "重新啟用",
+);
+
+const getManageHint = computed(() => {
+  if (props.reward.createdBy !== props.currentUid) {
+    return "";
+  }
+
+  if (props.reward.isActive) {
+    return "你可以先停用這個獎勵，避免另一半繼續兌換。";
+  }
+
+  return "停用中的獎勵不會被兌換；準備好後可以再重新啟用。";
+});
 </script>
 
 <template>
@@ -76,6 +93,13 @@ const getRedeemHint = computed(() => {
       {{ getRedeemHint }}
     </p>
 
+    <p
+      v-if="getManageHint"
+      class="app-text-soft mt-[8px] text-[14px] leading-[24px]"
+    >
+      {{ getManageHint }}
+    </p>
+
     <div class="mt-[16px] flex flex-wrap gap-[12px]">
       <button
         class="app-secondary-button px-[16px] py-[12px] text-[14px]"
@@ -84,6 +108,16 @@ const getRedeemHint = computed(() => {
         @click="emit('redeem', reward)"
       >
         兌換獎勵
+      </button>
+
+      <button
+        v-if="reward.createdBy === currentUid"
+        class="app-ghost-button px-[16px] py-[12px] text-[14px]"
+        type="button"
+        :disabled="isSubmitting"
+        @click="emit('toggleAvailability', reward, !reward.isActive)"
+      >
+        {{ getManageButtonText }}
       </button>
     </div>
   </article>

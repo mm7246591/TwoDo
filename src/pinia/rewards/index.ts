@@ -6,6 +6,7 @@ import {
   createReward,
   redeemReward,
   subscribeToRewards,
+  updateRewardStatus,
 } from '@/services/rewardService'
 import type { Reward } from '@/views/rewards/types/interface'
 
@@ -83,6 +84,24 @@ const useRewardsStore = defineStore('rewards', () => {
     }
   }
 
+  const toggleRewardAvailability = async (
+    reward: Reward,
+    actorUid: string,
+    isActive: boolean,
+  ) => {
+    state.value.isSubmitting = true
+    clearError()
+
+    try {
+      await updateRewardStatus(reward, actorUid, isActive)
+    } catch (error) {
+      state.value.errorMessage = normalizeErrorMessage(error)
+      throw error
+    } finally {
+      state.value.isSubmitting = false
+    }
+  }
+
   const reset = () => {
     stopSync()
     rewards.value = []
@@ -102,6 +121,7 @@ const useRewardsStore = defineStore('rewards', () => {
     reset,
     rewards,
     syncRewards,
+    toggleRewardAvailability,
   }
 })
 

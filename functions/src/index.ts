@@ -568,6 +568,40 @@ export const createReward = onCall(async (request) => {
   return { rewardId: rewardReference.id }
 })
 
+export const updateRewardStatus = onCall(async (request) => {
+  const uid = getAuthenticatedUid(request.auth)
+  const rewardId = typeof request.data?.rewardId === 'string' ? request.data.rewardId : ''
+  const isActive = Boolean(request.data?.isActive)
+
+  if (!rewardId) {
+    throw new HttpsError('invalid-argument', '缺少 rewardId。')
+  }
+
+  const rewardReference = rewardsCollection.doc(rewardId)
+  const rewardSnapshot = await rewardReference.get()
+
+  if (!rewardSnapshot.exists) {
+    throw new HttpsError('not-found', '找不到這筆獎勵，請重新整理後再試。')
+  }
+
+  const reward = rewardSnapshot.data() as RewardRecord
+
+  if (reward.createdBy !== uid) {
+    throw new HttpsError('permission-denied', '只有建立獎勵的人可以切換狀態。')
+  }
+
+  if (reward.isActive === isActive) {
+    return { success: true as const }
+  }
+
+  await rewardReference.update({
+    isActive,
+    updatedAt: FieldValue.serverTimestamp(),
+  })
+
+  return { success: true as const }
+})
+
 export const redeemReward = onCall(async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const rewardId = typeof request.data?.rewardId === 'string' ? request.data.rewardId : ''
