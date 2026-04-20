@@ -5,6 +5,7 @@ const usersCollection = collection(db, 'users')
 const couplesCollection = collection(db, 'couples')
 const tasksCollection = collection(db, 'tasks')
 const rewardsCollection = collection(db, 'rewards')
+const redemptionsCollection = collection(db, 'redemptions')
 const pointLogsCollection = collection(db, 'pointLogs')
 const notificationsCollection = collection(db, 'notifications')
 
@@ -18,6 +19,7 @@ export {
   couplesCollection,
   notificationsCollection,
   pointLogsCollection,
+  redemptionsCollection,
   rewardsCollection,
   taskDoc,
   tasksCollection,

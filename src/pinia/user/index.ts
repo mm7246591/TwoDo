@@ -4,6 +4,7 @@ import { computed, reactive, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import { useCoupleStore } from '@/pinia/couple'
 import { usePointsStore } from '@/pinia/points'
+import { useRewardsStore } from '@/pinia/rewards'
 import { useTasksStore } from '@/pinia/tasks'
 import {
   ensureUserProfile,
@@ -103,6 +104,7 @@ const useUserStore = defineStore('user', () => {
     clearError()
     useCoupleStore().reset()
     usePointsStore().reset()
+    useRewardsStore().reset()
     useTasksStore().reset()
   }
 

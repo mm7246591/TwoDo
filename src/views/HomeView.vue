@@ -57,6 +57,10 @@ const goToTasks = async () => {
 const goToPoints = async () => {
   await router.push({ name: 'points' })
 }
+
+const goToRewards = async () => {
+  await router.push({ name: 'rewards' })
+}
 </script>
 
 <template>
@@ -89,12 +93,12 @@ const goToPoints = async () => {
         <div class="flex items-center justify-between gap-[12px]">
           <p class="app-hero-kicker">Schema Status</p>
           <div class="app-hero-pill">
-            Phase 5
+            Phase 6
           </div>
         </div>
 
         <p class="app-text-strong mt-[16px] max-w-[14ch] text-[30px] font-semibold leading-[1.08] tracking-[-0.04em]">
-          `users`、`couples`、`tasks`、`pointLogs` 已接上流程
+          `users`、`couples`、`tasks`、`pointLogs`、`rewards` 已接上流程
         </p>
 
         <p class="app-hero-body mt-[12px] max-w-[34ch] text-[14px] leading-[24px]">
@@ -138,7 +142,7 @@ const goToPoints = async () => {
           <div>
             <p class="app-label">目前進度</p>
             <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              配對與任務主流程
+              配對、任務與獎勵主流程
             </p>
           </div>
 
@@ -149,7 +153,7 @@ const goToPoints = async () => {
         </div>
 
         <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-          你現在可以先去配對頁查看自己的邀請碼，完成配對後到任務頁建立待辦，再到積分頁確認任務加分流水有沒有正確寫進 Firestore。
+          你現在可以先完成配對、建立任務累積點數，再到獎勵頁建立可兌換項目，最後用積分測試一次兌換流程。
         </p>
 
         <button
@@ -174,6 +178,14 @@ const goToPoints = async () => {
           @click="goToPoints"
         >
           前往積分
+        </button>
+
+        <button
+          class="app-ghost-button mt-[12px] w-full"
+          type="button"
+          @click="goToRewards"
+        >
+          前往獎勵
         </button>
       </section>
     </section>
