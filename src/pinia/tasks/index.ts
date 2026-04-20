@@ -1,5 +1,5 @@
 import type { Unsubscribe } from 'firebase/firestore'
-import { computed, reactive, ref, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import type { CreateTaskInput, TasksStoreState } from '@/pinia/tasks/types/interface'
 import {
@@ -21,8 +21,8 @@ const normalizeErrorMessage = (error: unknown) => {
 
 const useTasksStore = defineStore('tasks', () => {
   const tasks = ref<Task[]>([])
-  const currentCoupleId = ref<string | null>(null)
-  const state = reactive<TasksStoreState>({
+  const state = ref<TasksStoreState>({
+    currentCoupleId: null,
     errorMessage: '',
     isLoading: false,
     isSubmitting: false,
@@ -35,7 +35,7 @@ const useTasksStore = defineStore('tasks', () => {
   const getCancelledTasks = computed(() => tasks.value.filter((task) => task.status === 'cancelled'))
 
   const clearError = () => {
-    state.errorMessage = ''
+    state.value.errorMessage = ''
   }
 
   const stopSync = () => {
@@ -44,93 +44,92 @@ const useTasksStore = defineStore('tasks', () => {
   }
 
   const syncTasks = async (coupleId: string) => {
-    if (currentCoupleId.value === coupleId && unsubscribeTasks) {
+    if (state.value.currentCoupleId === coupleId && unsubscribeTasks) {
       return
     }
 
     stopSync()
     clearError()
-    currentCoupleId.value = coupleId
-    state.isLoading = true
+    state.value.currentCoupleId = coupleId
+    state.value.isLoading = true
 
     unsubscribeTasks = subscribeToTasks(coupleId, (nextTasks) => {
       tasks.value = nextTasks
-      state.isLoading = false
+      state.value.isLoading = false
     })
   }
 
   const createNewTask = async (input: CreateTaskInput) => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await createTask(input)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const markTaskCompleted = async (task: Task, actorUid: string) => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await completeTask(task, actorUid)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const confirmTaskCompletion = async (task: Task, actorUid: string) => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await confirmTask(task, actorUid)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const cancelExistingTask = async (task: Task, actorUid: string) => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await cancelTask(task, actorUid)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const reset = () => {
     stopSync()
     tasks.value = []
-    currentCoupleId.value = null
-    state.errorMessage = ''
-    state.isLoading = false
-    state.isSubmitting = false
+    state.value.currentCoupleId = null
+    state.value.errorMessage = ''
+    state.value.isLoading = false
+    state.value.isSubmitting = false
   }
 
   return {
-    ...toRefs(state),
+    ...toRefs(state.value),
     cancelExistingTask,
     clearError,
     confirmTaskCompletion,
     createNewTask,
-    currentCoupleId,
     getCancelledTasks,
     getCompletedPendingConfirmTasks,
     getConfirmedTasks,

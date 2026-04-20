@@ -9,6 +9,7 @@ interface CreateTaskInput {
 }
 
 interface TasksStoreState {
+  currentCoupleId: string | null
   errorMessage: string
   isLoading: boolean
   isSubmitting: boolean

@@ -8,6 +8,7 @@ interface CreateRewardInput {
 }
 
 interface RewardsStoreState {
+  currentCoupleId: string | null
   errorMessage: string
   isLoading: boolean
   isSubmitting: boolean

@@ -1,6 +1,6 @@
 import type { User as FirebaseUser } from 'firebase/auth'
 import type { Unsubscribe } from 'firebase/firestore'
-import { computed, reactive, ref, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import { useCoupleStore } from '@/pinia/couple'
 import { useNotificationsStore } from '@/pinia/notifications'
@@ -25,7 +25,7 @@ const normalizeErrorMessage = (error: unknown) => {
 
 const useUserStore = defineStore('user', () => {
   const profile = ref<UserProfile | null>(null)
-  const state = reactive<UserStoreState>({
+  const state = ref<UserStoreState>({
     errorMessage: '',
     isLoading: false,
     isUpdatingProfile: false,
@@ -36,7 +36,7 @@ const useUserStore = defineStore('user', () => {
   const getHasCoupleContext = computed(() => Boolean(profile.value?.coupleId))
 
   const clearError = () => {
-    state.errorMessage = ''
+    state.value.errorMessage = ''
   }
 
   const stopSync = () => {
@@ -46,7 +46,7 @@ const useUserStore = defineStore('user', () => {
 
   const syncProfileForSession = async (authUser: FirebaseUser) => {
     stopSync()
-    state.isLoading = true
+    state.value.isLoading = true
     clearError()
 
     try {
@@ -54,7 +54,7 @@ const useUserStore = defineStore('user', () => {
 
       unsubscribeProfile = subscribeToUserProfile(authUser.uid, (nextProfile) => {
         profile.value = nextProfile
-        state.isLoading = false
+        state.value.isLoading = false
 
         const coupleStore = useCoupleStore()
 
@@ -67,8 +67,8 @@ const useUserStore = defineStore('user', () => {
       })
     } catch (error) {
       profile.value = null
-      state.isLoading = false
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.isLoading = false
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     }
   }
@@ -84,24 +84,24 @@ const useUserStore = defineStore('user', () => {
       throw new Error('請先輸入暱稱。')
     }
 
-    state.isUpdatingProfile = true
+    state.value.isUpdatingProfile = true
     clearError()
 
     try {
       await updateUserDisplayName(profile.value.uid, trimmedDisplayName)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isUpdatingProfile = false
+      state.value.isUpdatingProfile = false
     }
   }
 
   const reset = () => {
     stopSync()
     profile.value = null
-    state.isLoading = false
-    state.isUpdatingProfile = false
+    state.value.isLoading = false
+    state.value.isUpdatingProfile = false
     clearError()
     useCoupleStore().reset()
     useNotificationsStore().reset()
@@ -111,7 +111,7 @@ const useUserStore = defineStore('user', () => {
   }
 
   return {
-    ...toRefs(state),
+    ...toRefs(state.value),
     clearError,
     getHasCoupleContext,
     getIsPaired,

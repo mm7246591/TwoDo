@@ -1,5 +1,5 @@
 import type { Unsubscribe } from 'firebase/firestore'
-import { computed, reactive, ref, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import { subscribeToPointLogs } from '@/services/pointsService'
 import type { PointsStoreState } from '@/pinia/points/types/interface'
@@ -15,9 +15,9 @@ const normalizeErrorMessage = (error: unknown) => {
 
 const usePointsStore = defineStore('points', () => {
   const pointLogs = ref<PointLog[]>([])
-  const currentUserUid = ref<string | null>(null)
-  const currentCoupleId = ref<string | null>(null)
-  const state = reactive<PointsStoreState>({
+  const state = ref<PointsStoreState>({
+    currentCoupleId: null,
+    currentUserUid: null,
     errorMessage: '',
     isLoading: false,
   })
@@ -32,7 +32,7 @@ const usePointsStore = defineStore('points', () => {
   }, 0))
 
   const clearError = () => {
-    state.errorMessage = ''
+    state.value.errorMessage = ''
   }
 
   const stopSync = () => {
@@ -42,8 +42,8 @@ const usePointsStore = defineStore('points', () => {
 
   const syncPointLogs = async (userUid: string, coupleId: string) => {
     if (
-      currentUserUid.value === userUid
-      && currentCoupleId.value === coupleId
+      state.value.currentUserUid === userUid
+      && state.value.currentCoupleId === coupleId
       && unsubscribePointLogs
     ) {
       return
@@ -51,18 +51,18 @@ const usePointsStore = defineStore('points', () => {
 
     stopSync()
     clearError()
-    currentUserUid.value = userUid
-    currentCoupleId.value = coupleId
-    state.isLoading = true
+    state.value.currentUserUid = userUid
+    state.value.currentCoupleId = coupleId
+    state.value.isLoading = true
 
     try {
       unsubscribePointLogs = subscribeToPointLogs(userUid, coupleId, (nextPointLogs) => {
         pointLogs.value = nextPointLogs
-        state.isLoading = false
+        state.value.isLoading = false
       })
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
-      state.isLoading = false
+      state.value.errorMessage = normalizeErrorMessage(error)
+      state.value.isLoading = false
       throw error
     }
   }
@@ -70,17 +70,15 @@ const usePointsStore = defineStore('points', () => {
   const reset = () => {
     stopSync()
     pointLogs.value = []
-    currentUserUid.value = null
-    currentCoupleId.value = null
-    state.errorMessage = ''
-    state.isLoading = false
+    state.value.currentUserUid = null
+    state.value.currentCoupleId = null
+    state.value.errorMessage = ''
+    state.value.isLoading = false
   }
 
   return {
-    ...toRefs(state),
+    ...toRefs(state.value),
     clearError,
-    currentCoupleId,
-    currentUserUid,
     getEarnedPoints,
     pointLogs,
     reset,

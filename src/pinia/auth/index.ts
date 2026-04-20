@@ -1,4 +1,4 @@
-import { computed, reactive, ref, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -81,7 +81,7 @@ let authStateProcessingPromise: Promise<void> = Promise.resolve()
 
 const useAuthStore = defineStore('auth', () => {
   const authSession = ref<AuthSession | null>(null)
-  const state = reactive<AuthStoreState>({
+  const state = ref<AuthStoreState>({
     errorMessage: '',
     isReady: false,
     isSubmitting: false,
@@ -92,7 +92,7 @@ const useAuthStore = defineStore('auth', () => {
   const getUserUid = computed(() => authSession.value?.uid ?? '')
 
   const clearError = () => {
-    state.errorMessage = ''
+    state.value.errorMessage = ''
   }
 
   const waitForAuthStateProcessing = async () => {
@@ -122,9 +122,9 @@ const useAuthStore = defineStore('auth', () => {
                 userStore.reset()
               }
             } catch (error) {
-              state.errorMessage = normalizeAuthError(error)
+              state.value.errorMessage = normalizeAuthError(error)
             } finally {
-              state.isReady = true
+              state.value.isReady = true
 
               if (!hasResolved) {
                 hasResolved = true
@@ -134,8 +134,8 @@ const useAuthStore = defineStore('auth', () => {
           })()
         },
         (error) => {
-          state.errorMessage = normalizeAuthError(error)
-          state.isReady = true
+          state.value.errorMessage = normalizeAuthError(error)
+          state.value.isReady = true
 
           if (!hasResolved) {
             hasResolved = true
@@ -149,7 +149,7 @@ const useAuthStore = defineStore('auth', () => {
   }
 
   const signUp = async (email: string, password: string, displayName = '') => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
@@ -161,60 +161,60 @@ const useAuthStore = defineStore('auth', () => {
 
       await waitForAuthStateProcessing()
     } catch (error) {
-      state.errorMessage = normalizeAuthError(error)
+      state.value.errorMessage = normalizeAuthError(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const signIn = async (email: string, password: string) => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await signInWithEmailAndPassword(firebaseAuth, email, password)
       await waitForAuthStateProcessing()
     } catch (error) {
-      state.errorMessage = normalizeAuthError(error)
+      state.value.errorMessage = normalizeAuthError(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const signInWithGoogle = async () => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await signInWithPopup(firebaseAuth, googleProvider)
       await waitForAuthStateProcessing()
     } catch (error) {
-      state.errorMessage = normalizeAuthError(error)
+      state.value.errorMessage = normalizeAuthError(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const signOutUser = async () => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await signOut(firebaseAuth)
       await waitForAuthStateProcessing()
     } catch (error) {
-      state.errorMessage = normalizeAuthError(error)
+      state.value.errorMessage = normalizeAuthError(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   return {
-    ...toRefs(state),
+    ...toRefs(state.value),
     authSession,
     clearError,
     getIsLoggedIn,

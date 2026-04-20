@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import NotificationListCard from '@/components/notification/NotificationListCard.vue'
 import MobileAppShell from '@/components/MobileAppShell.vue'
@@ -16,7 +16,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 
-const pushState = reactive({
+const pushState = ref({
   errorMessage: '',
   isCurrentDeviceEnabled: false,
   isLoading: false,
@@ -32,15 +32,15 @@ const canUseNotifications = computed(() =>
 )
 
 const pushPermissionLabel = computed(() => {
-  if (pushState.permission === 'granted') {
+  if (pushState.value.permission === 'granted') {
     return '已允許'
   }
 
-  if (pushState.permission === 'denied') {
+  if (pushState.value.permission === 'denied') {
     return '已封鎖'
   }
 
-  if (pushState.permission === 'default') {
+  if (pushState.value.permission === 'default') {
     return '尚未決定'
   }
 
@@ -48,19 +48,19 @@ const pushPermissionLabel = computed(() => {
 })
 
 const pushStatusLabel = computed(() => {
-  if (!pushState.isSupported) {
+  if (!pushState.value.isSupported) {
     return '目前瀏覽器不支援'
   }
 
-  if (!pushState.vapidReady) {
+  if (!pushState.value.vapidReady) {
     return '缺少 Web Push 憑證'
   }
 
-  if (pushState.isCurrentDeviceEnabled) {
+  if (pushState.value.isCurrentDeviceEnabled) {
     return '這台裝置已啟用'
   }
 
-  if (pushState.permission === 'denied') {
+  if (pushState.value.permission === 'denied') {
     return '需要到瀏覽器設定重新開權限'
   }
 
@@ -74,21 +74,21 @@ const goHome = async () => {
 const syncPushStatus = async () => {
   const storedTokens = userStore.profile?.fcmTokens ?? []
 
-  pushState.isLoading = true
-  pushState.errorMessage = ''
+  pushState.value.isLoading = true
+  pushState.value.errorMessage = ''
 
   try {
     const status = await getPushNotificationStatus(storedTokens)
 
-    pushState.isSupported = status.isSupported
-    pushState.isCurrentDeviceEnabled = status.isCurrentDeviceEnabled
-    pushState.permission = status.permission
-    pushState.token = status.token ?? ''
-    pushState.vapidReady = status.hasVapidKey
+    pushState.value.isSupported = status.isSupported
+    pushState.value.isCurrentDeviceEnabled = status.isCurrentDeviceEnabled
+    pushState.value.permission = status.permission
+    pushState.value.token = status.token ?? ''
+    pushState.value.vapidReady = status.hasVapidKey
   } catch (error) {
-    pushState.errorMessage = error instanceof Error ? error.message : '推播狀態同步失敗，請稍後再試。'
+    pushState.value.errorMessage = error instanceof Error ? error.message : '推播狀態同步失敗，請稍後再試。'
   } finally {
-    pushState.isLoading = false
+    pushState.value.isLoading = false
   }
 }
 
@@ -99,16 +99,16 @@ const handleEnablePush = async () => {
     return
   }
 
-  pushState.isSubmitting = true
-  pushState.errorMessage = ''
+  pushState.value.isSubmitting = true
+  pushState.value.errorMessage = ''
 
   try {
     await enablePushNotifications(uid)
     await syncPushStatus()
   } catch (error) {
-    pushState.errorMessage = error instanceof Error ? error.message : '開啟推播失敗，請稍後再試。'
+    pushState.value.errorMessage = error instanceof Error ? error.message : '開啟推播失敗，請稍後再試。'
   } finally {
-    pushState.isSubmitting = false
+    pushState.value.isSubmitting = false
   }
 }
 
@@ -119,16 +119,16 @@ const handleDisablePush = async () => {
     return
   }
 
-  pushState.isSubmitting = true
-  pushState.errorMessage = ''
+  pushState.value.isSubmitting = true
+  pushState.value.errorMessage = ''
 
   try {
     await disablePushNotifications(uid)
     await syncPushStatus()
   } catch (error) {
-    pushState.errorMessage = error instanceof Error ? error.message : '關閉推播失敗，請稍後再試。'
+    pushState.value.errorMessage = error instanceof Error ? error.message : '關閉推播失敗，請稍後再試。'
   } finally {
-    pushState.isSubmitting = false
+    pushState.value.isSubmitting = false
   }
 }
 
@@ -157,13 +157,13 @@ watch(
   ({ coupleId, uid }) => {
     if (!uid) {
       notificationsStore.reset()
-      pushState.errorMessage = ''
-      pushState.isCurrentDeviceEnabled = false
-      pushState.isLoading = false
-      pushState.isSupported = false
-      pushState.permission = 'unsupported'
-      pushState.token = ''
-      pushState.vapidReady = false
+      pushState.value.errorMessage = ''
+      pushState.value.isCurrentDeviceEnabled = false
+      pushState.value.isLoading = false
+      pushState.value.isSupported = false
+      pushState.value.permission = 'unsupported'
+      pushState.value.token = ''
+      pushState.value.vapidReady = false
       return
     }
 

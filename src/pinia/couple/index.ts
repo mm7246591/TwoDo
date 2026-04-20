@@ -1,5 +1,5 @@
 import type { Unsubscribe } from 'firebase/firestore'
-import { computed, reactive, ref, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import type { CoupleStoreState } from '@/pinia/couple/types/interface'
 import { joinCoupleByInviteCode, subscribeToCouple } from '@/services/coupleService'
@@ -15,8 +15,8 @@ const normalizeErrorMessage = (error: unknown) => {
 
 const useCoupleStore = defineStore('couple', () => {
   const currentCouple = ref<Couple | null>(null)
-  const currentCoupleId = ref<string | null>(null)
-  const state = reactive<CoupleStoreState>({
+  const state = ref<CoupleStoreState>({
+    currentCoupleId: null,
     errorMessage: '',
     isLoading: false,
     isSubmitting: false,
@@ -27,7 +27,7 @@ const useCoupleStore = defineStore('couple', () => {
   const getIsWaitingPartner = computed(() => Boolean(currentCouple.value) && currentCouple.value?.status === 'waiting_partner')
 
   const clearError = () => {
-    state.errorMessage = ''
+    state.value.errorMessage = ''
   }
 
   const stopSync = () => {
@@ -36,50 +36,49 @@ const useCoupleStore = defineStore('couple', () => {
   }
 
   const syncCouple = async (coupleId: string) => {
-    if (currentCoupleId.value === coupleId && unsubscribeCouple) {
+    if (state.value.currentCoupleId === coupleId && unsubscribeCouple) {
       return
     }
 
     stopSync()
     clearError()
-    currentCoupleId.value = coupleId
-    state.isLoading = true
+    state.value.currentCoupleId = coupleId
+    state.value.isLoading = true
 
     unsubscribeCouple = subscribeToCouple(coupleId, (nextCouple) => {
       currentCouple.value = nextCouple
-      state.isLoading = false
+      state.value.isLoading = false
     })
   }
 
   const joinByInviteCode = async (uid: string, rawInviteCode: string) => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       const coupleId = await joinCoupleByInviteCode(uid, rawInviteCode)
       await syncCouple(coupleId)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const reset = () => {
     stopSync()
     currentCouple.value = null
-    currentCoupleId.value = null
-    state.isLoading = false
-    state.isSubmitting = false
+    state.value.currentCoupleId = null
+    state.value.isLoading = false
+    state.value.isSubmitting = false
     clearError()
   }
 
   return {
-    ...toRefs(state),
+    ...toRefs(state.value),
     clearError,
     currentCouple,
-    currentCoupleId,
     getIsPaired,
     getIsWaitingPartner,
     joinByInviteCode,

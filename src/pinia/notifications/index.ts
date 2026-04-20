@@ -1,5 +1,5 @@
 import type { Unsubscribe } from 'firebase/firestore'
-import { computed, reactive, ref, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import {
   markAllNotificationsAsRead,
@@ -19,9 +19,9 @@ const normalizeErrorMessage = (error: unknown) => {
 
 const useNotificationsStore = defineStore('notifications', () => {
   const notifications = ref<NotificationItem[]>([])
-  const currentUserUid = ref<string | null>(null)
-  const currentCoupleId = ref<string | null>(null)
-  const state = reactive<NotificationsStoreState>({
+  const state = ref<NotificationsStoreState>({
+    currentCoupleId: null,
+    currentUserUid: null,
     errorMessage: '',
     isLoading: false,
     isSubmitting: false,
@@ -31,7 +31,7 @@ const useNotificationsStore = defineStore('notifications', () => {
   const getUnreadCount = computed(() => notifications.value.filter((notification) => !notification.isRead).length)
 
   const clearError = () => {
-    state.errorMessage = ''
+    state.value.errorMessage = ''
   }
 
   const stopSync = () => {
@@ -41,8 +41,8 @@ const useNotificationsStore = defineStore('notifications', () => {
 
   const syncNotifications = async (userUid: string, coupleId: string) => {
     if (
-      currentUserUid.value === userUid
-      && currentCoupleId.value === coupleId
+      state.value.currentUserUid === userUid
+      && state.value.currentCoupleId === coupleId
       && unsubscribeNotifications
     ) {
       return
@@ -50,63 +50,61 @@ const useNotificationsStore = defineStore('notifications', () => {
 
     stopSync()
     clearError()
-    currentUserUid.value = userUid
-    currentCoupleId.value = coupleId
-    state.isLoading = true
+    state.value.currentUserUid = userUid
+    state.value.currentCoupleId = coupleId
+    state.value.isLoading = true
 
     unsubscribeNotifications = subscribeToNotifications(userUid, coupleId, (nextNotifications) => {
       notifications.value = nextNotifications
-      state.isLoading = false
+      state.value.isLoading = false
     })
   }
 
   const markOneAsRead = async (notificationId: string) => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await markNotificationAsRead(notificationId)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const markAllAsRead = async () => {
-    if (!currentUserUid.value || !currentCoupleId.value) {
+    if (!state.value.currentUserUid || !state.value.currentCoupleId) {
       return
     }
 
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
-      await markAllNotificationsAsRead(currentUserUid.value, currentCoupleId.value)
+      await markAllNotificationsAsRead(state.value.currentUserUid, state.value.currentCoupleId)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const reset = () => {
     stopSync()
     notifications.value = []
-    currentUserUid.value = null
-    currentCoupleId.value = null
-    state.errorMessage = ''
-    state.isLoading = false
-    state.isSubmitting = false
+    state.value.currentUserUid = null
+    state.value.currentCoupleId = null
+    state.value.errorMessage = ''
+    state.value.isLoading = false
+    state.value.isSubmitting = false
   }
 
   return {
-    ...toRefs(state),
+    ...toRefs(state.value),
     clearError,
-    currentCoupleId,
-    currentUserUid,
     getUnreadCount,
     markAllAsRead,
     markOneAsRead,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { ref, watch } from 'vue'
 import type { CreateTaskInput } from '@/pinia/tasks/types/interface'
 
 interface TaskComposerForm {
@@ -19,7 +19,7 @@ const emit = defineEmits<{
   submit: [payload: Omit<CreateTaskInput, 'coupleId' | 'createdBy'>]
 }>()
 
-const form = reactive<TaskComposerForm>({
+const form = ref<TaskComposerForm>({
   assignedTo: props.defaultAssignedTo,
   description: '',
   dueDate: '',
@@ -30,28 +30,28 @@ const form = reactive<TaskComposerForm>({
 watch(
   () => props.defaultAssignedTo,
   (partnerUid) => {
-    if (!form.assignedTo && partnerUid) {
-      form.assignedTo = partnerUid
+    if (!form.value.assignedTo && partnerUid) {
+      form.value.assignedTo = partnerUid
     }
   },
   { immediate: true },
 )
 
 const resetForm = () => {
-  form.title = ''
-  form.description = ''
-  form.points = 10
-  form.dueDate = ''
-  form.assignedTo = props.defaultAssignedTo
+  form.value.title = ''
+  form.value.description = ''
+  form.value.points = 10
+  form.value.dueDate = ''
+  form.value.assignedTo = props.defaultAssignedTo
 }
 
 const handleSubmit = () => {
   emit('submit', {
-    assignedTo: form.assignedTo,
-    description: form.description,
-    dueDate: form.dueDate ? new Date(form.dueDate) : null,
-    points: Number(form.points),
-    title: form.title,
+    assignedTo: form.value.assignedTo,
+    description: form.value.description,
+    dueDate: form.value.dueDate ? new Date(form.value.dueDate) : null,
+    points: Number(form.value.points),
+    title: form.value.title,
   })
 
   resetForm()

@@ -1,5 +1,5 @@
 import type { Unsubscribe } from 'firebase/firestore'
-import { computed, reactive, ref, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import type { CreateRewardInput, RewardsStoreState } from '@/pinia/rewards/types/interface'
 import {
@@ -19,8 +19,8 @@ const normalizeErrorMessage = (error: unknown) => {
 
 const useRewardsStore = defineStore('rewards', () => {
   const rewards = ref<Reward[]>([])
-  const currentCoupleId = ref<string | null>(null)
-  const state = reactive<RewardsStoreState>({
+  const state = ref<RewardsStoreState>({
+    currentCoupleId: null,
     errorMessage: '',
     isLoading: false,
     isSubmitting: false,
@@ -31,7 +31,7 @@ const useRewardsStore = defineStore('rewards', () => {
   const getInactiveRewards = computed(() => rewards.value.filter((reward) => !reward.isActive))
 
   const clearError = () => {
-    state.errorMessage = ''
+    state.value.errorMessage = ''
   }
 
   const stopSync = () => {
@@ -40,63 +40,62 @@ const useRewardsStore = defineStore('rewards', () => {
   }
 
   const syncRewards = async (coupleId: string) => {
-    if (currentCoupleId.value === coupleId && unsubscribeRewards) {
+    if (state.value.currentCoupleId === coupleId && unsubscribeRewards) {
       return
     }
 
     stopSync()
     clearError()
-    currentCoupleId.value = coupleId
-    state.isLoading = true
+    state.value.currentCoupleId = coupleId
+    state.value.isLoading = true
 
     unsubscribeRewards = subscribeToRewards(coupleId, (nextRewards) => {
       rewards.value = nextRewards
-      state.isLoading = false
+      state.value.isLoading = false
     })
   }
 
   const createNewReward = async (input: CreateRewardInput) => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await createReward(input)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const redeemExistingReward = async (reward: Reward, actorUid: string) => {
-    state.isSubmitting = true
+    state.value.isSubmitting = true
     clearError()
 
     try {
       await redeemReward(reward, actorUid)
     } catch (error) {
-      state.errorMessage = normalizeErrorMessage(error)
+      state.value.errorMessage = normalizeErrorMessage(error)
       throw error
     } finally {
-      state.isSubmitting = false
+      state.value.isSubmitting = false
     }
   }
 
   const reset = () => {
     stopSync()
     rewards.value = []
-    currentCoupleId.value = null
-    state.errorMessage = ''
-    state.isLoading = false
-    state.isSubmitting = false
+    state.value.currentCoupleId = null
+    state.value.errorMessage = ''
+    state.value.isLoading = false
+    state.value.isSubmitting = false
   }
 
   return {
-    ...toRefs(state),
+    ...toRefs(state.value),
     clearError,
     createNewReward,
-    currentCoupleId,
     getActiveRewards,
     getInactiveRewards,
     redeemExistingReward,
