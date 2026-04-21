@@ -21,6 +21,8 @@ body {
   margin: 0;
   color: var(--app-text);
   font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
   overscroll-behavior-y: none;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
@@ -153,11 +155,11 @@ textarea {
   border-radius: 999px;
   border: 1px solid var(--app-chip-border);
   background: var(--app-chip-bg);
-  padding: 0.5rem 0.9rem;
+  padding: 0.45rem 0.8rem;
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
   color: var(--app-chip-text);
   box-shadow: var(--app-shadow-chip);
   backdrop-filter: blur(12px);
@@ -171,10 +173,10 @@ textarea {
   background: var(--app-accent-soft-strong);
   padding: 0.5rem 0.75rem;
   color: var(--app-accent-strong);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
 }
 
 .app-eyebrow-dot {
@@ -186,18 +188,18 @@ textarea {
 
 .app-label {
   color: var(--app-text-soft);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
 }
 
 .app-kicker {
-  color: var(--app-accent-strong);
-  font-size: 0.6875rem;
+  color: var(--app-text-soft);
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
 }
 
 .app-field-label {
@@ -220,6 +222,121 @@ textarea {
 
 .app-text-danger {
   color: var(--app-danger-text);
+}
+
+.app-page-title {
+  color: var(--app-text-strong);
+  font-size: clamp(1.85rem, 6vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+
+.app-page-summary {
+  max-width: 36ch;
+  color: var(--app-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.app-card-title {
+  color: var(--app-text-strong);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+}
+
+.app-card-caption {
+  color: var(--app-text-soft);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.app-metric-value {
+  color: var(--app-text-strong);
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.app-status-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--app-text-soft);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.app-status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.8);
+}
+
+.app-status-dot.is-active {
+  background: var(--app-support);
+}
+
+.app-status-dot.is-loading {
+  background: var(--app-accent);
+}
+
+.app-meta-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.app-meta-pill,
+.app-number-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 0.42rem 0.78rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.app-meta-pill {
+  color: var(--app-text-muted);
+}
+
+.app-meta-pill-strong {
+  color: var(--app-text-strong);
+}
+
+.app-meta-pill-accent,
+.app-number-pill {
+  border-color: transparent;
+  color: var(--app-accent-strong);
+  background: var(--app-accent-soft);
+}
+
+.app-meta-pill-success {
+  border-color: transparent;
+  color: var(--app-success-text);
+  background: var(--app-success-soft);
+}
+
+.app-meta-pill-danger {
+  border-color: transparent;
+  color: var(--app-danger-text);
+  background: var(--app-danger-soft);
+}
+
+.app-number-pill {
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .app-link {
@@ -353,6 +470,18 @@ textarea {
 }
 
 @media (max-width: 480px) {
+  .app-page-title {
+    font-size: 1.95rem;
+  }
+
+  .app-card-title {
+    font-size: 1.2rem;
+  }
+
+  .app-metric-value {
+    font-size: 1.65rem;
+  }
+
   .app-text-strong.text-\[35px\] {
     font-size: 2rem;
     line-height: 1.08;
@@ -371,7 +500,7 @@ textarea {
   }
 
   .app-text-strong.text-\[24px\] {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     line-height: 1.18;
     letter-spacing: -0.025em;
   }
@@ -446,8 +575,7 @@ textarea {
   color: var(--app-text-soft);
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .app-divider-label::before,
@@ -484,10 +612,9 @@ textarea {
   background: var(--app-badge-bg);
   padding: 0.375rem 0.75rem;
   color: var(--app-badge-text);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .app-badge-success {
@@ -496,8 +623,14 @@ textarea {
 }
 
 .app-accent-panel {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  border: 1px solid rgba(191, 206, 228, 0.72);
   border-radius: 1.35rem;
-  background: var(--app-accent-soft);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .app-hero-card {
@@ -509,10 +642,9 @@ textarea {
 
 .app-hero-kicker {
   color: var(--app-hero-kicker);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .app-hero-body {
@@ -527,10 +659,9 @@ textarea {
   background: var(--app-hero-pill-bg);
   padding: 0.375rem 0.75rem;
   color: var(--app-hero-pill-text);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .app-hero-stat {

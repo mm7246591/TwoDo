@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import TaskComposerCard from '@/components/task/TaskComposerCard.vue'
 import TaskListCard from '@/components/task/TaskListCard.vue'
@@ -13,7 +12,6 @@ import { showSuccessMessage } from '@/services/uiFeedback'
 import type { CreateTaskInput } from '@/pinia/tasks/types/interface'
 import type { Task } from '@/views/tasks/types/interface'
 
-const router = useRouter()
 const userStore = useUserStore()
 const tasksStore = useTasksStore()
 const partnerDisplayName = ref('')
@@ -60,10 +58,6 @@ watch(
   },
   { immediate: true },
 )
-
-const goHome = async () => {
-  await router.push({ name: 'home' })
-}
 
 const handleCreateTask = async (payload: Omit<CreateTaskInput, 'coupleId' | 'createdBy'>) => {
   if (!userStore.profile?.uid || !userStore.profile?.coupleId) {
@@ -132,19 +126,13 @@ const handleCancelTask = async (task: Task) => {
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
           <div class="app-chip">任務看板</div>
-          <h1 class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]">
+          <h1 class="app-page-title mt-[14px] max-w-[11ch]">
             兩人共享任務板
           </h1>
         </div>
-
-        <button class="app-ghost-button shrink-0 px-[16px] py-[12px] text-[14px]" type="button" @click="goHome">
-          返回首頁
-        </button>
       </div>
 
-      <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        指派、完成、確認後自動加分。
-      </p>
+      <p class="app-page-summary">指派、完成、確認的流程會在這裡完整留痕。</p>
     </header>
 
     <section class="flex-1 space-y-[16px] px-[20px] pb-[24px] sm:px-[28px]">
@@ -169,33 +157,33 @@ const handleCancelTask = async (task: Task) => {
       <section class="grid grid-cols-2 gap-[16px]">
         <article class="app-card px-[16px] py-[16px]">
           <p class="app-label">指派給我的</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ myAssignedTasks.length }}</p>
+          <p class="app-metric-value mt-[8px]">{{ myAssignedTasks.length }}</p>
         </article>
 
         <article class="app-card-muted px-[16px] py-[16px]">
           <p class="app-label">待我確認</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ waitingConfirmTasks.length }}</p>
+          <p class="app-metric-value mt-[8px]">{{ waitingConfirmTasks.length }}</p>
         </article>
       </section>
 
       <section class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">指派給我的</p>
-            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              我要完成的任務
-            </p>
-            <p class="app-text-soft mt-[8px] text-[13px] leading-[20px]">
+            <p class="app-card-title mt-[8px]">我要完成的任務</p>
+            <p class="app-card-caption mt-[8px]">
               左滑可完成或取消。
             </p>
           </div>
 
-          <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">同步狀態</p>
-            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-              {{ tasksStore.isLoading ? '讀取中' : '已同步' }}
-            </p>
-          </div>
+          <span
+            :class="[
+              'app-meta-pill',
+              tasksStore.isLoading ? 'app-meta-pill-accent' : 'app-meta-pill-success',
+            ]"
+          >
+            {{ tasksStore.isLoading ? '資料同步中' : '資料已同步' }}
+          </span>
         </div>
 
         <div class="mt-[20px] space-y-[16px]">
@@ -219,23 +207,18 @@ const handleCancelTask = async (task: Task) => {
       </section>
 
       <section class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">等待我確認</p>
-            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              等你確認的任務
-            </p>
-            <p class="app-text-soft mt-[8px] text-[13px] leading-[20px]">
+            <p class="app-card-title mt-[8px]">等你確認的任務</p>
+            <p class="app-card-caption mt-[8px]">
               左滑可確認或取消。
             </p>
           </div>
 
-          <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">需要動作</p>
-            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-              {{ waitingConfirmTasks.length }}
-            </p>
-          </div>
+          <span class="app-meta-pill app-meta-pill-strong">
+            {{ waitingConfirmTasks.length }} 件待處理
+          </span>
         </div>
 
         <div class="mt-[20px] space-y-[16px]">
@@ -259,23 +242,18 @@ const handleCancelTask = async (task: Task) => {
       </section>
 
       <section class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">我指派出去的</p>
-            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              對方還沒完成
-            </p>
-            <p class="app-text-soft mt-[8px] text-[13px] leading-[20px]">
+            <p class="app-card-title mt-[8px]">對方還沒完成</p>
+            <p class="app-card-caption mt-[8px]">
               左滑可取消。
             </p>
           </div>
 
-          <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">待完成</p>
-            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-              {{ myCreatedTasks.length }}
-            </p>
-          </div>
+          <span class="app-meta-pill app-meta-pill-strong">
+            {{ myCreatedTasks.length }} 件進行中
+          </span>
         </div>
 
         <div class="mt-[20px] space-y-[16px]">
@@ -301,30 +279,25 @@ const handleCancelTask = async (task: Task) => {
       <section class="grid grid-cols-2 gap-[16px]">
         <article class="app-card px-[16px] py-[16px]">
           <p class="app-label">已確認完成</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ confirmedTasks.length }}</p>
+          <p class="app-metric-value mt-[8px]">{{ confirmedTasks.length }}</p>
         </article>
 
         <article class="app-card-muted px-[16px] py-[16px]">
           <p class="app-label">已取消</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">{{ cancelledTasks.length }}</p>
+          <p class="app-metric-value mt-[8px]">{{ cancelledTasks.length }}</p>
         </article>
       </section>
 
       <section class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">已確認完成</p>
-            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              已完成的任務紀錄
-            </p>
+            <p class="app-card-title mt-[8px]">已完成的任務紀錄</p>
           </div>
 
-          <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">完成</p>
-            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-              {{ confirmedTasks.length }}
-            </p>
-          </div>
+          <span class="app-meta-pill app-meta-pill-success">
+            {{ confirmedTasks.length }} 筆紀錄
+          </span>
         </div>
 
         <div class="mt-[20px] space-y-[16px]">
@@ -348,20 +321,15 @@ const handleCancelTask = async (task: Task) => {
       </section>
 
       <section class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">已取消</p>
-            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              已取消的任務紀錄
-            </p>
+            <p class="app-card-title mt-[8px]">已取消的任務紀錄</p>
           </div>
 
-          <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">取消</p>
-            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-              {{ cancelledTasks.length }}
-            </p>
-          </div>
+          <span class="app-meta-pill app-meta-pill-strong">
+            {{ cancelledTasks.length }} 筆紀錄
+          </span>
         </div>
 
         <div class="mt-[20px] space-y-[16px]">

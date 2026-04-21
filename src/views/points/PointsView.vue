@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
-import { useRouter } from "vue-router";
 import AppEmptyState from "@/components/common/AppEmptyState.vue";
 import { useErrorToast } from "@/composables/useErrorToast";
 import MobileAppShell from "@/components/MobileAppShell.vue";
@@ -8,7 +7,6 @@ import { usePointsStore } from "@/pinia/points";
 import { useUserStore } from "@/pinia/user";
 import type { PointLog } from "@/views/points/types/interface";
 
-const router = useRouter();
 const userStore = useUserStore();
 const pointsStore = usePointsStore();
 
@@ -18,10 +16,6 @@ const canUsePoints = computed(() =>
   Boolean(userStore.profile?.uid && userStore.profile?.coupleId),
 );
 const currentPoints = computed(() => userStore.profile?.points ?? 0);
-
-const goHome = async () => {
-  await router.push({ name: "home" });
-};
 
 const formatDateTime = (value: Date) =>
   new Intl.DateTimeFormat("zh-TW", {
@@ -84,25 +78,13 @@ watch(
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
           <div class="app-chip">積分紀錄</div>
-          <h1
-            class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
-          >
+          <h1 class="app-page-title mt-[14px] max-w-[11ch]">
             點數紀錄
           </h1>
         </div>
-
-        <button
-          class="app-ghost-button shrink-0 px-[16px] py-[12px] text-[14px]"
-          type="button"
-          @click="goHome"
-        >
-          返回首頁
-        </button>
       </div>
 
-      <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        任務加分和獎勵扣點都會保留在這裡。
-      </p>
+      <p class="app-page-summary">每次加分、扣點和來源都會保留在這裡。</p>
     </header>
 
     <section class="flex-1 space-y-[16px] px-[20px] pb-[24px] sm:px-[28px]">
@@ -121,36 +103,37 @@ watch(
       <section v-else class="grid grid-cols-2 gap-[16px]">
         <article class="app-card px-[16px] py-[16px]">
           <p class="app-label">目前總分</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">
+          <p class="app-metric-value mt-[8px]">
             {{ currentPoints }}
           </p>
         </article>
 
         <article class="app-card-muted px-[16px] py-[16px]">
           <p class="app-label">累積獲得</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">
+          <p class="app-metric-value mt-[8px]">
             {{ pointsStore.getEarnedPoints }}
           </p>
         </article>
       </section>
 
       <section class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">點數明細</p>
-            <p
-              class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
-            >
-              最近點數變動
+            <p class="app-card-title mt-[8px]">最近點數變動</p>
+            <p class="app-card-caption mt-[8px]">
+              新的變動會依時間排序在最上面。
             </p>
           </div>
 
-          <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">同步狀態</p>
-            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-              {{ pointsStore.isLoading ? "讀取中" : "已同步" }}
-            </p>
-          </div>
+          <span
+            :class="[
+              'app-meta-pill',
+              pointsStore.isLoading ? 'app-meta-pill-accent' : 'app-meta-pill-success',
+            ]"
+          >
+            {{ pointsStore.isLoading ? "資料同步中" : "資料已同步" }}
+          </span>
         </div>
 
         <div class="mt-[20px] space-y-[16px]">
@@ -159,25 +142,21 @@ watch(
             :key="pointLog.id"
             class="app-card-muted px-[16px] py-[16px]"
           >
-            <div class="flex items-start justify-between gap-[12px]">
+            <div class="flex items-start gap-[12px]">
               <div class="min-w-0">
-                <p class="app-text-strong text-[18px] font-semibold">
-                  {{ resolvePointLogTitle(pointLog) }}
-                </p>
-                <p class="app-text-muted mt-[8px] text-[14px] leading-[24px]">
+                <div class="flex flex-wrap items-center gap-[8px]">
+                  <p class="app-text-strong text-[17px] font-semibold leading-[1.35]">
+                    {{ resolvePointLogTitle(pointLog) }}
+                  </p>
+                  <span class="app-number-pill">
+                    {{ getPointPrefix(pointLog.points) }}{{ pointLog.points }}
+                  </span>
+                </div>
+                <p class="app-text-muted mt-[10px] text-[14px] leading-[22px]">
                   {{ resolvePointLogDescription(pointLog) }}
                 </p>
-                <p class="app-text-soft mt-[8px] text-[13px] leading-[20px]">
+                <p class="app-text-soft mt-[10px] text-[13px] leading-[20px]">
                   {{ formatDateTime(pointLog.createdAt) }}
-                </p>
-              </div>
-
-              <div
-                class="app-accent-panel shrink-0 px-[12px] py-[8px] text-right"
-              >
-                <p class="app-kicker">點數</p>
-                <p class="app-text-strong mt-[4px] text-[16px] font-semibold">
-                  {{ getPointPrefix(pointLog.points) }}{{ pointLog.points }}
                 </p>
               </div>
             </div>

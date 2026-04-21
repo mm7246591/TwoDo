@@ -5,6 +5,7 @@ type DashboardIconName =
   | 'bell'
   | 'gift'
   | 'heart-link'
+  | 'home'
   | 'points'
   | 'settings'
   | 'shield-check'
@@ -27,7 +28,13 @@ withDefaults(defineProps<{
     xmlns="http://www.w3.org/2000/svg"
     aria-hidden="true"
   >
-    <template v-if="name === 'tasks'">
+    <template v-if="name === 'home'">
+      <path d="M4 10.8L12 4L20 10.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
+      <path d="M6.2 9.9V19H17.8V9.9" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8" />
+      <path d="M10.3 19V13.2H13.7V19" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8" />
+    </template>
+
+    <template v-else-if="name === 'tasks'">
       <path d="M9 7H19" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" />
       <path d="M9 12H19" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" />
       <path d="M9 17H19" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" />

@@ -88,30 +88,30 @@ const getHasSwipeActions = computed(() =>
 <template>
   <SwipeCell class="app-swipe-cell" :disabled="!getHasSwipeActions">
     <article class="app-card-muted px-[16px] py-[16px]">
-    <div class="flex items-start justify-between gap-[16px]">
-      <div class="min-w-0">
-        <p class="app-text-strong text-[18px] font-semibold">{{ task.title }}</p>
-        <p class="app-text-muted mt-[8px] text-[14px] leading-[24px]">
-          {{ task.description || '沒有補充說明。' }}
-        </p>
+      <div class="flex items-start justify-between gap-[12px]">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-[8px]">
+            <p class="app-text-strong text-[17px] font-semibold leading-[1.35]">
+              {{ task.title }}
+            </p>
+            <span class="app-number-pill">{{ task.points }} 點</span>
+          </div>
+          <p class="app-text-muted mt-[10px] text-[14px] leading-[22px]">
+            {{ task.description || '沒有補充說明。' }}
+          </p>
+        </div>
       </div>
 
-      <div class="app-accent-panel shrink-0 px-[12px] py-[8px] text-right">
-        <p class="app-kicker">點數</p>
-        <p class="app-text-strong mt-[4px] text-[16px] font-semibold">{{ task.points }}</p>
+      <div class="app-meta-list mt-[14px]">
+        <span class="app-meta-pill app-meta-pill-strong">
+          狀態：{{ getStatusLabel }}
+        </span>
+        <span class="app-meta-pill">截止：{{ formatDate(task.dueDate) }}</span>
+        <span class="app-meta-pill">角色：{{ getRoleText }}</span>
       </div>
-    </div>
 
-    <div class="mt-[16px] grid grid-cols-2 gap-[12px] text-[14px]">
-      <p class="app-text-soft">狀態：{{ getStatusLabel }}</p>
-      <p class="app-text-soft">截止：{{ formatDate(task.dueDate) }}</p>
-    </div>
-
-    <div class="mt-[8px] grid grid-cols-2 gap-[12px] text-[14px]">
-      <p class="app-text-soft">角色：{{ getRoleText }}</p>
-      <p class="app-text-soft">{{ getTimelineText }}</p>
-    </div>
-  </article>
+      <p class="app-card-caption mt-[12px]">{{ getTimelineText }}</p>
+    </article>
 
     <template #right>
       <div class="app-swipe-actions">

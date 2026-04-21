@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { Field } from 'vant'
 import { useErrorToast } from '@/composables/useErrorToast'
 import MobileAppShell from '@/components/MobileAppShell.vue'
@@ -10,7 +9,6 @@ import { showSuccessMessage } from '@/services/uiFeedback'
 
 const userStore = useUserStore()
 const coupleStore = useCoupleStore()
-const router = useRouter()
 
 const inviteCodeInput = ref('')
 
@@ -50,9 +48,6 @@ const handleJoinInvite = async () => {
   showSuccessMessage('配對成功')
 }
 
-const backHome = async () => {
-  await router.push({ name: 'home' })
-}
 </script>
 
 <template>
@@ -65,10 +60,6 @@ const backHome = async () => {
             輸入邀請碼完成配對
           </h1>
         </div>
-
-        <button class="app-ghost-button shrink-0 px-[16px] py-[12px] text-[14px]" type="button" @click="backHome">
-          返回首頁
-        </button>
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">

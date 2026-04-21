@@ -148,21 +148,19 @@ const handleSubmit = () => {
 
 <template>
   <section class="app-card px-[20px] py-[20px]">
-    <div class="flex items-center justify-between gap-[12px]">
-      <div>
+    <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+      <div class="min-w-0">
         <p class="app-label">新增任務</p>
-        <p
-          class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
-        >
-          建一張可追蹤的待辦
+        <p class="app-card-title mt-[8px]">建一張可追蹤的待辦</p>
+        <p class="app-card-caption mt-[8px]">
+          任務建立後會直接進到對方的待辦清單。
         </p>
       </div>
 
-      <div class="app-accent-panel px-[12px] py-[8px] text-right">
-        <p class="app-kicker">指派給</p>
-        <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-          {{ getAssigneeLabel }}
-        </p>
+      <div class="flex flex-wrap gap-[8px]">
+        <span class="app-meta-pill app-meta-pill-accent max-w-full">
+          <span class="truncate">指派對象：{{ getAssigneeLabel }}</span>
+        </span>
       </div>
     </div>
 
@@ -186,7 +184,7 @@ const handleSubmit = () => {
         />
       </label>
 
-      <div class="grid grid-cols-2 gap-[16px]">
+      <div class="grid gap-[16px] sm:grid-cols-2">
         <label class="block space-y-[8px]">
           <span class="app-field-label">點數</span>
           <input

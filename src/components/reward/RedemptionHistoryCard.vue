@@ -34,26 +34,32 @@ const getStatusText = computed(() => {
 
 <template>
   <article class="app-card-muted px-[16px] py-[16px]">
-    <div class="flex items-start justify-between gap-[16px]">
+    <div class="flex items-start gap-[12px]">
       <div class="min-w-0">
-        <p class="app-text-strong text-[18px] font-semibold">
-          {{ getRewardTitle }}
-        </p>
-        <p class="app-text-muted mt-[8px] text-[14px] leading-[24px]">
+        <div class="flex flex-wrap items-center gap-[8px]">
+          <p class="app-text-strong text-[17px] font-semibold leading-[1.35]">
+            {{ getRewardTitle }}
+          </p>
+          <span
+            :class="[
+              'app-meta-pill',
+              redemption.status === 'completed'
+                ? 'app-meta-pill-success'
+                : redemption.status === 'cancelled'
+                  ? 'app-meta-pill-danger'
+                  : 'app-meta-pill-strong',
+            ]"
+          >
+            {{ getStatusText }}
+          </span>
+        </div>
+        <p class="app-text-muted mt-[10px] text-[14px] leading-[22px]">
           {{ getRedeemerText }}，花費 {{ redemption.cost }} 點。
         </p>
-      </div>
-
-      <div class="app-accent-panel shrink-0 px-[12px] py-[8px] text-right">
-        <p class="app-kicker">狀態</p>
-        <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-          {{ getStatusText }}
+        <p class="app-text-soft mt-[10px] text-[13px] leading-[20px]">
+          兌換時間：{{ formatDateTime(redemption.createdAt) }}
         </p>
       </div>
     </div>
-
-    <p class="app-text-soft mt-[12px] text-[14px]">
-      兌換時間：{{ formatDateTime(redemption.createdAt) }}
-    </p>
   </article>
 </template>

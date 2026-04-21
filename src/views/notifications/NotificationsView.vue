@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import NotificationListCard from '@/components/notification/NotificationListCard.vue'
 import MobileAppShell from '@/components/MobileAppShell.vue'
@@ -15,7 +14,6 @@ import {
 import { showSuccessMessage } from '@/services/uiFeedback'
 import type { NotificationItem } from '@/views/notifications/types/interface'
 
-const router = useRouter()
 const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 
@@ -72,10 +70,6 @@ const pushStatusLabel = computed(() => {
 
   return '尚未啟用'
 })
-
-const goHome = async () => {
-  await router.push({ name: 'home' })
-}
 
 const syncPushStatus = async () => {
   const storedTokens = userStore.profile?.fcmTokens ?? []
@@ -200,25 +194,13 @@ watch(
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
           <div class="app-chip">通知中心</div>
-          <h1
-            class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
-          >
+          <h1 class="app-page-title mt-[14px] max-w-[11ch]">
             通知與提醒
           </h1>
         </div>
-
-        <button
-          class="app-ghost-button shrink-0 px-[16px] py-[12px] text-[14px]"
-          type="button"
-          @click="goHome"
-        >
-          返回首頁
-        </button>
       </div>
 
-      <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        任務、確認、加分與兌換提醒都在這裡。
-      </p>
+      <p class="app-page-summary">任務提醒、已讀狀態和推播設定都集中在這裡。</p>
     </header>
 
     <section class="flex-1 space-y-[16px] px-[20px] pb-[24px] sm:px-[28px]">
@@ -237,37 +219,38 @@ watch(
       <section v-else class="grid grid-cols-2 gap-[16px]">
         <article class="app-card px-[16px] py-[16px]">
           <p class="app-label">全部通知</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">
+          <p class="app-metric-value mt-[8px]">
             {{ notificationsStore.notifications.length }}
           </p>
         </article>
 
         <article class="app-card-muted px-[16px] py-[16px]">
           <p class="app-label">未讀</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">
+          <p class="app-metric-value mt-[8px]">
             {{ notificationsStore.getUnreadCount }}
           </p>
         </article>
       </section>
 
       <section v-if="userStore.profile?.uid" class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">推播狀態</p>
-            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              {{ pushStatusLabel }}
-            </p>
+            <p class="app-card-title mt-[8px]">{{ pushStatusLabel }}</p>
+            <p class="app-card-caption mt-[8px]">權限：{{ pushPermissionLabel }}</p>
           </div>
 
-          <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">權限</p>
-            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-              {{ pushPermissionLabel }}
-            </p>
-          </div>
+          <span
+            :class="[
+              'app-meta-pill',
+              pushState.isCurrentDeviceEnabled ? 'app-meta-pill-success' : 'app-meta-pill-strong',
+            ]"
+          >
+            {{ pushState.isCurrentDeviceEnabled ? '這台裝置已開啟' : '這台裝置尚未開啟' }}
+          </span>
         </div>
 
-        <div class="mt-[20px] grid grid-cols-2 gap-[16px]">
+        <div class="mt-[20px] grid gap-[16px] sm:grid-cols-2">
           <article class="app-card-muted px-[16px] py-[16px]">
             <p class="app-label">這台裝置</p>
             <p class="app-text-strong mt-[8px] text-[18px] font-semibold">
@@ -316,23 +299,24 @@ watch(
       </section>
 
       <section class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">通知列表</p>
-            <p
-              class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
-            >
-              最近動態
+            <p class="app-card-title mt-[8px]">最近動態</p>
+            <p class="app-card-caption mt-[8px]">
+              新通知預設會顯示在最上面。
             </p>
           </div>
 
-          <div class="flex items-center gap-[12px]">
-            <div class="app-accent-panel px-[12px] py-[8px] text-right">
-              <p class="app-kicker">同步狀態</p>
-              <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-                {{ notificationsStore.isLoading ? "讀取中" : "已同步" }}
-              </p>
-            </div>
+          <div class="flex w-full flex-wrap items-center justify-between gap-[12px] sm:w-auto sm:justify-end">
+            <span
+              :class="[
+                'app-meta-pill',
+                notificationsStore.isLoading ? 'app-meta-pill-accent' : 'app-meta-pill-success',
+              ]"
+            >
+              {{ notificationsStore.isLoading ? "資料同步中" : "資料已同步" }}
+            </span>
 
             <button
               class="app-secondary-button px-[16px] py-[12px] text-[14px]"

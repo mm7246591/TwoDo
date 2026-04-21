@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
-import { useRouter } from "vue-router";
 import AppEmptyState from "@/components/common/AppEmptyState.vue";
 import { useErrorToast } from "@/composables/useErrorToast";
 import RewardComposerCard from "@/components/reward/RewardComposerCard.vue";
@@ -13,7 +12,6 @@ import { showSuccessMessage } from "@/services/uiFeedback";
 import type { CreateRewardInput } from "@/pinia/rewards/types/interface";
 import type { Reward } from "@/views/rewards/types/interface";
 
-const router = useRouter();
 const userStore = useUserStore();
 const rewardsStore = useRewardsStore();
 
@@ -47,10 +45,6 @@ const redeemableRewards = computed(() =>
     return currentPoints.value >= reward.cost;
   }),
 );
-
-const goHome = async () => {
-  await router.push({ name: "home" });
-};
 
 const handleCreateReward = async (
   payload: Omit<CreateRewardInput, "coupleId" | "createdBy">,
@@ -129,25 +123,13 @@ watch(
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
           <div class="app-chip">獎勵中心</div>
-          <h1
-            class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
-          >
+          <h1 class="app-page-title mt-[14px] max-w-[11ch]">
             獎勵清單
           </h1>
         </div>
-
-        <button
-          class="app-ghost-button shrink-0 px-[16px] py-[12px] text-[14px]"
-          type="button"
-          @click="goHome"
-        >
-          返回首頁
-        </button>
       </div>
 
-      <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        建立可兌換回報，也可以用點數兌換。
-      </p>
+      <p class="app-page-summary">建立共享獎勵，也可以直接用點數兌換。</p>
     </header>
 
     <section class="flex-1 space-y-[16px] px-[20px] pb-[24px] sm:px-[28px]">
@@ -169,49 +151,47 @@ watch(
         @submit="handleCreateReward"
       />
 
-      <section class="grid grid-cols-3 gap-[16px]">
+      <section class="grid grid-cols-2 gap-[16px] sm:grid-cols-3">
         <article class="app-card px-[16px] py-[16px]">
           <p class="app-label">可兌換</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">
+          <p class="app-metric-value mt-[8px]">
             {{ redeemableRewards.length }}
           </p>
         </article>
 
         <article class="app-card-muted px-[16px] py-[16px]">
           <p class="app-label">我建立的</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">
+          <p class="app-metric-value mt-[8px]">
             {{ myCreatedRewards.length }}
           </p>
         </article>
 
-        <article class="app-card px-[16px] py-[16px]">
+        <article class="app-card px-[16px] py-[16px] col-span-2 sm:col-span-1">
           <p class="app-label">我已兌換</p>
-          <p class="app-text-strong mt-[8px] text-[30px] font-semibold">
+          <p class="app-metric-value mt-[8px]">
             {{ myRedeemedRewards.length }}
           </p>
         </article>
       </section>
 
       <section class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">獎勵列表</p>
-            <p
-              class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
-            >
-              目前可查看的獎勵
-            </p>
-            <p class="app-text-soft mt-[8px] text-[13px] leading-[20px]">
-              左滑可兌換或管理。
+            <p class="app-card-title mt-[8px]">目前可查看的獎勵</p>
+            <p class="app-card-caption mt-[8px]">
+              建立者可直接切換開放狀態，另一半可直接兌換。
             </p>
           </div>
 
-          <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">同步狀態</p>
-            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-              {{ rewardsStore.isLoading ? "讀取中" : "已同步" }}
-            </p>
-          </div>
+          <span
+            :class="[
+              'app-meta-pill',
+              rewardsStore.isLoading ? 'app-meta-pill-accent' : 'app-meta-pill-success',
+            ]"
+          >
+            {{ rewardsStore.isLoading ? "資料同步中" : "資料已同步" }}
+          </span>
         </div>
 
         <div class="mt-[20px] space-y-[16px]">
@@ -235,22 +215,15 @@ watch(
       </section>
 
       <section class="app-card px-[20px] py-[20px]">
-        <div class="flex items-center justify-between gap-[12px]">
-          <div>
+        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
             <p class="app-label">兌換紀錄</p>
-            <p
-              class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
-            >
-              最近完成的兌換
-            </p>
+            <p class="app-card-title mt-[8px]">最近完成的兌換</p>
           </div>
 
-          <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">累積筆數</p>
-            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-              {{ rewardsStore.redemptions.length }}
-            </p>
-          </div>
+          <span class="app-meta-pill app-meta-pill-strong">
+            {{ rewardsStore.redemptions.length }} 筆紀錄
+          </span>
         </div>
 
         <div class="mt-[20px] space-y-[16px]">
