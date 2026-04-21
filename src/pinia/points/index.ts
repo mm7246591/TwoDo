@@ -60,6 +60,7 @@ const usePointsStore = defineStore('points', () => {
         userUid,
         coupleId,
         (nextPointLogs) => {
+          clearError()
           pointLogs.value = nextPointLogs
           state.value.isLoading = false
         },

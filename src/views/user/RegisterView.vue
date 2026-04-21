@@ -2,10 +2,14 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import AuthScreenShell from '@/components/AuthScreenShell.vue'
+import { useErrorToast } from '@/composables/useErrorToast'
 import { useAuthStore } from '@/pinia/auth'
+import { showSuccessMessage } from '@/services/uiFeedback'
 
 const authStore = useAuthStore()
 const router = useRouter()
+
+useErrorToast(() => authStore.errorMessage)
 
 const displayName = ref('')
 const email = ref('')
@@ -43,6 +47,7 @@ const handleSignUp = async () => {
   try {
     isEmailSubmitting.value = true
     await authStore.signUp(trimmedEmail.value, trimmedPassword.value, trimmedDisplayName.value)
+    showSuccessMessage('註冊成功')
     await router.push({ name: 'home' })
   } catch {
     if (!isViewActive.value) {
@@ -61,6 +66,7 @@ const handleGoogleSignIn = async () => {
   try {
     isGoogleSubmitting.value = true
     await authStore.signInWithGoogle()
+    showSuccessMessage('Google 登入成功')
     await router.push({ name: 'home' })
   } catch {
     if (!isViewActive.value) {
@@ -147,11 +153,6 @@ const handleGoogleSignIn = async () => {
       <p class="app-banner-support app-text-muted min-h-[72px] px-[16px] py-[12px] text-[12px] leading-[20px]">
         註冊成功後，系統會以 Firebase uid 建立 `users/{uid}` 文件，讓後面配對與任務流程能正確對應到你。
       </p>
-
-      <p v-if="authStore.errorMessage" class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]">
-        {{ authStore.errorMessage }}
-      </p>
-
       <button
         class="app-primary-button w-full"
         type="submit"

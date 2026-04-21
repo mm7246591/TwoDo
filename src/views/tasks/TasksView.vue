@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import TaskComposerCard from '@/components/task/TaskComposerCard.vue'
 import TaskListCard from '@/components/task/TaskListCard.vue'
+import { useErrorToast } from '@/composables/useErrorToast'
 import MobileAppShell from '@/components/MobileAppShell.vue'
 import { useTasksStore } from '@/pinia/tasks'
 import { useUserStore } from '@/pinia/user'
+import { getUserProfile } from '@/services/userService'
+import { showSuccessMessage } from '@/services/uiFeedback'
 import type { CreateTaskInput } from '@/pinia/tasks/types/interface'
 import type { Task } from '@/views/tasks/types/interface'
 
 const router = useRouter()
 const userStore = useUserStore()
 const tasksStore = useTasksStore()
+const partnerDisplayName = ref('')
+
+useErrorToast(() => tasksStore.errorMessage)
 
 const canUseTasks = computed(() => Boolean(userStore.profile?.coupleId && userStore.profile?.partnerUid && userStore.profile?.uid))
 const currentUid = computed(() => userStore.profile?.uid ?? '')
@@ -20,6 +26,7 @@ const myCreatedTasks = computed(() => tasksStore.tasks.filter((task) => task.cre
 const waitingConfirmTasks = computed(() => tasksStore.getCompletedPendingConfirmTasks.filter((task) => task.createdBy === currentUid.value))
 const confirmedTasks = computed(() => tasksStore.getConfirmedTasks)
 const cancelledTasks = computed(() => tasksStore.getCancelledTasks)
+const assigneeLabel = computed(() => partnerDisplayName.value || '另一半')
 
 watch(
   () => userStore.profile?.coupleId,
@@ -30,6 +37,25 @@ watch(
     }
 
     void tasksStore.syncTasks(coupleId)
+  },
+  { immediate: true },
+)
+
+watch(
+  () => userStore.profile?.partnerUid ?? '',
+  async (partnerUid) => {
+    partnerDisplayName.value = ''
+
+    if (!partnerUid) {
+      return
+    }
+
+    try {
+      const partnerProfile = await getUserProfile(partnerUid)
+      partnerDisplayName.value = partnerProfile?.displayName?.trim() || ''
+    } catch {
+      partnerDisplayName.value = ''
+    }
   },
   { immediate: true },
 )
@@ -50,8 +76,10 @@ const handleCreateTask = async (payload: Omit<CreateTaskInput, 'coupleId' | 'cre
       createdBy: userStore.profile.uid,
     })
   } catch {
-    // The store already exposes a user-facing error message.
+    return
   }
+
+  showSuccessMessage('任務已建立')
 }
 
 const handleCompleteTask = async (task: Task) => {
@@ -62,8 +90,10 @@ const handleCompleteTask = async (task: Task) => {
   try {
     await tasksStore.markTaskCompleted(task, userStore.profile.uid)
   } catch {
-    // The store already exposes a user-facing error message.
+    return
   }
+
+  showSuccessMessage('任務已標記完成')
 }
 
 const handleConfirmTask = async (task: Task) => {
@@ -74,8 +104,10 @@ const handleConfirmTask = async (task: Task) => {
   try {
     await tasksStore.confirmTaskCompletion(task, userStore.profile.uid)
   } catch {
-    // The store already exposes a user-facing error message.
+    return
   }
+
+  showSuccessMessage('任務已確認並加分')
 }
 
 const handleCancelTask = async (task: Task) => {
@@ -86,8 +118,10 @@ const handleCancelTask = async (task: Task) => {
   try {
     await tasksStore.cancelExistingTask(task, userStore.profile.uid)
   } catch {
-    // The store already exposes a user-facing error message.
+    return
   }
+
+  showSuccessMessage('任務已取消')
 }
 </script>
 
@@ -125,6 +159,7 @@ const handleCancelTask = async (task: Task) => {
 
       <TaskComposerCard
         v-else
+        :assignee-label="assigneeLabel"
         :default-assigned-to="userStore.profile?.partnerUid ?? ''"
         :is-submitting="tasksStore.isSubmitting"
         @submit="handleCreateTask"
@@ -328,10 +363,6 @@ const handleCancelTask = async (task: Task) => {
           </p>
         </div>
       </section>
-
-      <p v-if="tasksStore.errorMessage" class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]">
-        {{ tasksStore.errorMessage }}
-      </p>
     </section>
   </MobileAppShell>
 </template>

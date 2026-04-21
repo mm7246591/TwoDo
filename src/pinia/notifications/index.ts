@@ -58,6 +58,7 @@ const useNotificationsStore = defineStore('notifications', () => {
       userUid,
       coupleId,
       (nextNotifications) => {
+        clearError()
         notifications.value = nextNotifications
         state.value.isLoading = false
       },

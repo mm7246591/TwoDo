@@ -112,6 +112,16 @@ const subscribeToUserProfile = (
   },
 )
 
+const getUserProfile = async (uid: string) => {
+  const snapshot = await getDoc(userDoc(uid))
+
+  if (!snapshot.exists()) {
+    return null
+  }
+
+  return mapUserProfile(snapshot.data() as FirestoreUserProfile)
+}
+
 const updateUserDisplayName = async (uid: string, displayName: string) => {
   await updateDoc(userDoc(uid), {
     displayName: displayName.trim(),
@@ -148,6 +158,7 @@ const removeUserFcmToken = async (uid: string, token: string) => {
 export {
   addUserFcmToken,
   ensureUserProfile,
+  getUserProfile,
   removeUserFcmToken,
   subscribeToUserProfile,
   updateUserDisplayName,

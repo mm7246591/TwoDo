@@ -6,6 +6,7 @@ import router from '@/router'
 import '@/assets/css/tailwind.css'
 import '@/assets/css/theme-variable.css'
 import '@/assets/css/main.css'
+import 'vant/lib/index.css'
 
 document.documentElement.dataset.theme ||= 'default'
 

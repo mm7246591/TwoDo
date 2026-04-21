@@ -2,10 +2,15 @@
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import MobileAppShell from "@/components/MobileAppShell.vue";
+import { useErrorToast } from "@/composables/useErrorToast";
 import { useAuthStore } from "@/pinia/auth";
 import { useCoupleStore } from "@/pinia/couple";
 import { useNotificationsStore } from "@/pinia/notifications";
 import { useUserStore } from "@/pinia/user";
+import {
+  confirmDangerAction,
+  showSuccessMessage,
+} from "@/services/uiFeedback";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -42,6 +47,10 @@ const getCanSaveDisplayName = computed(() => {
   );
 });
 
+useErrorToast(() => authStore.errorMessage);
+useErrorToast(() => coupleStore.errorMessage);
+useErrorToast(() => userStore.errorMessage);
+
 const goHome = async () => {
   await router.push({ name: "home" });
 };
@@ -59,8 +68,8 @@ const handleSaveDisplayName = async () => {
 
   try {
     await userStore.saveDisplayName(displayNameInput.value);
+    showSuccessMessage("暱稱已更新");
   } catch {
-    // The store already exposes a user-facing error message.
   } finally {
     profileState.value.isSubmitting = false;
   }
@@ -71,8 +80,9 @@ const handleUnpairCouple = async () => {
     return;
   }
 
-  const shouldContinue = window.confirm(
+  const shouldContinue = await confirmDangerAction(
     "解除配對後，雙方目前的 couple 綁定會被移除。要繼續嗎？",
+    "解除配對",
   );
 
   if (!shouldContinue) {
@@ -81,18 +91,16 @@ const handleUnpairCouple = async () => {
 
   try {
     await coupleStore.unpairCurrentCouple();
-  } catch {
-    // The store already exposes a user-facing error message.
-  }
+    showSuccessMessage("已解除配對");
+  } catch {}
 };
 
 const handleSignOut = async () => {
   try {
     await authStore.signOutUser();
+    showSuccessMessage("已登出帳號");
     await router.push({ name: "login" });
-  } catch {
-    // The store already exposes a user-facing error message.
-  }
+  } catch {}
 };
 
 watch(
@@ -314,21 +322,6 @@ watch(
             {{ authStore.isSubmitting ? "登出中..." : "登出帳號" }}
           </button>
         </section>
-
-        <p
-          v-if="
-            userStore.errorMessage ||
-            coupleStore.errorMessage ||
-            authStore.errorMessage
-          "
-          class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]"
-        >
-          {{
-            userStore.errorMessage ||
-            coupleStore.errorMessage ||
-            authStore.errorMessage
-          }}
-        </p>
       </template>
     </section>
   </MobileAppShell>

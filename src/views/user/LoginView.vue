@@ -2,10 +2,14 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import AuthScreenShell from '@/components/AuthScreenShell.vue'
+import { useErrorToast } from '@/composables/useErrorToast'
 import { useAuthStore } from '@/pinia/auth'
+import { showSuccessMessage } from '@/services/uiFeedback'
 
 const authStore = useAuthStore()
 const router = useRouter()
+
+useErrorToast(() => authStore.errorMessage)
 
 const email = ref('')
 const password = ref('')
@@ -40,6 +44,7 @@ const handleSignIn = async () => {
   try {
     isEmailSubmitting.value = true
     await authStore.signIn(trimmedEmail.value, trimmedPassword.value)
+    showSuccessMessage('登入成功')
     await router.push({ name: 'home' })
   } catch {
     if (!isViewActive.value) {
@@ -58,6 +63,7 @@ const handleGoogleSignIn = async () => {
   try {
     isGoogleSubmitting.value = true
     await authStore.signInWithGoogle()
+    showSuccessMessage('Google 登入成功')
     await router.push({ name: 'home' })
   } catch {
     if (!isViewActive.value) {
@@ -133,11 +139,6 @@ const handleGoogleSignIn = async () => {
       <p class="app-banner-info app-text-muted min-h-[72px] px-[16px] py-[12px] text-[12px] leading-[20px]">
         首次登入完成後，系統會自動建立 `users/{uid}` 文件，作為後續配對與任務流程的基礎資料。
       </p>
-
-      <p v-if="authStore.errorMessage" class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]">
-        {{ authStore.errorMessage }}
-      </p>
-
       <button
         class="app-primary-button w-full"
         type="submit"

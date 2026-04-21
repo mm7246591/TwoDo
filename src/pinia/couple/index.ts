@@ -48,6 +48,7 @@ const useCoupleStore = defineStore('couple', () => {
     unsubscribeCouple = subscribeToCouple(
       coupleId,
       (nextCouple) => {
+        clearError()
         currentCouple.value = nextCouple
         state.value.isLoading = false
       },

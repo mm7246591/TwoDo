@@ -56,6 +56,7 @@ const useTasksStore = defineStore('tasks', () => {
     unsubscribeTasks = subscribeToTasks(
       coupleId,
       (nextTasks) => {
+        clearError()
         tasks.value = nextTasks
         state.value.isLoading = false
       },

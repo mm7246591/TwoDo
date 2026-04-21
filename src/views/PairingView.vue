@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useErrorToast } from '@/composables/useErrorToast'
 import MobileAppShell from '@/components/MobileAppShell.vue'
 import { useCoupleStore } from '@/pinia/couple'
 import { useUserStore } from '@/pinia/user'
+import { showSuccessMessage } from '@/services/uiFeedback'
 
 const userStore = useUserStore()
 const coupleStore = useCoupleStore()
 const router = useRouter()
 
 const inviteCodeInput = ref('')
+
+useErrorToast(() => coupleStore.errorMessage)
 
 const getCanJoinInvite = computed(() => {
   return Boolean(userStore.profile?.uid)
@@ -38,8 +42,10 @@ const handleJoinInvite = async () => {
     await coupleStore.joinByInviteCode(userStore.profile.uid, inviteCodeInput.value)
     inviteCodeInput.value = ''
   } catch {
-    // The store already exposes a user-facing error message.
+    return
   }
+
+  showSuccessMessage('配對成功')
 }
 
 const backHome = async () => {
@@ -113,10 +119,6 @@ const backHome = async () => {
           {{ coupleStore.isSubmitting ? '配對中...' : '用邀請碼配對' }}
         </button>
       </section>
-
-      <p v-if="coupleStore.errorMessage" class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]">
-        {{ coupleStore.errorMessage }}
-      </p>
     </section>
   </MobileAppShell>
 </template>

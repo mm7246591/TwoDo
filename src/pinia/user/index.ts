@@ -55,6 +55,7 @@ const useUserStore = defineStore('user', () => {
       unsubscribeProfile = subscribeToUserProfile(
         authUser.uid,
         (nextProfile) => {
+          clearError()
           profile.value = nextProfile
           state.value.isLoading = false
 

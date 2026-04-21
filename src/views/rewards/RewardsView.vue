@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
+import { useErrorToast } from "@/composables/useErrorToast";
 import RewardComposerCard from "@/components/reward/RewardComposerCard.vue";
 import RedemptionHistoryCard from "@/components/reward/RedemptionHistoryCard.vue";
 import RewardListCard from "@/components/reward/RewardListCard.vue";
 import MobileAppShell from "@/components/MobileAppShell.vue";
 import { useRewardsStore } from "@/pinia/rewards";
 import { useUserStore } from "@/pinia/user";
+import { showSuccessMessage } from "@/services/uiFeedback";
 import type { CreateRewardInput } from "@/pinia/rewards/types/interface";
 import type { Reward } from "@/views/rewards/types/interface";
 
 const router = useRouter();
 const userStore = useUserStore();
 const rewardsStore = useRewardsStore();
+
+useErrorToast(() => rewardsStore.errorMessage);
 
 const canUseRewards = computed(() =>
   Boolean(userStore.profile?.coupleId && userStore.profile?.uid),
@@ -61,8 +65,10 @@ const handleCreateReward = async (
       createdBy: userStore.profile.uid,
     });
   } catch {
-    // The store already exposes a user-facing error message.
+    return;
   }
+
+  showSuccessMessage("獎勵已建立");
 };
 
 const handleRedeemReward = async (reward: Reward) => {
@@ -73,8 +79,10 @@ const handleRedeemReward = async (reward: Reward) => {
   try {
     await rewardsStore.redeemExistingReward(reward, userStore.profile.uid);
   } catch {
-    // The store already exposes a user-facing error message.
+    return;
   }
+
+  showSuccessMessage("獎勵已兌換");
 };
 
 const handleToggleRewardAvailability = async (
@@ -92,8 +100,10 @@ const handleToggleRewardAvailability = async (
       isActive,
     );
   } catch {
-    // The store already exposes a user-facing error message.
+    return;
   }
+
+  showSuccessMessage(isActive ? "獎勵已重新啟用" : "獎勵已停用");
 };
 
 watch(
@@ -257,13 +267,6 @@ watch(
           </p>
         </div>
       </section>
-
-      <p
-        v-if="rewardsStore.errorMessage"
-        class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]"
-      >
-        {{ rewardsStore.errorMessage }}
-      </p>
     </section>
   </MobileAppShell>
 </template>

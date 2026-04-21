@@ -62,6 +62,7 @@ const useRewardsStore = defineStore('rewards', () => {
     unsubscribeRewards = subscribeToRewards(
       coupleId,
       (nextRewards) => {
+        clearError()
         rewards.value = nextRewards
         state.value.isLoading = false
       },
@@ -74,6 +75,7 @@ const useRewardsStore = defineStore('rewards', () => {
     unsubscribeRedemptions = subscribeToRedemptions(
       coupleId,
       (nextRedemptions) => {
+        clearError()
         redemptions.value = nextRedemptions
         state.value.isLoading = false
       },

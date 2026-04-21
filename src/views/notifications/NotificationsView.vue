@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import NotificationListCard from '@/components/notification/NotificationListCard.vue'
 import MobileAppShell from '@/components/MobileAppShell.vue'
+import { useErrorToast } from '@/composables/useErrorToast'
 import { useNotificationsStore } from '@/pinia/notifications'
 import { useUserStore } from '@/pinia/user'
 import {
@@ -10,6 +11,7 @@ import {
   enablePushNotifications,
   getPushNotificationStatus,
 } from '@/services/pushNotificationService'
+import { showSuccessMessage } from '@/services/uiFeedback'
 import type { NotificationItem } from '@/views/notifications/types/interface'
 
 const router = useRouter()
@@ -30,6 +32,9 @@ const pushState = ref({
 const canUseNotifications = computed(() =>
   Boolean(userStore.profile?.uid && userStore.profile?.coupleId),
 )
+
+useErrorToast(() => notificationsStore.errorMessage)
+useErrorToast(() => pushState.value.errorMessage)
 
 const pushPermissionLabel = computed(() => {
   if (pushState.value.permission === 'granted') {
@@ -107,9 +112,12 @@ const handleEnablePush = async () => {
     await syncPushStatus()
   } catch (error) {
     pushState.value.errorMessage = error instanceof Error ? error.message : '開啟推播失敗，請稍後再試。'
+    return
   } finally {
     pushState.value.isSubmitting = false
   }
+
+  showSuccessMessage('這台裝置已開啟推播')
 }
 
 const handleDisablePush = async () => {
@@ -127,25 +135,28 @@ const handleDisablePush = async () => {
     await syncPushStatus()
   } catch (error) {
     pushState.value.errorMessage = error instanceof Error ? error.message : '關閉推播失敗，請稍後再試。'
+    return
   } finally {
     pushState.value.isSubmitting = false
   }
+
+  showSuccessMessage('這台裝置已關閉推播')
 }
 
 const handleReadNotification = async (notification: NotificationItem) => {
   try {
     await notificationsStore.markOneAsRead(notification.id)
-  } catch {
-    // The store already exposes a user-facing error message.
-  }
+  } catch {}
 }
 
 const handleReadAll = async () => {
   try {
     await notificationsStore.markAllAsRead()
   } catch {
-    // The store already exposes a user-facing error message.
+    return
   }
+
+  showSuccessMessage('通知已全部標記為已讀')
 }
 
 watch(
@@ -296,14 +307,7 @@ watch(
         </div>
 
         <p
-          v-if="pushState.errorMessage"
-          class="app-banner-danger app-text-danger mt-[16px] px-[16px] py-[12px] text-[14px]"
-        >
-          {{ pushState.errorMessage }}
-        </p>
-
-        <p
-          v-else-if="pushState.isLoading"
+          v-if="pushState.isLoading"
           class="app-text-soft mt-[16px] text-[14px] leading-[24px]"
         >
           正在同步這台裝置的推播狀態...
@@ -360,13 +364,6 @@ watch(
           </p>
         </div>
       </section>
-
-      <p
-        v-if="notificationsStore.errorMessage"
-        class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]"
-      >
-        {{ notificationsStore.errorMessage }}
-      </p>
     </section>
   </MobileAppShell>
 </template>

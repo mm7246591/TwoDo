@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
+import { useErrorToast } from "@/composables/useErrorToast";
 import MobileAppShell from "@/components/MobileAppShell.vue";
 import { usePointsStore } from "@/pinia/points";
 import { useUserStore } from "@/pinia/user";
@@ -9,6 +10,8 @@ import type { PointLog } from "@/views/points/types/interface";
 const router = useRouter();
 const userStore = useUserStore();
 const pointsStore = usePointsStore();
+
+useErrorToast(() => pointsStore.errorMessage);
 
 const canUsePoints = computed(() =>
   Boolean(userStore.profile?.uid && userStore.profile?.coupleId),
@@ -188,13 +191,6 @@ watch(
           </p>
         </div>
       </section>
-
-      <p
-        v-if="pointsStore.errorMessage"
-        class="app-banner-danger app-text-danger px-[16px] py-[12px] text-[14px]"
-      >
-        {{ pointsStore.errorMessage }}
-      </p>
     </section>
   </MobileAppShell>
 </template>
