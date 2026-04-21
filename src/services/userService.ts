@@ -2,17 +2,14 @@ import type { User as FirebaseUser } from 'firebase/auth'
 import {
   arrayRemove,
   arrayUnion,
-  getDocs,
   getDoc,
   onSnapshot,
-  query,
   serverTimestamp,
   setDoc,
   updateDoc,
-  where,
   type Unsubscribe,
 } from 'firebase/firestore'
-import { userDoc, usersCollection } from '@/services/firebase/firestore'
+import { userDoc } from '@/services/firebase/firestore'
 import type { FirestoreUserProfile } from '@/services/firebase/types/firestore-user-profile.interface'
 import type { UserProfile } from '@/views/settings/types/interface'
 import type { Timestamp } from 'firebase/firestore'
@@ -50,26 +47,13 @@ const mapUserProfile = (data: FirestoreUserProfile): UserProfile => ({
   fcmTokens: Array.isArray(data.fcmTokens) ? data.fcmTokens : [],
 })
 
-const generateUniqueInviteCode = async () => {
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    const inviteCode = generateInviteCode()
-    const snapshot = await getDocs(query(usersCollection, where('inviteCode', '==', inviteCode)))
-
-    if (snapshot.empty) {
-      return inviteCode
-    }
-  }
-
-  throw new Error('邀請碼建立失敗，請稍後再試。')
-}
-
 const ensureUserProfile = async (authUser: FirebaseUser) => {
   const reference = userDoc(authUser.uid)
   const snapshot = await getDoc(reference)
   const fallbackDisplayName = resolveDisplayName(authUser)
 
   if (!snapshot.exists()) {
-    const inviteCode = await generateUniqueInviteCode()
+    const inviteCode = generateInviteCode()
 
     await setDoc(reference, {
       uid: authUser.uid,
@@ -89,7 +73,7 @@ const ensureUserProfile = async (authUser: FirebaseUser) => {
   }
 
   const existingProfile = snapshot.data() as Partial<FirestoreUserProfile>
-  const inviteCode = existingProfile.inviteCode?.trim() || await generateUniqueInviteCode()
+  const inviteCode = existingProfile.inviteCode?.trim() || generateInviteCode()
 
   await setDoc(
     reference,
@@ -112,14 +96,21 @@ const ensureUserProfile = async (authUser: FirebaseUser) => {
 const subscribeToUserProfile = (
   uid: string,
   callback: (profile: UserProfile | null) => void,
-): Unsubscribe => onSnapshot(userDoc(uid), (snapshot) => {
-  if (!snapshot.exists()) {
-    callback(null)
-    return
-  }
+  onError?: (error: Error) => void,
+): Unsubscribe => onSnapshot(
+  userDoc(uid),
+  (snapshot) => {
+    if (!snapshot.exists()) {
+      callback(null)
+      return
+    }
 
-  callback(mapUserProfile(snapshot.data() as FirestoreUserProfile))
-})
+    callback(mapUserProfile(snapshot.data() as FirestoreUserProfile))
+  },
+  (error) => {
+    onError?.(error)
+  },
+)
 
 const updateUserDisplayName = async (uid: string, displayName: string) => {
   await updateDoc(userDoc(uid), {

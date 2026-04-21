@@ -40,6 +40,7 @@ const subscribeToNotifications = (
   userUid: string,
   coupleId: string,
   callback: (notifications: NotificationItem[]) => void,
+  onError?: (error: Error) => void,
 ): Unsubscribe => onSnapshot(
   query(notificationsCollection, where('userUid', '==', userUid)),
   (snapshot) => {
@@ -51,6 +52,9 @@ const subscribeToNotifications = (
       .filter((notification) => notification.coupleId === coupleId)
 
     callback(sortNotificationsByCreatedAt(notifications))
+  },
+  (error) => {
+    onError?.(error)
   },
 )
 

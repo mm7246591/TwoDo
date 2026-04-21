@@ -53,10 +53,18 @@ const useTasksStore = defineStore('tasks', () => {
     state.value.currentCoupleId = coupleId
     state.value.isLoading = true
 
-    unsubscribeTasks = subscribeToTasks(coupleId, (nextTasks) => {
-      tasks.value = nextTasks
-      state.value.isLoading = false
-    })
+    unsubscribeTasks = subscribeToTasks(
+      coupleId,
+      (nextTasks) => {
+        tasks.value = nextTasks
+        state.value.isLoading = false
+      },
+      (error) => {
+        tasks.value = []
+        state.value.isLoading = false
+        state.value.errorMessage = normalizeErrorMessage(error)
+      },
+    )
   }
 
   const createNewTask = async (input: CreateTaskInput) => {

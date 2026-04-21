@@ -70,6 +70,7 @@ const sortRedemptionsByCreatedAt = (redemptions: Redemption[]) => [...redemption
 const subscribeToRewards = (
   coupleId: string,
   callback: (rewards: Reward[]) => void,
+  onError?: (error: Error) => void,
 ): Unsubscribe => onSnapshot(
   query(rewardsCollection, where('coupleId', '==', coupleId)),
   (snapshot) => {
@@ -80,39 +81,54 @@ const subscribeToRewards = (
 
     callback(sortRewardsByUpdatedAt(rewards))
   },
+  (error) => {
+    onError?.(error)
+  },
 )
 
 const subscribeToRedemptions = (
   coupleId: string,
   callback: (redemptions: Redemption[]) => void,
+  onError?: (error: Error) => void,
 ): Unsubscribe => onSnapshot(
   query(redemptionsCollection, where('coupleId', '==', coupleId)),
   async (snapshot) => {
-    const rawRedemptions = snapshot.docs.map((documentSnapshot) => ({
-      data: documentSnapshot.data() as FirestoreRedemption,
-      id: documentSnapshot.id,
-    }))
+    try {
+      const rawRedemptions = snapshot.docs.map((documentSnapshot) => ({
+        data: documentSnapshot.data() as FirestoreRedemption,
+        id: documentSnapshot.id,
+      }))
 
-    const rewardIds = Array.from(
-      new Set(rawRedemptions.map((redemption) => redemption.data.rewardId).filter(Boolean)),
-    ) as string[]
+      const rewardIds = Array.from(
+        new Set(rawRedemptions.map((redemption) => redemption.data.rewardId).filter(Boolean)),
+      ) as string[]
 
-    const rewardEntries = await Promise.all(rewardIds.map(async (rewardId) => {
-      const snapshot = await getDoc(rewardDoc(rewardId))
-      const reward = snapshot.data() as FirestoreReward | undefined
+      const rewardEntries = await Promise.all(rewardIds.map(async (rewardId) => {
+        const snapshot = await getDoc(rewardDoc(rewardId))
+        const reward = snapshot.data() as FirestoreReward | undefined
 
-      return [rewardId, reward?.title ?? null] as const
-    }))
+        return [rewardId, reward?.title ?? null] as const
+      }))
 
-    const rewardTitleMap = new Map(rewardEntries)
+      const rewardTitleMap = new Map(rewardEntries)
 
-    const redemptions = rawRedemptions.map((redemption) => mapRedemption(
-      redemption.id,
-      redemption.data,
-      rewardTitleMap.get(redemption.data.rewardId) ?? null,
-    ))
+      const redemptions = rawRedemptions.map((redemption) => mapRedemption(
+        redemption.id,
+        redemption.data,
+        rewardTitleMap.get(redemption.data.rewardId) ?? null,
+      ))
 
-    callback(sortRedemptionsByCreatedAt(redemptions))
+      callback(sortRedemptionsByCreatedAt(redemptions))
+    } catch (error) {
+      onError?.(
+        error instanceof Error
+          ? error
+          : new Error('獎勵兌換紀錄補充資料讀取失敗，請稍後再試。'),
+      )
+    }
+  },
+  (error) => {
+    onError?.(error)
   },
 )
 

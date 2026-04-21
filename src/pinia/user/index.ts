@@ -52,27 +52,35 @@ const useUserStore = defineStore('user', () => {
     try {
       await ensureUserProfile(authUser)
 
-      unsubscribeProfile = subscribeToUserProfile(authUser.uid, (nextProfile) => {
-        profile.value = nextProfile
-        state.value.isLoading = false
+      unsubscribeProfile = subscribeToUserProfile(
+        authUser.uid,
+        (nextProfile) => {
+          profile.value = nextProfile
+          state.value.isLoading = false
 
-        const coupleStore = useCoupleStore()
-        const notificationsStore = useNotificationsStore()
-        const pointsStore = usePointsStore()
-        const rewardsStore = useRewardsStore()
-        const tasksStore = useTasksStore()
+          const coupleStore = useCoupleStore()
+          const notificationsStore = useNotificationsStore()
+          const pointsStore = usePointsStore()
+          const rewardsStore = useRewardsStore()
+          const tasksStore = useTasksStore()
 
-        if (nextProfile?.coupleId) {
-          void coupleStore.syncCouple(nextProfile.coupleId)
-          return
-        }
+          if (nextProfile?.coupleId) {
+            void coupleStore.syncCouple(nextProfile.coupleId)
+            return
+          }
 
-        coupleStore.reset()
-        notificationsStore.reset()
-        pointsStore.reset()
-        rewardsStore.reset()
-        tasksStore.reset()
-      })
+          coupleStore.reset()
+          notificationsStore.reset()
+          pointsStore.reset()
+          rewardsStore.reset()
+          tasksStore.reset()
+        },
+        (error) => {
+          profile.value = null
+          state.value.isLoading = false
+          state.value.errorMessage = normalizeErrorMessage(error)
+        },
+      )
     } catch (error) {
       profile.value = null
       state.value.isLoading = false

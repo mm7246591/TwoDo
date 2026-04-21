@@ -54,10 +54,19 @@ const useNotificationsStore = defineStore('notifications', () => {
     state.value.currentCoupleId = coupleId
     state.value.isLoading = true
 
-    unsubscribeNotifications = subscribeToNotifications(userUid, coupleId, (nextNotifications) => {
-      notifications.value = nextNotifications
-      state.value.isLoading = false
-    })
+    unsubscribeNotifications = subscribeToNotifications(
+      userUid,
+      coupleId,
+      (nextNotifications) => {
+        notifications.value = nextNotifications
+        state.value.isLoading = false
+      },
+      (error) => {
+        notifications.value = []
+        state.value.isLoading = false
+        state.value.errorMessage = normalizeErrorMessage(error)
+      },
+    )
   }
 
   const markOneAsRead = async (notificationId: string) => {

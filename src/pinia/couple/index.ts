@@ -45,10 +45,18 @@ const useCoupleStore = defineStore('couple', () => {
     state.value.currentCoupleId = coupleId
     state.value.isLoading = true
 
-    unsubscribeCouple = subscribeToCouple(coupleId, (nextCouple) => {
-      currentCouple.value = nextCouple
-      state.value.isLoading = false
-    })
+    unsubscribeCouple = subscribeToCouple(
+      coupleId,
+      (nextCouple) => {
+        currentCouple.value = nextCouple
+        state.value.isLoading = false
+      },
+      (error) => {
+        currentCouple.value = null
+        state.value.isLoading = false
+        state.value.errorMessage = normalizeErrorMessage(error)
+      },
+    )
   }
 
   const joinByInviteCode = async (uid: string, rawInviteCode: string) => {

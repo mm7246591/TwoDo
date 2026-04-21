@@ -56,10 +56,19 @@ const usePointsStore = defineStore('points', () => {
     state.value.isLoading = true
 
     try {
-      unsubscribePointLogs = subscribeToPointLogs(userUid, coupleId, (nextPointLogs) => {
-        pointLogs.value = nextPointLogs
-        state.value.isLoading = false
-      })
+      unsubscribePointLogs = subscribeToPointLogs(
+        userUid,
+        coupleId,
+        (nextPointLogs) => {
+          pointLogs.value = nextPointLogs
+          state.value.isLoading = false
+        },
+        (error) => {
+          pointLogs.value = []
+          state.value.isLoading = false
+          state.value.errorMessage = normalizeErrorMessage(error)
+        },
+      )
     } catch (error) {
       state.value.errorMessage = normalizeErrorMessage(error)
       state.value.isLoading = false

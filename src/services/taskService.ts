@@ -42,6 +42,7 @@ const sortTasksByUpdatedAt = (tasks: Task[]) => [...tasks].sort((leftTask, right
 const subscribeToTasks = (
   coupleId: string,
   callback: (tasks: Task[]) => void,
+  onError?: (error: Error) => void,
 ): Unsubscribe => onSnapshot(
   query(tasksCollection, where('coupleId', '==', coupleId)),
   (snapshot) => {
@@ -51,6 +52,9 @@ const subscribeToTasks = (
     ))
 
     callback(sortTasksByUpdatedAt(tasks))
+  },
+  (error) => {
+    onError?.(error)
   },
 )
 

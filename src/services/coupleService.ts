@@ -27,14 +27,21 @@ const mapCouple = (data: FirestoreCouple): Couple => ({
 const subscribeToCouple = (
   coupleId: string,
   callback: (couple: Couple | null) => void,
-): Unsubscribe => onSnapshot(coupleDoc(coupleId), (snapshot) => {
-  if (!snapshot.exists()) {
-    callback(null)
-    return
-  }
+  onError?: (error: Error) => void,
+): Unsubscribe => onSnapshot(
+  coupleDoc(coupleId),
+  (snapshot) => {
+    if (!snapshot.exists()) {
+      callback(null)
+      return
+    }
 
-  callback(mapCouple(snapshot.data() as FirestoreCouple))
-})
+    callback(mapCouple(snapshot.data() as FirestoreCouple))
+  },
+  (error) => {
+    onError?.(error)
+  },
+)
 
 const joinCoupleByInviteCode = async (uid: string, rawInviteCode: string) => {
   if (!uid) {

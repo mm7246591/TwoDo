@@ -59,14 +59,30 @@ const useRewardsStore = defineStore('rewards', () => {
     state.value.currentCoupleId = coupleId
     state.value.isLoading = true
 
-    unsubscribeRewards = subscribeToRewards(coupleId, (nextRewards) => {
-      rewards.value = nextRewards
-      state.value.isLoading = false
-    })
-    unsubscribeRedemptions = subscribeToRedemptions(coupleId, (nextRedemptions) => {
-      redemptions.value = nextRedemptions
-      state.value.isLoading = false
-    })
+    unsubscribeRewards = subscribeToRewards(
+      coupleId,
+      (nextRewards) => {
+        rewards.value = nextRewards
+        state.value.isLoading = false
+      },
+      (error) => {
+        rewards.value = []
+        state.value.isLoading = false
+        state.value.errorMessage = normalizeErrorMessage(error)
+      },
+    )
+    unsubscribeRedemptions = subscribeToRedemptions(
+      coupleId,
+      (nextRedemptions) => {
+        redemptions.value = nextRedemptions
+        state.value.isLoading = false
+      },
+      (error) => {
+        redemptions.value = []
+        state.value.isLoading = false
+        state.value.errorMessage = normalizeErrorMessage(error)
+      },
+    )
   }
 
   const createNewReward = async (input: CreateRewardInput) => {
