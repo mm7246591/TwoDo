@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { SwipeCell } from "vant";
 import type { Reward } from "@/views/rewards/types/interface";
 
 const emit = defineEmits<{
@@ -30,6 +31,8 @@ const getCanRedeem = computed(() => {
 
   return props.currentPoints >= props.reward.cost;
 });
+const getCanManage = computed(() => props.reward.createdBy === props.currentUid);
+const getHasSwipeActions = computed(() => getCanRedeem.value || getCanManage.value);
 
 const getRedeemHint = computed(() => {
   if (!props.reward.isActive) {
@@ -47,10 +50,6 @@ const getRedeemHint = computed(() => {
   return "可以直接兌換，系統會同步扣分並寫入 redemption 紀錄。";
 });
 
-const getManageButtonText = computed(() =>
-  props.reward.isActive ? "停用獎勵" : "重新啟用",
-);
-
 const getManageHint = computed(() => {
   if (props.reward.createdBy !== props.currentUid) {
     return "";
@@ -65,7 +64,8 @@ const getManageHint = computed(() => {
 </script>
 
 <template>
-  <article class="app-card-muted px-[16px] py-[16px]">
+  <SwipeCell class="app-swipe-cell" :disabled="!getHasSwipeActions">
+    <article class="app-card-muted px-[16px] py-[16px]">
     <div class="flex items-start justify-between gap-[16px]">
       <div class="min-w-0">
         <p class="app-text-strong text-[18px] font-semibold">
@@ -99,26 +99,30 @@ const getManageHint = computed(() => {
     >
       {{ getManageHint }}
     </p>
-
-    <div class="mt-[16px] flex flex-wrap gap-[12px]">
-      <button
-        class="app-secondary-button px-[16px] py-[12px] text-[14px]"
-        type="button"
-        :disabled="!getCanRedeem || isSubmitting"
-        @click="emit('redeem', reward)"
-      >
-        兌換獎勵
-      </button>
-
-      <button
-        v-if="reward.createdBy === currentUid"
-        class="app-ghost-button px-[16px] py-[12px] text-[14px]"
-        type="button"
-        :disabled="isSubmitting"
-        @click="emit('toggleAvailability', reward, !reward.isActive)"
-      >
-        {{ getManageButtonText }}
-      </button>
-    </div>
   </article>
+
+    <template #right>
+      <div class="app-swipe-actions">
+        <button
+          v-if="getCanRedeem"
+          class="app-swipe-action app-swipe-action-primary"
+          type="button"
+          :disabled="isSubmitting"
+          @click="emit('redeem', reward)"
+        >
+          兌換
+        </button>
+
+        <button
+          v-if="getCanManage"
+          class="app-swipe-action app-swipe-action-secondary"
+          type="button"
+          :disabled="isSubmitting"
+          @click="emit('toggleAvailability', reward, !reward.isActive)"
+        >
+          {{ reward.isActive ? "停用" : "啟用" }}
+        </button>
+      </div>
+    </template>
+  </SwipeCell>
 </template>

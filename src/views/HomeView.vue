@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { useErrorToast } from '@/composables/useErrorToast'
 import DashboardIcon from '@/components/common/DashboardIcon.vue'
 import MobileAppShell from '@/components/MobileAppShell.vue'
@@ -101,14 +102,14 @@ const getCoupleStatus = computed(() => {
 })
 const getCoupleDescription = computed(() => {
   if (coupleStore.getIsPaired) {
-    return '你們已經綁定在同一組 couple，今天可以直接從首頁查看待辦、積分與最近活動。'
+    return '你們已經完成配對，今天可以直接從首頁查看待辦、積分與最近活動。'
   }
 
   if (coupleStore.currentCoupleId) {
-    return `目前已進入配對流程，coupleId 為 ${coupleStore.currentCoupleId}。配對資料同步完成後，首頁會自動出現任務與獎勵摘要。`
+    return '配對資料正在同步中。完成後，首頁會自動出現任務與獎勵摘要。'
   }
 
-  return '先完成配對，之後 tasks、rewards、notifications 與 pointLogs 都會綁在同一個 coupleId 下。'
+  return '先完成配對，之後你們的任務、獎勵、通知與點數都會集中在同一個共享空間。'
 })
 
 const formatDateTime = (value: Date) => new Intl.DateTimeFormat('zh-TW', {
@@ -406,12 +407,11 @@ watch(
               </div>
             </article>
 
-            <p
+            <AppEmptyState
               v-if="!recentAssignedTasks.length"
-              class="app-text-muted text-[14px] leading-[24px]"
-            >
-              目前沒有指派給你的待辦，今天的版面相對乾淨。
-            </p>
+              title="今天沒有待辦"
+              description="對方指派給你的任務會優先出現在這裡。"
+            />
           </div>
 
           <button
@@ -460,12 +460,11 @@ watch(
               </div>
             </article>
 
-            <p
+            <AppEmptyState
               v-if="!recentWaitingConfirmTasks.length"
-              class="app-text-muted text-[14px] leading-[24px]"
-            >
-              目前沒有等待你確認的任務。
-            </p>
+              title="沒有待確認項目"
+              description="對方完成你建立的任務後，會在這裡提醒你確認。"
+            />
           </div>
 
           <div class="mt-[20px] grid grid-cols-2 gap-[12px]">
@@ -524,12 +523,11 @@ watch(
             </time>
           </article>
 
-          <p
+          <AppEmptyState
             v-if="!recentActivities.length"
-            class="app-text-muted text-[14px] leading-[24px]"
-          >
-            還沒有最近活動。完成第一筆任務或兌換第一個獎勵後，首頁就會開始累積摘要。
-          </p>
+            title="還沒有最近活動"
+            description="完成任務、確認加分或兌換獎勵後，首頁會開始累積摘要。"
+          />
         </div>
       </section>
     </section>

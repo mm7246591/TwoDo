@@ -159,8 +159,10 @@ const handleSubmit = () => {
       </div>
 
       <div class="app-accent-panel px-[12px] py-[8px] text-right">
-        <p class="app-kicker">Firestore</p>
-        <p class="app-text-strong mt-[4px] text-[14px] font-semibold">tasks</p>
+        <p class="app-kicker">指派給</p>
+        <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
+          {{ getAssigneeLabel }}
+        </p>
       </div>
     </div>
 

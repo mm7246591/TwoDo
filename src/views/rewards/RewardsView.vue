@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
+import AppEmptyState from "@/components/common/AppEmptyState.vue";
 import { useErrorToast } from "@/composables/useErrorToast";
 import RewardComposerCard from "@/components/reward/RewardComposerCard.vue";
 import RedemptionHistoryCard from "@/components/reward/RedemptionHistoryCard.vue";
@@ -127,7 +128,7 @@ watch(
     >
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
-          <div class="app-chip">Rewards MVP</div>
+          <div class="app-chip">獎勵中心</div>
           <h1
             class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
           >
@@ -145,8 +146,7 @@ watch(
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        這一版把 `rewards`、`redemptions`
-        接起來，除了建立與兌換，也補上建立者後續管理獎勵啟用狀態的能力。
+        建立讓對方想完成任務的獎勵，也可以用自己的點數兌換對方設定的回報。
       </p>
     </header>
 
@@ -159,7 +159,7 @@ watch(
           還不能使用獎勵系統
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          需要先完成配對，獎勵才知道要屬於哪一組 `coupleId`。
+          需要先完成配對，才能建立與兌換你們共享的獎勵。
         </p>
       </section>
 
@@ -199,7 +199,7 @@ watch(
             <p
               class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
             >
-              本輪同步中的獎勵
+            目前可查看的獎勵
             </p>
           </div>
 
@@ -223,12 +223,11 @@ watch(
             @toggle-availability="handleToggleRewardAvailability"
           />
 
-          <p
+          <AppEmptyState
             v-if="!rewardsStore.rewards.length"
-            class="app-text-muted text-[14px] leading-[24px]"
-          >
-            目前還沒有獎勵，先建立第一個可以兌換的回報吧。
-          </p>
+            title="還沒有獎勵"
+            description="先建立一個對方可以兌換的回報，讓完成任務更有動力。"
+          />
         </div>
       </section>
 
@@ -239,7 +238,7 @@ watch(
             <p
               class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
             >
-              最近完成的 redemptions
+              最近完成的兌換
             </p>
           </div>
 
@@ -259,12 +258,11 @@ watch(
             :redemption="redemption"
           />
 
-          <p
+          <AppEmptyState
             v-if="!rewardsStore.redemptions.length"
-            class="app-text-muted text-[14px] leading-[24px]"
-          >
-            還沒有任何兌換紀錄，等有人第一次使用點數後，這裡就會開始累積歷史。
-          </p>
+            title="還沒有兌換紀錄"
+            description="等有人第一次使用點數兌換獎勵後，這裡會保留歷史紀錄。"
+          />
         </div>
       </section>
     </section>

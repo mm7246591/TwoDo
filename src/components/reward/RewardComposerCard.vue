@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import { Switch } from "vant";
 import type { CreateRewardInput } from "@/pinia/rewards/types/interface";
 import type { RewardComposerForm } from "@/views/rewards/types/interface";
 
@@ -23,6 +24,13 @@ const resetForm = () => {
   form.value.cost = 30;
   form.value.visibility = "active";
 };
+
+const isRewardActive = computed({
+  get: () => form.value.visibility === "active",
+  set: (isActive: boolean) => {
+    form.value.visibility = isActive ? "active" : "inactive";
+  },
+});
 
 const handleSubmit = () => {
   emit("submit", {
@@ -49,9 +57,9 @@ const handleSubmit = () => {
       </div>
 
       <div class="app-accent-panel px-[12px] py-[8px] text-right">
-        <p class="app-kicker">Firestore</p>
+        <p class="app-kicker">狀態</p>
         <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-          rewards
+          {{ isRewardActive ? "可兌換" : "先隱藏" }}
         </p>
       </div>
     </div>
@@ -90,10 +98,17 @@ const handleSubmit = () => {
 
         <label class="block space-y-[8px]">
           <span class="app-field-label">狀態</span>
-          <select v-model="form.visibility" class="app-input">
-            <option value="active">啟用</option>
-            <option value="inactive">停用</option>
-          </select>
+          <div class="app-input flex items-center justify-between gap-[12px]">
+            <span :class="isRewardActive ? 'app-text-strong' : 'app-text-soft'">
+              {{ isRewardActive ? "立即開放" : "先不開放" }}
+            </span>
+            <Switch
+              v-model="isRewardActive"
+              size="24px"
+              active-color="#111827"
+              inactive-color="#d1d5db"
+            />
+          </div>
         </label>
       </div>
 

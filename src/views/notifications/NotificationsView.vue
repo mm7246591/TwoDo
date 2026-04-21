@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import NotificationListCard from '@/components/notification/NotificationListCard.vue'
 import MobileAppShell from '@/components/MobileAppShell.vue'
 import { useErrorToast } from '@/composables/useErrorToast'
@@ -58,7 +59,7 @@ const pushStatusLabel = computed(() => {
   }
 
   if (!pushState.value.vapidReady) {
-    return '缺少 Web Push 憑證'
+    return '缺少推播憑證'
   }
 
   if (pushState.value.isCurrentDeviceEnabled) {
@@ -198,7 +199,7 @@ watch(
     >
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
-          <div class="app-chip">Notifications MVP</div>
+          <div class="app-chip">通知中心</div>
           <h1
             class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
           >
@@ -216,7 +217,7 @@ watch(
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        這一版除了 `notifications` collection，也把 Web FCM 接上，讓新任務、待確認、已加分與獎勵兌換可以送到這台裝置。
+        新任務、待確認、已加分和獎勵兌換都會集中在這裡，也可以管理這台裝置的推播。
       </p>
     </header>
 
@@ -229,7 +230,7 @@ watch(
           還不能查看通知
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          需要先登入並完成配對，通知才會綁到你目前的 `coupleId`。
+          需要先登入並完成配對，通知才會開始同步到你的帳號。
         </p>
       </section>
 
@@ -270,12 +271,12 @@ watch(
           <article class="app-card-muted px-[16px] py-[16px]">
             <p class="app-label">這台裝置</p>
             <p class="app-text-strong mt-[8px] text-[18px] font-semibold">
-              {{ pushState.isCurrentDeviceEnabled ? '已綁定 FCM token' : '尚未綁定' }}
+              {{ pushState.isCurrentDeviceEnabled ? '已開啟推播' : '尚未開啟' }}
             </p>
           </article>
 
           <article class="app-card-muted px-[16px] py-[16px]">
-            <p class="app-label">Web Push 憑證</p>
+            <p class="app-label">推播憑證</p>
             <p class="app-text-strong mt-[8px] text-[18px] font-semibold">
               {{ pushState.vapidReady ? '已設定' : '尚未設定' }}
             </p>
@@ -283,7 +284,7 @@ watch(
         </div>
 
         <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-          開啟後，後端在建立通知時會同步送 FCM 到這台裝置。若你先前封鎖過通知，需到瀏覽器網站設定重新允許。
+          開啟後，新任務、確認提醒與獎勵兌換會傳到這台裝置。若你先前封鎖過通知，需到瀏覽器網站設定重新允許。
         </p>
 
         <div class="mt-[20px] flex flex-wrap gap-[12px]">
@@ -356,12 +357,11 @@ watch(
             @read="handleReadNotification"
           />
 
-          <p
+          <AppEmptyState
             v-if="!notificationsStore.notifications.length"
-            class="app-text-muted text-[14px] leading-[24px]"
-          >
-            目前還沒有通知。先建立任務或兌換一個獎勵，這裡就會開始累積動態。
-          </p>
+            title="目前沒有通知"
+            description="建立任務、完成待確認或兌換獎勵後，這裡會開始累積動態。"
+          />
         </div>
       </section>
     </section>

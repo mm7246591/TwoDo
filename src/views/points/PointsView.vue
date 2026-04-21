@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
+import AppEmptyState from "@/components/common/AppEmptyState.vue";
 import { useErrorToast } from "@/composables/useErrorToast";
 import MobileAppShell from "@/components/MobileAppShell.vue";
 import { usePointsStore } from "@/pinia/points";
@@ -82,7 +83,7 @@ watch(
     >
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
-          <div class="app-chip">Points MVP</div>
+          <div class="app-chip">積分紀錄</div>
           <h1
             class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
           >
@@ -100,8 +101,7 @@ watch(
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        這一版把 `task confirmed -> users.points + pointLogs`
-        接起來，先驗證積分主流程有正確落到 Firestore。
+        每次任務確認或獎勵兌換，都會在這裡留下清楚的點數變動紀錄。
       </p>
     </header>
 
@@ -114,7 +114,7 @@ watch(
           還不能查看積分
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          需要先登入並完成配對，積分流水才會綁到你目前的 `coupleId`。
+          需要先登入並完成配對，才會開始累積你們的點數紀錄。
         </p>
       </section>
 
@@ -183,12 +183,11 @@ watch(
             </div>
           </article>
 
-          <p
+          <AppEmptyState
             v-if="!pointsStore.pointLogs.length"
-            class="app-text-muted text-[14px] leading-[24px]"
-          >
-            還沒有積分流水。先去任務頁完成一筆待辦並由建立者確認完成，這裡就會出現第一筆紀錄。
-          </p>
+            title="還沒有點數變動"
+            description="完成一筆任務並由建立者確認後，第一筆加分紀錄就會出現在這裡。"
+          />
         </div>
       </section>
     </section>

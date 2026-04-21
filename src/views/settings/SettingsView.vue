@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { Field } from "vant";
 import MobileAppShell from "@/components/MobileAppShell.vue";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useAuthStore } from "@/pinia/auth";
@@ -135,7 +136,7 @@ watch(
     >
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
-          <div class="app-chip">Settings</div>
+          <div class="app-chip">設定</div>
           <h1
             class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
           >
@@ -153,8 +154,7 @@ watch(
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        這一頁先把 MVP
-        的個人資料、通知概況、解除配對與登出整合進來，讓主流程收斂成一套可管理的設定入口。
+        管理你的暱稱、通知設定、配對狀態與帳號操作。
       </p>
     </header>
 
@@ -206,10 +206,12 @@ watch(
 
           <label class="mt-[20px] block space-y-[8px]">
             <span class="app-field-label">暱稱</span>
-            <input
+            <Field
               v-model="displayNameInput"
-              class="app-input"
+              class="app-vant-field"
               type="text"
+              clearable
+              :border="false"
               maxlength="40"
               placeholder="輸入新的暱稱"
             />
@@ -259,7 +261,7 @@ watch(
             </div>
 
             <div class="app-accent-panel px-[12px] py-[8px] text-right">
-              <p class="app-kicker">FCM tokens</p>
+              <p class="app-kicker">已綁定裝置</p>
               <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
                 {{ userStore.profile?.fcmTokens.length ?? 0 }}
               </p>
@@ -267,8 +269,7 @@ watch(
           </div>
 
           <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-            你可以到通知頁管理這台裝置的 Web Push
-            狀態，也能直接檢查未讀通知與站內訊息列表。
+            你可以到通知頁管理這台裝置的推播狀態，也能直接檢查未讀通知與站內訊息列表。
           </p>
 
           <button
@@ -283,7 +284,7 @@ watch(
         <section class="app-card px-[20px] py-[20px]">
           <div class="flex items-center justify-between gap-[12px]">
             <div>
-              <p class="app-label">Danger Zone</p>
+              <p class="app-label">配對管理</p>
               <p
                 class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
               >
@@ -292,17 +293,15 @@ watch(
             </div>
 
             <div class="app-accent-panel px-[12px] py-[8px] text-right">
-              <p class="app-kicker">coupleId</p>
+              <p class="app-kicker">目前狀態</p>
               <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-                {{ userStore.profile?.coupleId || "未綁定" }}
+                {{ getHasPairedPartner ? "已配對" : "未配對" }}
               </p>
             </div>
           </div>
 
           <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-            解除配對會清掉雙方 `users.coupleId` 與
-            `users.partnerUid`。既有任務、獎勵、點數紀錄仍留在
-            Firestore，但你們之後不會再讀到舊 couple 的資料。
+            解除配對後，你們會停止共享任務、獎勵與通知。既有紀錄會保留，但不會再出現在目前帳號的共享空間中。
           </p>
 
           <button

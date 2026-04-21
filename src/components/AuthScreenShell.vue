@@ -19,7 +19,7 @@ defineProps<{
       <div class="mt-[20px] space-y-[16px]">
         <div class="app-eyebrow">
           <span class="app-eyebrow-dot" />
-          Account Access
+          共享入口
         </div>
 
         <div class="grid min-h-[140px] content-start gap-[12px] sm:min-h-[128px]">
@@ -35,14 +35,14 @@ defineProps<{
           <div class="app-card-muted flex h-full flex-col px-[16px] py-[12px]">
             <p class="app-label">共享任務</p>
             <p class="app-text-strong mt-[8px] text-[14px] font-semibold">
-              先把兩位使用者綁進同一組 couple，後面的任務、獎勵與通知才會有共同資料脈絡。
+              登入後和另一半配對，就能一起建立任務、累積點數與兌換獎勵。
             </p>
           </div>
 
           <div class="app-card-muted flex h-full flex-col px-[16px] py-[12px]">
-            <p class="app-label">MVP 目標</p>
+            <p class="app-label">雙人協作</p>
             <p class="app-text-strong mt-[8px] text-[14px] font-semibold">
-              先把登入、配對與任務流程接穩，後面再逐步補積分、兌換與通知。
+              你們可以互相指派待辦，完成後由建立者確認並發放點數。
             </p>
           </div>
         </div>
@@ -52,7 +52,7 @@ defineProps<{
     <section class="app-section-panel mt-auto rounded-t-[32px] px-[20px] pb-[24px] pt-[24px] sm:px-[28px] sm:pt-[28px]">
       <div class="mb-[20px] flex min-h-[120px] items-start justify-between gap-[16px]">
         <div class="min-w-0">
-          <p class="app-kicker">Account Flow</p>
+          <p class="app-kicker">開始使用</p>
           <h2 class="app-text-strong mt-[8px] text-[20px] font-semibold tracking-[-0.03em]">
             {{ cardTitle }}
           </h2>

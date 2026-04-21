@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { Badge } from "vant";
 import type { NotificationItem } from "@/views/notifications/types/interface";
 
 const emit = defineEmits<{
@@ -56,7 +57,12 @@ const formatDateTime = (value: Date) =>
       <div class="app-accent-panel shrink-0 px-[12px] py-[8px] text-right">
         <p class="app-kicker">狀態</p>
         <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-          {{ notification.isRead ? "已讀" : "未讀" }}
+          <Badge
+            v-if="!notification.isRead"
+            content="未讀"
+            color="#ef4444"
+          />
+          <span v-else>已讀</span>
         </p>
       </div>
     </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { SwipeCell } from 'vant'
 import type { Task } from '@/views/tasks/types/interface'
 
 const props = defineProps<{
@@ -69,10 +70,24 @@ const getTimelineText = computed(() => {
 
   return `建立時間：${formatDateTime(props.task.createdAt)}`
 })
+
+const getCanComplete = computed(() =>
+  props.task.assignedTo === props.currentUid && props.task.status === 'pending',
+)
+const getCanConfirm = computed(() =>
+  props.task.createdBy === props.currentUid && props.task.status === 'completed_pending_confirm',
+)
+const getCanCancel = computed(() =>
+  props.task.createdBy === props.currentUid && ['pending', 'completed_pending_confirm'].includes(props.task.status),
+)
+const getHasSwipeActions = computed(() =>
+  getCanComplete.value || getCanConfirm.value || getCanCancel.value,
+)
 </script>
 
 <template>
-  <article class="app-card-muted px-[16px] py-[16px]">
+  <SwipeCell class="app-swipe-cell" :disabled="!getHasSwipeActions">
+    <article class="app-card-muted px-[16px] py-[16px]">
     <div class="flex items-start justify-between gap-[16px]">
       <div class="min-w-0">
         <p class="app-text-strong text-[18px] font-semibold">{{ task.title }}</p>
@@ -96,37 +111,40 @@ const getTimelineText = computed(() => {
       <p class="app-text-soft">角色：{{ getRoleText }}</p>
       <p class="app-text-soft">{{ getTimelineText }}</p>
     </div>
-
-    <div class="mt-[16px] flex flex-wrap gap-[12px]">
-      <button
-        v-if="task.assignedTo === currentUid && task.status === 'pending'"
-        class="app-secondary-button px-[16px] py-[12px] text-[14px]"
-        type="button"
-        :disabled="props.isSubmitting"
-        @click="emit('complete', task)"
-      >
-        完成任務
-      </button>
-
-      <button
-        v-if="task.createdBy === currentUid && task.status === 'completed_pending_confirm'"
-        class="app-primary-button px-[16px] py-[12px] text-[14px]"
-        type="button"
-        :disabled="props.isSubmitting"
-        @click="emit('confirm', task)"
-      >
-        確認完成
-      </button>
-
-      <button
-        v-if="task.createdBy === currentUid && ['pending', 'completed_pending_confirm'].includes(task.status)"
-        class="app-ghost-button px-[16px] py-[12px] text-[14px]"
-        type="button"
-        :disabled="props.isSubmitting"
-        @click="emit('cancel', task)"
-      >
-        取消任務
-      </button>
-    </div>
   </article>
+
+    <template #right>
+      <div class="app-swipe-actions">
+        <button
+          v-if="getCanComplete"
+          class="app-swipe-action app-swipe-action-primary"
+          type="button"
+          :disabled="props.isSubmitting"
+          @click="emit('complete', task)"
+        >
+          完成
+        </button>
+
+        <button
+          v-if="getCanConfirm"
+          class="app-swipe-action app-swipe-action-primary"
+          type="button"
+          :disabled="props.isSubmitting"
+          @click="emit('confirm', task)"
+        >
+          確認
+        </button>
+
+        <button
+          v-if="getCanCancel"
+          class="app-swipe-action app-swipe-action-danger"
+          type="button"
+          :disabled="props.isSubmitting"
+          @click="emit('cancel', task)"
+        >
+          取消
+        </button>
+      </div>
+    </template>
+  </SwipeCell>
 </template>

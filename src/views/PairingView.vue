@@ -58,9 +58,9 @@ const backHome = async () => {
     <header class="space-y-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]">
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
-          <div class="app-chip">Pairing Flow</div>
+          <div class="app-chip">伴侶配對</div>
           <h1 class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]">
-            每個人都有自己的邀請碼
+            用邀請碼把兩個帳號連在一起
           </h1>
         </div>
 
@@ -70,7 +70,7 @@ const backHome = async () => {
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        每位使用者註冊後都會拿到自己的 `inviteCode`，只有輸入對方邀請碼成功時，系統才會正式建立 `couples` 文件。
+        分享你的邀請碼給另一半，或輸入對方的邀請碼。配對完成後，你們就能共享任務、點數與獎勵。
       </p>
     </header>
 
@@ -81,10 +81,10 @@ const backHome = async () => {
           {{ getPairingStatus }}
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          `users.coupleId`: {{ userStore.profile?.coupleId || '尚未建立' }}
+          {{ userStore.profile?.coupleId ? '你已經加入一組雙人空間。' : '尚未建立雙人空間。' }}
         </p>
         <p class="app-text-muted mt-[8px] text-[14px] leading-[24px]">
-          `users.partnerUid`: {{ userStore.profile?.partnerUid || '尚未綁定' }}
+          {{ userStore.profile?.partnerUid ? '已找到配對對象，可以開始建立共享任務。' : '輸入對方邀請碼後就會完成配對。' }}
         </p>
       </section>
 
@@ -94,7 +94,7 @@ const backHome = async () => {
           {{ userStore.profile?.inviteCode || '--------' }}
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          你可以直接把這組碼分享給另一半。只要還沒配對，就算你有自己的邀請碼，也一樣可以輸入對方的邀請碼來完成綁定。
+          把這組碼傳給另一半。只要對方輸入成功，你們就會自動綁定到同一個共享空間。
         </p>
       </section>
 

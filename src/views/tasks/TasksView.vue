@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import TaskComposerCard from '@/components/task/TaskComposerCard.vue'
 import TaskListCard from '@/components/task/TaskListCard.vue'
 import { useErrorToast } from '@/composables/useErrorToast'
@@ -130,7 +131,7 @@ const handleCancelTask = async (task: Task) => {
     <header class="space-y-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]">
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
-          <div class="app-chip">Tasks MVP</div>
+          <div class="app-chip">任務看板</div>
           <h1 class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]">
             兩人共享任務板
           </h1>
@@ -142,7 +143,7 @@ const handleCancelTask = async (task: Task) => {
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        這一版已經把 `tasks` collection 接起來，做到建立任務、完成任務、確認完成，並在確認完成時同步加分與寫入 `pointLogs`。
+        互相指派待辦、完成後等待確認，確認通過就會自動加分。
       </p>
     </header>
 
@@ -153,7 +154,7 @@ const handleCancelTask = async (task: Task) => {
           還不能建立任務
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          需要先完成配對，並且讓 `users.coupleId` 和 `users.partnerUid` 都有值，任務才知道要屬於哪一組 couple。
+          需要先完成配對，才能把任務指派給另一半。
         </p>
       </section>
 
@@ -206,9 +207,11 @@ const handleCancelTask = async (task: Task) => {
             @confirm="handleConfirmTask"
           />
 
-          <p v-if="!myAssignedTasks.length" class="app-text-muted text-[14px] leading-[24px]">
-            目前沒有指派給你的待處理任務。
-          </p>
+          <AppEmptyState
+            v-if="!myAssignedTasks.length"
+            title="目前沒有待辦"
+            description="對方指派給你的任務會出現在這裡。"
+          />
         </div>
       </section>
 
@@ -241,9 +244,11 @@ const handleCancelTask = async (task: Task) => {
             @confirm="handleConfirmTask"
           />
 
-          <p v-if="!waitingConfirmTasks.length" class="app-text-muted text-[14px] leading-[24px]">
-            目前沒有待你確認的任務。
-          </p>
+          <AppEmptyState
+            v-if="!waitingConfirmTasks.length"
+            title="沒有待確認任務"
+            description="對方完成你建立的任務後，會在這裡等待你確認。"
+          />
         </div>
       </section>
 
@@ -257,7 +262,7 @@ const handleCancelTask = async (task: Task) => {
           </div>
 
           <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">Pending</p>
+            <p class="app-kicker">待完成</p>
             <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
               {{ myCreatedTasks.length }}
             </p>
@@ -276,9 +281,11 @@ const handleCancelTask = async (task: Task) => {
             @confirm="handleConfirmTask"
           />
 
-          <p v-if="!myCreatedTasks.length" class="app-text-muted text-[14px] leading-[24px]">
-            目前沒有你指派出去且尚未完成的任務。
-          </p>
+          <AppEmptyState
+            v-if="!myCreatedTasks.length"
+            title="沒有進行中的指派"
+            description="你建立給對方的任務會出現在這裡。"
+          />
         </div>
       </section>
 
@@ -304,7 +311,7 @@ const handleCancelTask = async (task: Task) => {
           </div>
 
           <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">Done</p>
+            <p class="app-kicker">完成</p>
             <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
               {{ confirmedTasks.length }}
             </p>
@@ -323,9 +330,11 @@ const handleCancelTask = async (task: Task) => {
             @confirm="handleConfirmTask"
           />
 
-          <p v-if="!confirmedTasks.length" class="app-text-muted text-[14px] leading-[24px]">
-            目前還沒有已確認完成的任務。
-          </p>
+          <AppEmptyState
+            v-if="!confirmedTasks.length"
+            title="還沒有完成紀錄"
+            description="確認完成後的任務會保留在這裡，方便回顧。"
+          />
         </div>
       </section>
 
@@ -339,7 +348,7 @@ const handleCancelTask = async (task: Task) => {
           </div>
 
           <div class="app-accent-panel px-[12px] py-[8px] text-right">
-            <p class="app-kicker">Cancelled</p>
+            <p class="app-kicker">取消</p>
             <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
               {{ cancelledTasks.length }}
             </p>
@@ -358,9 +367,11 @@ const handleCancelTask = async (task: Task) => {
             @confirm="handleConfirmTask"
           />
 
-          <p v-if="!cancelledTasks.length" class="app-text-muted text-[14px] leading-[24px]">
-            目前沒有已取消的任務。
-          </p>
+          <AppEmptyState
+            v-if="!cancelledTasks.length"
+            title="沒有取消紀錄"
+            description="被取消的任務會集中保留在這裡。"
+          />
         </div>
       </section>
     </section>

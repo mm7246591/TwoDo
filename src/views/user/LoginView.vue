@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { Field } from 'vant'
 import AuthScreenShell from '@/components/AuthScreenShell.vue'
 import { useErrorToast } from '@/composables/useErrorToast'
 import { useAuthStore } from '@/pinia/auth'
@@ -78,9 +79,9 @@ const handleGoogleSignIn = async () => {
 <template>
   <AuthScreenShell
     title="登入後開始共享待辦與獎勵"
-    description="登入完成後，系統會透過 Firebase Auth 與 Firestore 同步目前使用者資料。"
+    description="回到你們的共享待辦，查看任務、點數與最近通知。"
     card-title="登入 TwoDo"
-    card-description="先支援 Google 與 Email / Password，讓 MVP 的帳號流程穩定可測。"
+    card-description="使用 Google 或 Email 登入，繼續管理你們的雙人清單。"
   >
     <div class="space-y-[16px]">
       <button
@@ -116,10 +117,12 @@ const handleGoogleSignIn = async () => {
     <form class="mt-[20px] space-y-[16px]" @submit.prevent="handleSignIn">
       <label class="block space-y-[8px]">
         <span class="app-field-label">Email</span>
-        <input
+        <Field
           v-model="email"
-          class="app-input"
+          class="app-vant-field"
           type="email"
+          clearable
+          :border="false"
           autocomplete="email"
           placeholder="請輸入你的 Email"
         />
@@ -127,17 +130,19 @@ const handleGoogleSignIn = async () => {
 
       <label class="block space-y-[8px]">
         <span class="app-field-label">密碼</span>
-        <input
+        <Field
           v-model="password"
-          class="app-input"
+          class="app-vant-field"
           type="password"
+          clearable
+          :border="false"
           autocomplete="current-password"
           placeholder="請輸入你的密碼"
         />
       </label>
 
       <p class="app-banner-info app-text-muted min-h-[72px] px-[16px] py-[12px] text-[12px] leading-[20px]">
-        首次登入完成後，系統會自動建立 `users/{uid}` 文件，作為後續配對與任務流程的基礎資料。
+        首次登入後會自動準備你的個人資料與邀請碼，方便你和另一半完成配對。
       </p>
       <button
         class="app-primary-button w-full"

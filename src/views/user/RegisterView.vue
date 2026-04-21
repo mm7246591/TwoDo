@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { Field } from 'vant'
 import AuthScreenShell from '@/components/AuthScreenShell.vue'
 import { useErrorToast } from '@/composables/useErrorToast'
 import { useAuthStore } from '@/pinia/auth'
@@ -81,9 +82,9 @@ const handleGoogleSignIn = async () => {
 <template>
   <AuthScreenShell
     title="建立帳號，開始整理兩人的共享生活"
-    description="註冊完成後會同步建立 `users` 文件，讓後續配對、任務與積分資料能順利接起來。"
+    description="建立你的暱稱與登入方式，接著就能邀請另一半一起使用。"
     card-title="註冊 TwoDo"
-    card-description="先支援基本暱稱、Email 與 Google 登入，讓帳號流程清楚好測。"
+    card-description="用 Google 快速開始，或用 Email 建立一組專屬帳號。"
   >
     <div class="space-y-[16px]">
       <button
@@ -119,10 +120,12 @@ const handleGoogleSignIn = async () => {
     <form class="mt-[20px] space-y-[16px]" @submit.prevent="handleSignUp">
       <label class="block space-y-[8px]">
         <span class="app-field-label">暱稱</span>
-        <input
+        <Field
           v-model="displayName"
-          class="app-input"
+          class="app-vant-field"
           type="text"
+          clearable
+          :border="false"
           autocomplete="nickname"
           placeholder="例如 小安"
         />
@@ -130,10 +133,12 @@ const handleGoogleSignIn = async () => {
 
       <label class="block space-y-[8px]">
         <span class="app-field-label">Email</span>
-        <input
+        <Field
           v-model="email"
-          class="app-input"
+          class="app-vant-field"
           type="email"
+          clearable
+          :border="false"
           autocomplete="email"
           placeholder="請輸入你的 Email"
         />
@@ -141,17 +146,19 @@ const handleGoogleSignIn = async () => {
 
       <label class="block space-y-[8px]">
         <span class="app-field-label">密碼</span>
-        <input
+        <Field
           v-model="password"
-          class="app-input"
+          class="app-vant-field"
           type="password"
+          clearable
+          :border="false"
           autocomplete="new-password"
           placeholder="至少輸入 6 個字元"
         />
       </label>
 
       <p class="app-banner-support app-text-muted min-h-[72px] px-[16px] py-[12px] text-[12px] leading-[20px]">
-        註冊成功後，系統會以 Firebase uid 建立 `users/{uid}` 文件，讓後面配對與任務流程能正確對應到你。
+        註冊成功後會產生你的邀請碼，之後可以分享給另一半完成配對。
       </p>
       <button
         class="app-primary-button w-full"
