@@ -82,7 +82,7 @@ const handleUnpairCouple = async () => {
   }
 
   const shouldContinue = await confirmDangerAction(
-    "解除配對後，雙方目前的 couple 綁定會被移除。要繼續嗎？",
+    "解除配對後會停止共享。要繼續嗎？",
     "解除配對",
   );
 
@@ -140,7 +140,7 @@ watch(
           <h1
             class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
           >
-            個人設定與配對管理
+            設定
           </h1>
         </div>
 
@@ -154,7 +154,7 @@ watch(
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        管理你的暱稱、通知設定、配對狀態與帳號操作。
+        管理暱稱、通知、配對與帳號。
       </p>
     </header>
 
@@ -269,7 +269,7 @@ watch(
           </div>
 
           <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-            你可以到通知頁管理這台裝置的推播狀態，也能直接檢查未讀通知與站內訊息列表。
+            推播與站內通知都在通知頁管理。
           </p>
 
           <button
@@ -277,7 +277,7 @@ watch(
             type="button"
             @click="goToNotifications"
           >
-            前往通知設定
+            通知設定
           </button>
         </section>
 
@@ -301,7 +301,7 @@ watch(
           </div>
 
           <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-            解除配對後，你們會停止共享任務、獎勵與通知。既有紀錄會保留，但不會再出現在目前帳號的共享空間中。
+            解除後會停止共享，既有紀錄保留。
           </p>
 
           <button

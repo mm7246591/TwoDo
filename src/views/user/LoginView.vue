@@ -79,9 +79,9 @@ const handleGoogleSignIn = async () => {
 <template>
   <AuthScreenShell
     title="登入後開始共享待辦與獎勵"
-    description="回到你們的共享待辦，查看任務、點數與最近通知。"
+    description="查看任務、點數與最近通知。"
     card-title="登入 TwoDo"
-    card-description="使用 Google 或 Email 登入，繼續管理你們的雙人清單。"
+    card-description="使用 Google 或 Email 繼續。"
   >
     <div class="space-y-[16px]">
       <button
@@ -142,7 +142,7 @@ const handleGoogleSignIn = async () => {
       </label>
 
       <p class="app-banner-info app-text-muted min-h-[72px] px-[16px] py-[12px] text-[12px] leading-[20px]">
-        首次登入後會自動準備你的個人資料與邀請碼，方便你和另一半完成配對。
+        首次登入會準備個人資料與邀請碼。
       </p>
       <button
         class="app-primary-button w-full"

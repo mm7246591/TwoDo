@@ -97,7 +97,7 @@ const getHasSwipeActions = computed(() =>
       </div>
 
       <div class="app-accent-panel shrink-0 px-[12px] py-[8px] text-right">
-        <p class="app-kicker">Points</p>
+        <p class="app-kicker">點數</p>
         <p class="app-text-strong mt-[4px] text-[16px] font-semibold">{{ task.points }}</p>
       </div>
     </div>

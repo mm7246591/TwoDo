@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Field } from 'vant'
 import { useErrorToast } from '@/composables/useErrorToast'
 import MobileAppShell from '@/components/MobileAppShell.vue'
 import { useCoupleStore } from '@/pinia/couple'
@@ -27,11 +28,12 @@ const getPairingStatus = computed(() => {
   }
 
   if (userStore.profile?.coupleId) {
-    return '已經綁定在同一組 couple'
+    return '配對資料同步中'
   }
 
   return '尚未配對'
 })
+const formatInviteCodeInput = (value: string) => value.trim().toUpperCase()
 
 const handleJoinInvite = async () => {
   if (!userStore.profile?.uid || !getCanJoinInvite.value) {
@@ -60,7 +62,7 @@ const backHome = async () => {
         <div class="min-w-0">
           <div class="app-chip">伴侶配對</div>
           <h1 class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]">
-            用邀請碼把兩個帳號連在一起
+            輸入邀請碼完成配對
           </h1>
         </div>
 
@@ -70,7 +72,7 @@ const backHome = async () => {
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        分享你的邀請碼給另一半，或輸入對方的邀請碼。配對完成後，你們就能共享任務、點數與獎勵。
+        分享或輸入邀請碼，一起管理任務與獎勵。
       </p>
     </header>
 
@@ -81,10 +83,10 @@ const backHome = async () => {
           {{ getPairingStatus }}
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          {{ userStore.profile?.coupleId ? '你已經加入一組雙人空間。' : '尚未建立雙人空間。' }}
+          {{ userStore.profile?.coupleId ? '你已加入雙人空間。' : '還沒建立雙人空間。' }}
         </p>
         <p class="app-text-muted mt-[8px] text-[14px] leading-[24px]">
-          {{ userStore.profile?.partnerUid ? '已找到配對對象，可以開始建立共享任務。' : '輸入對方邀請碼後就會完成配對。' }}
+          {{ userStore.profile?.partnerUid ? '已找到配對對象，可開始共享任務。' : '輸入對方邀請碼後完成配對。' }}
         </p>
       </section>
 
@@ -94,7 +96,7 @@ const backHome = async () => {
           {{ userStore.profile?.inviteCode || '--------' }}
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          把這組碼傳給另一半。只要對方輸入成功，你們就會自動綁定到同一個共享空間。
+          把這組碼傳給另一半。
         </p>
       </section>
 
@@ -102,10 +104,13 @@ const backHome = async () => {
         <p class="app-label">輸入對方邀請碼</p>
         <label class="mt-[16px] block space-y-[8px]">
           <span class="app-field-label">邀請碼</span>
-          <input
+          <Field
             v-model="inviteCodeInput"
-            class="app-input"
+            class="app-vant-field"
             type="text"
+            clearable
+            :border="false"
+            :formatter="formatInviteCodeInput"
             placeholder="例如 ABCD1234"
           />
         </label>

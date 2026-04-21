@@ -1,266 +1,304 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import AppEmptyState from '@/components/common/AppEmptyState.vue'
-import { useErrorToast } from '@/composables/useErrorToast'
-import DashboardIcon from '@/components/common/DashboardIcon.vue'
-import MobileAppShell from '@/components/MobileAppShell.vue'
-import { useAuthStore } from '@/pinia/auth'
-import { useCoupleStore } from '@/pinia/couple'
-import { useNotificationsStore } from '@/pinia/notifications'
-import { usePointsStore } from '@/pinia/points'
-import { useRewardsStore } from '@/pinia/rewards'
-import { useTasksStore } from '@/pinia/tasks'
-import { useUserStore } from '@/pinia/user'
-import type { NotificationType } from '@/views/notifications/types/interface'
-import type { PointLogType } from '@/views/points/types/interface'
-import type { RedemptionStatus } from '@/views/rewards/types/interface'
-import type { Task } from '@/views/tasks/types/interface'
+import { computed, watch } from "vue";
+import { useRouter } from "vue-router";
+import AppEmptyState from "@/components/common/AppEmptyState.vue";
+import { useErrorToast } from "@/composables/useErrorToast";
+import DashboardIcon from "@/components/common/DashboardIcon.vue";
+import MobileAppShell from "@/components/MobileAppShell.vue";
+import { useAuthStore } from "@/pinia/auth";
+import { useCoupleStore } from "@/pinia/couple";
+import { useNotificationsStore } from "@/pinia/notifications";
+import { usePointsStore } from "@/pinia/points";
+import { useRewardsStore } from "@/pinia/rewards";
+import { useTasksStore } from "@/pinia/tasks";
+import { useUserStore } from "@/pinia/user";
+import type { NotificationType } from "@/views/notifications/types/interface";
+import type { PointLogType } from "@/views/points/types/interface";
+import type { RedemptionStatus } from "@/views/rewards/types/interface";
+import type { Task } from "@/views/tasks/types/interface";
 
 type DashboardRouteName =
-  | 'notifications'
-  | 'pairing'
-  | 'points'
-  | 'rewards'
-  | 'settings'
-  | 'tasks'
+  | "notifications"
+  | "pairing"
+  | "points"
+  | "rewards"
+  | "settings"
+  | "tasks";
 
 type DashboardIconName =
-  | 'activity'
-  | 'add'
-  | 'bell'
-  | 'gift'
-  | 'heart-link'
-  | 'points'
-  | 'settings'
-  | 'shield-check'
-  | 'tasks'
+  | "activity"
+  | "add"
+  | "bell"
+  | "gift"
+  | "heart-link"
+  | "points"
+  | "settings"
+  | "shield-check"
+  | "tasks";
 
 type QuickAction = {
-  description: string
-  icon: DashboardIconName
-  label: string
-  routeName: DashboardRouteName
-}
+  icon: DashboardIconName;
+  label: string;
+  routeName: DashboardRouteName;
+};
 
 type ActivityItem = {
-  createdAt: Date
-  description: string
-  icon: DashboardIconName
-  id: string
-  label: string
-}
+  createdAt: Date;
+  description: string;
+  icon: DashboardIconName;
+  id: string;
+  label: string;
+};
 
-const authStore = useAuthStore()
-const coupleStore = useCoupleStore()
-const notificationsStore = useNotificationsStore()
-const pointsStore = usePointsStore()
-const rewardsStore = useRewardsStore()
-const tasksStore = useTasksStore()
-const userStore = useUserStore()
-const router = useRouter()
+const authStore = useAuthStore();
+const coupleStore = useCoupleStore();
+const notificationsStore = useNotificationsStore();
+const pointsStore = usePointsStore();
+const rewardsStore = useRewardsStore();
+const tasksStore = useTasksStore();
+const userStore = useUserStore();
+const router = useRouter();
 
-useErrorToast(() => authStore.errorMessage)
-useErrorToast(() => notificationsStore.errorMessage)
-useErrorToast(() => pointsStore.errorMessage)
-useErrorToast(() => rewardsStore.errorMessage)
-useErrorToast(() => tasksStore.errorMessage)
+useErrorToast(() => authStore.errorMessage);
+useErrorToast(() => notificationsStore.errorMessage);
+useErrorToast(() => pointsStore.errorMessage);
+useErrorToast(() => rewardsStore.errorMessage);
+useErrorToast(() => tasksStore.errorMessage);
 
-const getUserName = computed(() => userStore.profile?.displayName || 'TwoDo User')
-const currentUid = computed(() => userStore.profile?.uid ?? '')
-const currentPoints = computed(() => userStore.profile?.points ?? 0)
-const pendingAssignedTasks = computed(() => tasksStore.tasks.filter(
-  (task) => task.assignedTo === currentUid.value && task.status === 'pending',
-))
-const waitingConfirmTasks = computed(() => tasksStore.tasks.filter(
-  (task) => task.createdBy === currentUid.value && task.status === 'completed_pending_confirm',
-))
-const redeemableRewardsCount = computed(() => rewardsStore.rewards.filter((reward) => {
-  if (!reward.isActive) {
-    return false
-  }
+const getUserName = computed(
+  () => userStore.profile?.displayName || "TwoDo User",
+);
+const currentUid = computed(() => userStore.profile?.uid ?? "");
+const currentPoints = computed(() => userStore.profile?.points ?? 0);
+const pendingAssignedTasks = computed(() =>
+  tasksStore.tasks.filter(
+    (task) => task.assignedTo === currentUid.value && task.status === "pending",
+  ),
+);
+const waitingConfirmTasks = computed(() =>
+  tasksStore.tasks.filter(
+    (task) =>
+      task.createdBy === currentUid.value &&
+      task.status === "completed_pending_confirm",
+  ),
+);
+const redeemableRewardsCount = computed(
+  () =>
+    rewardsStore.rewards.filter((reward) => {
+      if (!reward.isActive) {
+        return false;
+      }
 
-  if (reward.createdBy === currentUid.value) {
-    return false
-  }
+      if (reward.createdBy === currentUid.value) {
+        return false;
+      }
 
-  return currentPoints.value >= reward.cost
-}).length)
-const recentAssignedTasks = computed(() => pendingAssignedTasks.value.slice(0, 3))
-const recentWaitingConfirmTasks = computed(() => waitingConfirmTasks.value.slice(0, 3))
-const getUnreadNotificationsText = computed(() => String(notificationsStore.getUnreadCount))
-const getCoupleStatus = computed(() => {
-  if (coupleStore.getIsPaired) {
-    return '已完成配對'
-  }
-
-  if (coupleStore.currentCoupleId) {
-    return '等待同步'
-  }
-
-  return '尚未配對'
-})
+      return currentPoints.value >= reward.cost;
+    }).length,
+);
+const recentAssignedTasks = computed(() =>
+  pendingAssignedTasks.value.slice(0, 3),
+);
+const recentWaitingConfirmTasks = computed(() =>
+  waitingConfirmTasks.value.slice(0, 3),
+);
+const getUnreadNotificationsText = computed(() =>
+  String(notificationsStore.getUnreadCount),
+);
 const getCoupleDescription = computed(() => {
   if (coupleStore.getIsPaired) {
-    return '你們已經完成配對，今天可以直接從首頁查看待辦、積分與最近活動。'
+    return "已完成配對，可查看待辦、積分與活動。";
   }
 
   if (coupleStore.currentCoupleId) {
-    return '配對資料正在同步中。完成後，首頁會自動出現任務與獎勵摘要。'
+    return "配對資料同步中，完成後會顯示任務與獎勵。";
   }
 
-  return '先完成配對，之後你們的任務、獎勵、通知與點數都會集中在同一個共享空間。'
-})
+  return "完成配對後，任務、獎勵、通知與點數會集中在這裡。";
+});
+const getHeroTitle = computed(() => {
+  if (!coupleStore.getIsPaired) {
+    return "先完成配對，開始共享任務";
+  }
 
-const formatDateTime = (value: Date) => new Intl.DateTimeFormat('zh-TW', {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-}).format(value)
+  if (waitingConfirmTasks.value.length) {
+    return `有 ${waitingConfirmTasks.value.length} 件任務等你確認`;
+  }
+
+  if (pendingAssignedTasks.value.length) {
+    return `今天有 ${pendingAssignedTasks.value.length} 件待辦`;
+  }
+
+  return "今天沒有待處理任務";
+});
+
+const formatDateTime = (value: Date) =>
+  new Intl.DateTimeFormat("zh-TW", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(value);
 
 const resolveTaskMeta = (task: Task) => {
   if (task.dueDate) {
-    return `截止 ${formatDateTime(task.dueDate)}`
+    return `截止 ${formatDateTime(task.dueDate)}`;
   }
 
-  return `${task.points} 點任務`
-}
+  return `${task.points} 點任務`;
+};
 
 const goTo = async (routeName: DashboardRouteName) => {
-  await router.push({ name: routeName })
-}
+  await router.push({ name: routeName });
+};
 
 const handleSignOut = async () => {
   try {
-    await authStore.signOutUser()
-    await router.push({ name: 'login' })
+    await authStore.signOutUser();
+    await router.push({ name: "login" });
   } catch {
     // The store already exposes a user-facing error message.
   }
-}
+};
 
 const quickActions = computed<QuickAction[]>(() => [
   {
-    description: '新增、完成與確認任務',
-    icon: 'tasks',
-    label: '任務',
-    routeName: 'tasks',
+    icon: "tasks",
+    label: "任務",
+    routeName: "tasks",
   },
   {
-    description: '新增可兌換的回報',
-    icon: 'gift',
-    label: '獎勵',
-    routeName: 'rewards',
+    icon: "gift",
+    label: "獎勵",
+    routeName: "rewards",
   },
   {
-    description: '查看目前點數與流水',
-    icon: 'points',
-    label: '積分',
-    routeName: 'points',
+    icon: "points",
+    label: "積分",
+    routeName: "points",
   },
   {
-    description: '讀取站內通知與推播',
-    icon: 'bell',
-    label: '通知',
-    routeName: 'notifications',
+    icon: "bell",
+    label: "通知",
+    routeName: "notifications",
   },
   {
-    description: '查看邀請碼與配對狀態',
-    icon: 'heart-link',
-    label: '配對',
-    routeName: 'pairing',
+    icon: "heart-link",
+    label: "配對",
+    routeName: "pairing",
   },
   {
-    description: '更新暱稱與解除配對',
-    icon: 'settings',
-    label: '設定',
-    routeName: 'settings',
+    icon: "settings",
+    label: "設定",
+    routeName: "settings",
   },
-])
+]);
 
 const notificationTypeIconMap: Record<NotificationType, DashboardIconName> = {
-  new_task: 'tasks',
-  reward_redeemed: 'gift',
-  task_completed_pending_confirm: 'shield-check',
-  task_confirmed: 'points',
-}
+  new_task: "tasks",
+  reward_redeemed: "gift",
+  task_completed_pending_confirm: "shield-check",
+  task_confirmed: "points",
+};
 
 const pointLogTypeIconMap: Record<PointLogType, DashboardIconName> = {
-  manual_adjust: 'activity',
-  reward_redeem: 'gift',
-  task_reward: 'points',
-}
+  manual_adjust: "activity",
+  reward_redeem: "gift",
+  task_reward: "points",
+};
 
 const redemptionStatusLabelMap: Record<RedemptionStatus, string> = {
-  cancelled: '已取消',
-  completed: '已完成',
-  pending: '待處理',
-}
+  cancelled: "已取消",
+  completed: "已完成",
+  pending: "待處理",
+};
 
 const recentActivities = computed<ActivityItem[]>(() => {
-  const notificationActivities = notificationsStore.notifications.slice(0, 4).map((notification) => ({
-    createdAt: notification.createdAt,
-    description: notification.message,
-    icon: notificationTypeIconMap[notification.type],
-    id: `notification-${notification.id}`,
-    label: notification.title,
-  }))
+  const notificationActivities = notificationsStore.notifications
+    .slice(0, 4)
+    .map((notification) => ({
+      createdAt: notification.createdAt,
+      description: notification.message,
+      icon: notificationTypeIconMap[notification.type],
+      id: `notification-${notification.id}`,
+      label: notification.title,
+    }));
 
   const pointActivities = pointsStore.pointLogs.slice(0, 4).map((pointLog) => ({
     createdAt: pointLog.createdAt,
     description: pointLog.taskTitle
-      ? `任務「${pointLog.taskTitle}」已更新 ${pointLog.points > 0 ? '+' : ''}${pointLog.points} 點`
+      ? `任務「${pointLog.taskTitle}」已更新 ${pointLog.points > 0 ? "+" : ""}${pointLog.points} 點`
       : pointLog.rewardTitle
-        ? `獎勵「${pointLog.rewardTitle}」已變動 ${pointLog.points > 0 ? '+' : ''}${pointLog.points} 點`
-        : `點數變動 ${pointLog.points > 0 ? '+' : ''}${pointLog.points}`,
+        ? `獎勵「${pointLog.rewardTitle}」已變動 ${pointLog.points > 0 ? "+" : ""}${pointLog.points} 點`
+        : `點數變動 ${pointLog.points > 0 ? "+" : ""}${pointLog.points}`,
     icon: pointLogTypeIconMap[pointLog.type],
     id: `point-${pointLog.id}`,
-    label: pointLog.type === 'task_reward' ? '積分入帳' : pointLog.type === 'reward_redeem' ? '獎勵扣點' : '手動調整',
-  }))
+    label:
+      pointLog.type === "task_reward"
+        ? "積分入帳"
+        : pointLog.type === "reward_redeem"
+          ? "獎勵扣點"
+          : "手動調整",
+  }));
 
-  const redemptionActivities = rewardsStore.getRecentRedemptions.slice(0, 4).map((redemption) => ({
-    createdAt: redemption.createdAt,
-    description: `${redemption.rewardTitle || '未命名獎勵'}，${redemption.cost} 點，${redemptionStatusLabelMap[redemption.status]}`,
-    icon: 'gift' as const,
-    id: `redemption-${redemption.id}`,
-    label: redemption.redeemedBy === currentUid.value ? '我兌換了獎勵' : '另一半兌換了獎勵',
-  }))
+  const redemptionActivities = rewardsStore.getRecentRedemptions
+    .slice(0, 4)
+    .map((redemption) => ({
+      createdAt: redemption.createdAt,
+      description: `${redemption.rewardTitle || "未命名獎勵"}，${redemption.cost} 點，${redemptionStatusLabelMap[redemption.status]}`,
+      icon: "gift" as const,
+      id: `redemption-${redemption.id}`,
+      label:
+        redemption.redeemedBy === currentUid.value
+          ? "我兌換了獎勵"
+          : "另一半兌換了獎勵",
+    }));
 
-  return [...notificationActivities, ...pointActivities, ...redemptionActivities]
-    .sort((leftItem, rightItem) => rightItem.createdAt.getTime() - leftItem.createdAt.getTime())
-    .slice(0, 6)
-})
+  return [
+    ...notificationActivities,
+    ...pointActivities,
+    ...redemptionActivities,
+  ]
+    .sort(
+      (leftItem, rightItem) =>
+        rightItem.createdAt.getTime() - leftItem.createdAt.getTime(),
+    )
+    .slice(0, 6);
+});
 
 watch(
   () => ({
-    coupleId: userStore.profile?.coupleId ?? '',
-    uid: userStore.profile?.uid ?? '',
+    coupleId: userStore.profile?.coupleId ?? "",
+    uid: userStore.profile?.uid ?? "",
   }),
   ({ coupleId, uid }) => {
     if (!coupleId || !uid) {
-      notificationsStore.reset()
-      pointsStore.reset()
-      rewardsStore.reset()
-      tasksStore.reset()
-      return
+      notificationsStore.reset();
+      pointsStore.reset();
+      rewardsStore.reset();
+      tasksStore.reset();
+      return;
     }
 
-    void notificationsStore.syncNotifications(uid, coupleId)
-    void pointsStore.syncPointLogs(uid, coupleId)
-    void rewardsStore.syncRewards(coupleId)
-    void tasksStore.syncTasks(coupleId)
+    void notificationsStore.syncNotifications(uid, coupleId);
+    void pointsStore.syncPointLogs(uid, coupleId);
+    void rewardsStore.syncRewards(coupleId);
+    void tasksStore.syncTasks(coupleId);
   },
   { immediate: true },
-)
+);
 </script>
 
 <template>
   <MobileAppShell>
-    <header class="space-y-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]">
+    <header
+      class="space-y-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]"
+    >
       <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-0">
-          <div class="app-chip">TwoDo Dashboard</div>
-          <h1 class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]">
-            {{ getUserName }} 的工作台
+          <div class="app-chip">今日總覽</div>
+          <h1
+            class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
+          >
+            嗨，{{ getUserName }}
           </h1>
         </div>
 
@@ -274,7 +312,7 @@ watch(
       </div>
 
       <p class="app-text-muted max-w-[36ch] text-[14px] leading-[24px]">
-        首頁現在直接整合今日待辦、最近活動與快速入口，讓兩人日常流程不用一直在各頁之間切換。
+        待辦、確認、點數與通知都在這裡。
       </p>
     </header>
 
@@ -282,11 +320,15 @@ watch(
       <section class="app-hero-card dashboard-hero p-[20px]">
         <div class="flex items-start justify-between gap-[16px]">
           <div>
-            <p class="app-hero-kicker">Today Overview</p>
-            <p class="app-text-strong mt-[16px] max-w-[14ch] text-[30px] font-semibold leading-[1.08] tracking-[-0.04em]">
-              {{ getCoupleStatus }}，今天要先處理 {{ pendingAssignedTasks.length }} 件待辦
+            <p class="app-hero-kicker">今天狀態</p>
+            <p
+              class="app-text-strong mt-[16px] max-w-[14ch] text-[30px] font-semibold leading-[1.08] tracking-[-0.04em]"
+            >
+              {{ getHeroTitle }}
             </p>
-            <p class="app-hero-body mt-[12px] max-w-[36ch] text-[14px] leading-[24px]">
+            <p
+              class="app-hero-body mt-[12px] max-w-[36ch] text-[14px] leading-[24px]"
+            >
               {{ getCoupleDescription }}
             </p>
           </div>
@@ -302,7 +344,9 @@ watch(
               <DashboardIcon name="points" :size="18" />
             </div>
             <p class="app-label mt-[12px]">目前點數</p>
-            <p class="app-text-strong mt-[8px] text-[28px] font-semibold">{{ currentPoints }}</p>
+            <p class="app-text-strong mt-[8px] text-[28px] font-semibold">
+              {{ currentPoints }}
+            </p>
           </article>
 
           <article class="app-hero-stat dashboard-stat px-[16px] py-[16px]">
@@ -310,7 +354,9 @@ watch(
               <DashboardIcon name="tasks" :size="18" />
             </div>
             <p class="app-label mt-[12px]">指派給我</p>
-            <p class="app-text-strong mt-[8px] text-[28px] font-semibold">{{ pendingAssignedTasks.length }}</p>
+            <p class="app-text-strong mt-[8px] text-[28px] font-semibold">
+              {{ pendingAssignedTasks.length }}
+            </p>
           </article>
 
           <article class="app-hero-stat dashboard-stat px-[16px] py-[16px]">
@@ -318,7 +364,9 @@ watch(
               <DashboardIcon name="shield-check" :size="18" />
             </div>
             <p class="app-label mt-[12px]">待我確認</p>
-            <p class="app-text-strong mt-[8px] text-[28px] font-semibold">{{ waitingConfirmTasks.length }}</p>
+            <p class="app-text-strong mt-[8px] text-[28px] font-semibold">
+              {{ waitingConfirmTasks.length }}
+            </p>
           </article>
 
           <article class="app-hero-stat dashboard-stat px-[16px] py-[16px]">
@@ -326,7 +374,9 @@ watch(
               <DashboardIcon name="bell" :size="18" />
             </div>
             <p class="app-label mt-[12px]">未讀通知</p>
-            <p class="app-text-strong mt-[8px] text-[28px] font-semibold">{{ getUnreadNotificationsText }}</p>
+            <p class="app-text-strong mt-[8px] text-[28px] font-semibold">
+              {{ getUnreadNotificationsText }}
+            </p>
           </article>
         </div>
       </section>
@@ -335,8 +385,10 @@ watch(
         <div class="flex items-center justify-between gap-[12px]">
           <div>
             <p class="app-label">快速入口</p>
-            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              今天要打開的功能
+            <p
+              class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
+            >
+              常用功能
             </p>
           </div>
 
@@ -354,19 +406,15 @@ watch(
             :key="action.routeName"
             class="dashboard-action-card"
             type="button"
+            :aria-label="`前往${action.label}`"
             @click="goTo(action.routeName)"
           >
             <span class="dashboard-action-icon">
-              <DashboardIcon :name="action.icon" :size="20" />
+              <DashboardIcon :name="action.icon" :size="22" />
             </span>
 
-            <span class="min-w-0 text-left">
-              <span class="app-text-strong block text-[16px] font-semibold">
-                {{ action.label }}
-              </span>
-              <span class="app-text-muted mt-[6px] block text-[13px] leading-[20px]">
-                {{ action.description }}
-              </span>
+            <span class="app-text-strong block text-[16px] font-semibold">
+              {{ action.label }}
             </span>
           </button>
         </div>
@@ -377,7 +425,9 @@ watch(
           <div class="flex items-center justify-between gap-[12px]">
             <div>
               <p class="app-label">今日待辦</p>
-              <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
+              <p
+                class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
+              >
                 指派給我的任務
               </p>
             </div>
@@ -402,15 +452,13 @@ watch(
                 </p>
               </div>
 
-              <div class="dashboard-task-pill">
-                {{ task.points }} 點
-              </div>
+              <div class="dashboard-task-pill">{{ task.points }} 點</div>
             </article>
 
             <AppEmptyState
               v-if="!recentAssignedTasks.length"
               title="今天沒有待辦"
-              description="對方指派給你的任務會優先出現在這裡。"
+              description="對方指派的任務會在這裡。"
             />
           </div>
 
@@ -430,7 +478,9 @@ watch(
           <div class="flex items-center justify-between gap-[12px]">
             <div>
               <p class="app-label">待我確認</p>
-              <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
+              <p
+                class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
+              >
                 已完成待確認
               </p>
             </div>
@@ -451,7 +501,11 @@ watch(
                   {{ task.title }}
                 </p>
                 <p class="app-text-muted mt-[6px] text-[13px] leading-[20px]">
-                  {{ task.completedAt ? `完成於 ${formatDateTime(task.completedAt)}` : '等待你進一步確認' }}
+                  {{
+                    task.completedAt
+                      ? `完成於 ${formatDateTime(task.completedAt)}`
+                      : "等待確認"
+                  }}
                 </p>
               </div>
 
@@ -463,7 +517,7 @@ watch(
             <AppEmptyState
               v-if="!recentWaitingConfirmTasks.length"
               title="沒有待確認項目"
-              description="對方完成你建立的任務後，會在這裡提醒你確認。"
+              description="對方完成後會提醒你確認。"
             />
           </div>
 
@@ -489,7 +543,9 @@ watch(
         <div class="flex items-center justify-between gap-[12px]">
           <div>
             <p class="app-label">最近活動</p>
-            <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
+            <p
+              class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
+            >
               通知、積分與兌換摘要
             </p>
           </div>
@@ -526,7 +582,7 @@ watch(
           <AppEmptyState
             v-if="!recentActivities.length"
             title="還沒有最近活動"
-            description="完成任務、確認加分或兌換獎勵後，首頁會開始累積摘要。"
+            description="任務、加分與兌換會出現在這裡。"
           />
         </div>
       </section>
@@ -580,14 +636,20 @@ watch(
 
 .dashboard-action-card {
   display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
   width: 100%;
+  min-height: 5.75rem;
   border: 1px solid var(--app-border);
   border-radius: 1.4rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.86) 0%, rgba(244, 248, 255, 0.92) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.86) 0%,
+    rgba(244, 248, 255, 0.92) 100%
+  );
   padding: 1rem;
-  text-align: left;
+  text-align: center;
   transition:
     transform 180ms ease,
     box-shadow 180ms ease,
@@ -611,8 +673,8 @@ watch(
 }
 
 .dashboard-action-icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
 }
 
 .dashboard-task-item,

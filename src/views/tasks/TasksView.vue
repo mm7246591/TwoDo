@@ -143,7 +143,7 @@ const handleCancelTask = async (task: Task) => {
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        互相指派待辦、完成後等待確認，確認通過就會自動加分。
+        指派、完成、確認後自動加分。
       </p>
     </header>
 
@@ -154,7 +154,7 @@ const handleCancelTask = async (task: Task) => {
           還不能建立任務
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          需要先完成配對，才能把任務指派給另一半。
+          完成配對後才能指派任務。
         </p>
       </section>
 
@@ -183,7 +183,10 @@ const handleCancelTask = async (task: Task) => {
           <div>
             <p class="app-label">指派給我的</p>
             <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              我現在要完成的任務
+              我要完成的任務
+            </p>
+            <p class="app-text-soft mt-[8px] text-[13px] leading-[20px]">
+              左滑可完成或取消。
             </p>
           </div>
 
@@ -220,7 +223,10 @@ const handleCancelTask = async (task: Task) => {
           <div>
             <p class="app-label">等待我確認</p>
             <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              已完成待確認
+              等你確認的任務
+            </p>
+            <p class="app-text-soft mt-[8px] text-[13px] leading-[20px]">
+              左滑可確認或取消。
             </p>
           </div>
 
@@ -247,7 +253,7 @@ const handleCancelTask = async (task: Task) => {
           <AppEmptyState
             v-if="!waitingConfirmTasks.length"
             title="沒有待確認任務"
-            description="對方完成你建立的任務後，會在這裡等待你確認。"
+            description="對方完成後會在這裡待確認。"
           />
         </div>
       </section>
@@ -257,7 +263,10 @@ const handleCancelTask = async (task: Task) => {
           <div>
             <p class="app-label">我指派出去的</p>
             <p class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]">
-              尚未完成的任務
+              對方還沒完成
+            </p>
+            <p class="app-text-soft mt-[8px] text-[13px] leading-[20px]">
+              左滑可取消。
             </p>
           </div>
 
@@ -333,7 +342,7 @@ const handleCancelTask = async (task: Task) => {
           <AppEmptyState
             v-if="!confirmedTasks.length"
             title="還沒有完成紀錄"
-            description="確認完成後的任務會保留在這裡，方便回顧。"
+            description="確認完成後會保留在這裡。"
           />
         </div>
       </section>

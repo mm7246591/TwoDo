@@ -132,7 +132,7 @@ watch(
           <h1
             class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
           >
-            共享獎勵清單
+            獎勵清單
           </h1>
         </div>
 
@@ -146,7 +146,7 @@ watch(
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        建立讓對方想完成任務的獎勵，也可以用自己的點數兌換對方設定的回報。
+        建立可兌換回報，也可以用點數兌換。
       </p>
     </header>
 
@@ -159,7 +159,7 @@ watch(
           還不能使用獎勵系統
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          需要先完成配對，才能建立與兌換你們共享的獎勵。
+          先完成配對，才能建立與兌換共享獎勵。
         </p>
       </section>
 
@@ -199,7 +199,10 @@ watch(
             <p
               class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
             >
-            目前可查看的獎勵
+              目前可查看的獎勵
+            </p>
+            <p class="app-text-soft mt-[8px] text-[13px] leading-[20px]">
+              左滑可兌換或管理。
             </p>
           </div>
 
@@ -226,7 +229,7 @@ watch(
           <AppEmptyState
             v-if="!rewardsStore.rewards.length"
             title="還沒有獎勵"
-            description="先建立一個對方可以兌換的回報，讓完成任務更有動力。"
+            description="先建立一個可兌換回報。"
           />
         </div>
       </section>
@@ -261,7 +264,7 @@ watch(
           <AppEmptyState
             v-if="!rewardsStore.redemptions.length"
             title="還沒有兌換紀錄"
-            description="等有人第一次使用點數兌換獎勵後，這裡會保留歷史紀錄。"
+            description="第一次兌換後會出現在這裡。"
           />
         </div>
       </section>

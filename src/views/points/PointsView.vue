@@ -87,7 +87,7 @@ watch(
           <h1
             class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
           >
-            積分與流水紀錄
+            點數紀錄
           </h1>
         </div>
 
@@ -101,7 +101,7 @@ watch(
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        每次任務確認或獎勵兌換，都會在這裡留下清楚的點數變動紀錄。
+        任務加分和獎勵扣點都會保留在這裡。
       </p>
     </header>
 
@@ -114,7 +114,7 @@ watch(
           還不能查看積分
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          需要先登入並完成配對，才會開始累積你們的點數紀錄。
+          先完成配對，才會開始累積點數紀錄。
         </p>
       </section>
 
@@ -137,11 +137,11 @@ watch(
       <section class="app-card px-[20px] py-[20px]">
         <div class="flex items-center justify-between gap-[12px]">
           <div>
-            <p class="app-label">積分流水</p>
+            <p class="app-label">點數明細</p>
             <p
               class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
             >
-              最近變動
+              最近點數變動
             </p>
           </div>
 
@@ -175,7 +175,7 @@ watch(
               <div
                 class="app-accent-panel shrink-0 px-[12px] py-[8px] text-right"
               >
-                <p class="app-kicker">Points</p>
+                <p class="app-kicker">點數</p>
                 <p class="app-text-strong mt-[4px] text-[16px] font-semibold">
                   {{ getPointPrefix(pointLog.points) }}{{ pointLog.points }}
                 </p>
@@ -186,7 +186,7 @@ watch(
           <AppEmptyState
             v-if="!pointsStore.pointLogs.length"
             title="還沒有點數變動"
-            description="完成一筆任務並由建立者確認後，第一筆加分紀錄就會出現在這裡。"
+            description="確認任務後，加分紀錄會出現在這裡。"
           />
         </div>
       </section>

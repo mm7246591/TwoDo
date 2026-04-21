@@ -36,30 +36,18 @@ const getHasSwipeActions = computed(() => getCanRedeem.value || getCanManage.val
 
 const getRedeemHint = computed(() => {
   if (!props.reward.isActive) {
-    return "這個獎勵目前是停用狀態。";
+    return "停用中";
   }
 
   if (props.reward.createdBy === props.currentUid) {
-    return "自己建立的獎勵會顯示在列表中，但不能由自己兌換。";
+    return "自己建立";
   }
 
   if (props.currentPoints < props.reward.cost) {
-    return "目前點數不足，先去完成更多任務吧。";
+    return "點數不足";
   }
 
-  return "可以直接兌換，系統會同步扣分並寫入 redemption 紀錄。";
-});
-
-const getManageHint = computed(() => {
-  if (props.reward.createdBy !== props.currentUid) {
-    return "";
-  }
-
-  if (props.reward.isActive) {
-    return "你可以先停用這個獎勵，避免另一半繼續兌換。";
-  }
-
-  return "停用中的獎勵不會被兌換；準備好後可以再重新啟用。";
+  return "可兌換";
 });
 </script>
 
@@ -77,7 +65,7 @@ const getManageHint = computed(() => {
       </div>
 
       <div class="app-accent-panel shrink-0 px-[12px] py-[8px] text-right">
-        <p class="app-kicker">Cost</p>
+        <p class="app-kicker">點數</p>
         <p class="app-text-strong mt-[4px] text-[16px] font-semibold">
           {{ reward.cost }}
         </p>
@@ -89,15 +77,8 @@ const getManageHint = computed(() => {
       <p class="app-text-soft">狀態：{{ getStatusText }}</p>
     </div>
 
-    <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-      {{ getRedeemHint }}
-    </p>
-
-    <p
-      v-if="getManageHint"
-      class="app-text-soft mt-[8px] text-[14px] leading-[24px]"
-    >
-      {{ getManageHint }}
+    <p class="app-text-muted mt-[12px] text-[14px] leading-[22px]">
+      兌換：{{ getRedeemHint }}
     </p>
   </article>
 

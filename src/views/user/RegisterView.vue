@@ -81,10 +81,10 @@ const handleGoogleSignIn = async () => {
 
 <template>
   <AuthScreenShell
-    title="建立帳號，開始整理兩人的共享生活"
-    description="建立你的暱稱與登入方式，接著就能邀請另一半一起使用。"
+    title="建立帳號，開始共享生活"
+    description="設定暱稱與登入方式，再邀請另一半。"
     card-title="註冊 TwoDo"
-    card-description="用 Google 快速開始，或用 Email 建立一組專屬帳號。"
+    card-description="使用 Google 或 Email 建立帳號。"
   >
     <div class="space-y-[16px]">
       <button
@@ -158,7 +158,7 @@ const handleGoogleSignIn = async () => {
       </label>
 
       <p class="app-banner-support app-text-muted min-h-[72px] px-[16px] py-[12px] text-[12px] leading-[20px]">
-        註冊成功後會產生你的邀請碼，之後可以分享給另一半完成配對。
+        註冊後會產生邀請碼。
       </p>
       <button
         class="app-primary-button w-full"

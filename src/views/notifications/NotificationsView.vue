@@ -67,7 +67,7 @@ const pushStatusLabel = computed(() => {
   }
 
   if (pushState.value.permission === 'denied') {
-    return '需要到瀏覽器設定重新開權限'
+    return '瀏覽器已封鎖'
   }
 
   return '尚未啟用'
@@ -203,7 +203,7 @@ watch(
           <h1
             class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]"
           >
-            站內通知與推播
+            通知與提醒
           </h1>
         </div>
 
@@ -217,7 +217,7 @@ watch(
       </div>
 
       <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        新任務、待確認、已加分和獎勵兌換都會集中在這裡，也可以管理這台裝置的推播。
+        任務、確認、加分與兌換提醒都在這裡。
       </p>
     </header>
 
@@ -230,7 +230,7 @@ watch(
           還不能查看通知
         </p>
         <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          需要先登入並完成配對，通知才會開始同步到你的帳號。
+          完成配對後開始同步通知。
         </p>
       </section>
 
@@ -284,7 +284,7 @@ watch(
         </div>
 
         <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-          開啟後，新任務、確認提醒與獎勵兌換會傳到這台裝置。若你先前封鎖過通知，需到瀏覽器網站設定重新允許。
+          開啟後提醒會傳到這台裝置。
         </p>
 
         <div class="mt-[20px] flex flex-wrap gap-[12px]">
@@ -294,7 +294,7 @@ watch(
             :disabled="pushState.isSubmitting || pushState.isCurrentDeviceEnabled"
             @click="handleEnablePush"
           >
-            {{ pushState.isSubmitting ? '處理中...' : '開啟這台裝置的推播' }}
+            {{ pushState.isSubmitting ? '處理中...' : '開啟推播' }}
           </button>
 
           <button
@@ -303,7 +303,7 @@ watch(
             :disabled="pushState.isSubmitting || !pushState.isCurrentDeviceEnabled"
             @click="handleDisablePush"
           >
-            關閉這台裝置的推播
+            關閉推播
           </button>
         </div>
 
@@ -311,7 +311,7 @@ watch(
           v-if="pushState.isLoading"
           class="app-text-soft mt-[16px] text-[14px] leading-[24px]"
         >
-          正在同步這台裝置的推播狀態...
+          同步推播狀態...
         </p>
       </section>
 
@@ -360,7 +360,7 @@ watch(
           <AppEmptyState
             v-if="!notificationsStore.notifications.length"
             title="目前沒有通知"
-            description="建立任務、完成待確認或兌換獎勵後，這裡會開始累積動態。"
+            description="有新任務或兌換時會出現在這裡。"
           />
         </div>
       </section>

@@ -352,6 +352,31 @@ textarea {
   background: #ef4444;
 }
 
+@media (max-width: 480px) {
+  .app-text-strong.text-\[35px\] {
+    font-size: 2rem;
+    line-height: 1.08;
+  }
+
+  .app-text-strong.text-\[34px\] {
+    max-width: 16ch;
+    font-size: 1.875rem;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+
+  .app-text-strong.text-\[30px\] {
+    font-size: 1.7rem;
+    line-height: 1.12;
+  }
+
+  .app-text-strong.text-\[24px\] {
+    font-size: 1.35rem;
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+  }
+}
+
 .app-primary-button,
 .app-secondary-button,
 .app-ghost-button {

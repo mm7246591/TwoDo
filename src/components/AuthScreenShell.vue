@@ -35,14 +35,14 @@ defineProps<{
           <div class="app-card-muted flex h-full flex-col px-[16px] py-[12px]">
             <p class="app-label">共享任務</p>
             <p class="app-text-strong mt-[8px] text-[14px] font-semibold">
-              登入後和另一半配對，就能一起建立任務、累積點數與兌換獎勵。
+              建立任務、累積點數、兌換獎勵。
             </p>
           </div>
 
           <div class="app-card-muted flex h-full flex-col px-[16px] py-[12px]">
             <p class="app-label">雙人協作</p>
             <p class="app-text-strong mt-[8px] text-[14px] font-semibold">
-              你們可以互相指派待辦，完成後由建立者確認並發放點數。
+              指派待辦，完成後確認加分。
             </p>
           </div>
         </div>
