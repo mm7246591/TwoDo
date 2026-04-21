@@ -5,10 +5,14 @@ import type { CreateRewardInput, RewardsStoreState } from '@/pinia/rewards/types
 import {
   createReward,
   redeemReward,
+  subscribeToRedemptions,
   subscribeToRewards,
   updateRewardStatus,
 } from '@/services/rewardService'
-import type { Reward } from '@/views/rewards/types/interface'
+import type {
+  Redemption,
+  Reward,
+} from '@/views/rewards/types/interface'
 
 const normalizeErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
@@ -20,6 +24,7 @@ const normalizeErrorMessage = (error: unknown) => {
 
 const useRewardsStore = defineStore('rewards', () => {
   const rewards = ref<Reward[]>([])
+  const redemptions = ref<Redemption[]>([])
   const state = ref<RewardsStoreState>({
     currentCoupleId: null,
     errorMessage: '',
@@ -27,9 +32,11 @@ const useRewardsStore = defineStore('rewards', () => {
     isSubmitting: false,
   })
   let unsubscribeRewards: Unsubscribe | null = null
+  let unsubscribeRedemptions: Unsubscribe | null = null
 
   const getActiveRewards = computed(() => rewards.value.filter((reward) => reward.isActive))
   const getInactiveRewards = computed(() => rewards.value.filter((reward) => !reward.isActive))
+  const getRecentRedemptions = computed(() => redemptions.value.slice(0, 8))
 
   const clearError = () => {
     state.value.errorMessage = ''
@@ -38,6 +45,8 @@ const useRewardsStore = defineStore('rewards', () => {
   const stopSync = () => {
     unsubscribeRewards?.()
     unsubscribeRewards = null
+    unsubscribeRedemptions?.()
+    unsubscribeRedemptions = null
   }
 
   const syncRewards = async (coupleId: string) => {
@@ -52,6 +61,10 @@ const useRewardsStore = defineStore('rewards', () => {
 
     unsubscribeRewards = subscribeToRewards(coupleId, (nextRewards) => {
       rewards.value = nextRewards
+      state.value.isLoading = false
+    })
+    unsubscribeRedemptions = subscribeToRedemptions(coupleId, (nextRedemptions) => {
+      redemptions.value = nextRedemptions
       state.value.isLoading = false
     })
   }
@@ -105,6 +118,7 @@ const useRewardsStore = defineStore('rewards', () => {
   const reset = () => {
     stopSync()
     rewards.value = []
+    redemptions.value = []
     state.value.currentCoupleId = null
     state.value.errorMessage = ''
     state.value.isLoading = false
@@ -117,7 +131,9 @@ const useRewardsStore = defineStore('rewards', () => {
     createNewReward,
     getActiveRewards,
     getInactiveRewards,
+    getRecentRedemptions,
     redeemExistingReward,
+    redemptions,
     reset,
     rewards,
     syncRewards,

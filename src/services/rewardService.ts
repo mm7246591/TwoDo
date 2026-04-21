@@ -1,4 +1,5 @@
 import {
+  getDoc,
   onSnapshot,
   query,
   where,
@@ -10,12 +11,20 @@ import {
   httpsCallable,
 } from 'firebase/functions'
 import { firebaseFunctions } from '@/services/firebase/app'
-import { rewardsCollection } from '@/services/firebase/firestore'
+import {
+  redemptionsCollection,
+  rewardDoc,
+  rewardsCollection,
+} from '@/services/firebase/firestore'
+import type { FirestoreRedemption } from '@/services/firebase/types/firestore-redemption.interface'
 import type {
   CreateRewardPayload,
   FirestoreReward,
 } from '@/services/firebase/types/firestore-reward.interface'
-import type { Reward } from '@/views/rewards/types/interface'
+import type {
+  Redemption,
+  Reward,
+} from '@/views/rewards/types/interface'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : null
 
@@ -38,6 +47,26 @@ const sortRewardsByUpdatedAt = (rewards: Reward[]) => [...rewards].sort((leftRew
   return rightTime - leftTime
 })
 
+const mapRedemption = (
+  redemptionId: string,
+  data: FirestoreRedemption,
+  rewardTitle: string | null,
+): Redemption => ({
+  id: redemptionId,
+  coupleId: data.coupleId,
+  rewardId: data.rewardId,
+  rewardTitle,
+  redeemedBy: data.redeemedBy,
+  cost: typeof data.cost === 'number' ? data.cost : 0,
+  status: data.status,
+  createdAt: toDate(data.createdAt) ?? new Date(),
+  updatedAt: toDate(data.updatedAt) ?? new Date(),
+})
+
+const sortRedemptionsByCreatedAt = (redemptions: Redemption[]) => [...redemptions].sort(
+  (leftRedemption, rightRedemption) => rightRedemption.createdAt.getTime() - leftRedemption.createdAt.getTime(),
+)
+
 const subscribeToRewards = (
   coupleId: string,
   callback: (rewards: Reward[]) => void,
@@ -50,6 +79,40 @@ const subscribeToRewards = (
     ))
 
     callback(sortRewardsByUpdatedAt(rewards))
+  },
+)
+
+const subscribeToRedemptions = (
+  coupleId: string,
+  callback: (redemptions: Redemption[]) => void,
+): Unsubscribe => onSnapshot(
+  query(redemptionsCollection, where('coupleId', '==', coupleId)),
+  async (snapshot) => {
+    const rawRedemptions = snapshot.docs.map((documentSnapshot) => ({
+      data: documentSnapshot.data() as FirestoreRedemption,
+      id: documentSnapshot.id,
+    }))
+
+    const rewardIds = Array.from(
+      new Set(rawRedemptions.map((redemption) => redemption.data.rewardId).filter(Boolean)),
+    ) as string[]
+
+    const rewardEntries = await Promise.all(rewardIds.map(async (rewardId) => {
+      const snapshot = await getDoc(rewardDoc(rewardId))
+      const reward = snapshot.data() as FirestoreReward | undefined
+
+      return [rewardId, reward?.title ?? null] as const
+    }))
+
+    const rewardTitleMap = new Map(rewardEntries)
+
+    const redemptions = rawRedemptions.map((redemption) => mapRedemption(
+      redemption.id,
+      redemption.data,
+      rewardTitleMap.get(redemption.data.rewardId) ?? null,
+    ))
+
+    callback(sortRedemptionsByCreatedAt(redemptions))
   },
 )
 
@@ -150,4 +213,10 @@ const updateRewardStatus = async (
   }
 }
 
-export { createReward, redeemReward, subscribeToRewards, updateRewardStatus }
+export {
+  createReward,
+  redeemReward,
+  subscribeToRedemptions,
+  subscribeToRewards,
+  updateRewardStatus,
+}

@@ -8,6 +8,8 @@ interface PointLog {
   points: number
   taskId: string | null
   rewardId: string | null
+  taskTitle: string | null
+  rewardTitle: string | null
   source: string
   createdAt: Date
 }

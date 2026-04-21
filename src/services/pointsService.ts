@@ -1,11 +1,31 @@
-import { onSnapshot, query, where, type Timestamp, type Unsubscribe } from 'firebase/firestore'
-import { pointLogsCollection } from '@/services/firebase/firestore'
+import {
+  getDoc,
+  onSnapshot,
+  query,
+  where,
+  type Timestamp,
+  type Unsubscribe,
+} from 'firebase/firestore'
+import {
+  pointLogsCollection,
+  rewardDoc,
+  taskDoc,
+} from '@/services/firebase/firestore'
 import type { FirestorePointLog } from '@/services/firebase/types/firestore-point-log.interface'
+import type { FirestoreReward } from '@/services/firebase/types/firestore-reward.interface'
+import type { FirestoreTask } from '@/services/firebase/types/firestore-task.interface'
 import type { PointLog } from '@/views/points/types/interface'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : new Date()
 
-const mapPointLog = (pointLogId: string, data: FirestorePointLog): PointLog => ({
+const mapPointLog = (
+  pointLogId: string,
+  data: FirestorePointLog,
+  relatedTitles: {
+    rewardTitle: string | null
+    taskTitle: string | null
+  },
+): PointLog => ({
   id: pointLogId,
   coupleId: data.coupleId,
   userUid: data.userUid,
@@ -13,6 +33,8 @@ const mapPointLog = (pointLogId: string, data: FirestorePointLog): PointLog => (
   points: typeof data.points === 'number' ? data.points : 0,
   taskId: data.taskId ?? null,
   rewardId: data.rewardId ?? null,
+  taskTitle: relatedTitles.taskTitle,
+  rewardTitle: relatedTitles.rewardTitle,
   source: data.source,
   createdAt: toDate(data.createdAt),
 })
@@ -30,13 +52,47 @@ const subscribeToPointLogs = (
   callback: (pointLogs: PointLog[]) => void,
 ): Unsubscribe => onSnapshot(
   query(pointLogsCollection, where('userUid', '==', userUid)),
-  (snapshot) => {
-    const pointLogs = snapshot.docs
-      .map((documentSnapshot) => mapPointLog(
-        documentSnapshot.id,
-        documentSnapshot.data() as FirestorePointLog,
-      ))
-      .filter((pointLog) => pointLog.coupleId === coupleId)
+  async (snapshot) => {
+    const rawPointLogs = snapshot.docs
+      .map((documentSnapshot) => ({
+        data: documentSnapshot.data() as FirestorePointLog,
+        id: documentSnapshot.id,
+      }))
+      .filter((pointLog) => pointLog.data.coupleId === coupleId)
+
+    const taskIds = Array.from(
+      new Set(rawPointLogs.map((pointLog) => pointLog.data.taskId).filter(Boolean)),
+    ) as string[]
+    const rewardIds = Array.from(
+      new Set(rawPointLogs.map((pointLog) => pointLog.data.rewardId).filter(Boolean)),
+    ) as string[]
+
+    const [taskEntries, rewardEntries] = await Promise.all([
+      Promise.all(taskIds.map(async (taskId) => {
+        const snapshot = await getDoc(taskDoc(taskId))
+        const task = snapshot.data() as FirestoreTask | undefined
+
+        return [taskId, task?.title ?? null] as const
+      })),
+      Promise.all(rewardIds.map(async (rewardId) => {
+        const snapshot = await getDoc(rewardDoc(rewardId))
+        const reward = snapshot.data() as FirestoreReward | undefined
+
+        return [rewardId, reward?.title ?? null] as const
+      })),
+    ])
+
+    const taskTitleMap = new Map(taskEntries)
+    const rewardTitleMap = new Map(rewardEntries)
+
+    const pointLogs = rawPointLogs.map((pointLog) => mapPointLog(
+      pointLog.id,
+      pointLog.data,
+      {
+        rewardTitle: pointLog.data.rewardId ? rewardTitleMap.get(pointLog.data.rewardId) ?? null : null,
+        taskTitle: pointLog.data.taskId ? taskTitleMap.get(pointLog.data.taskId) ?? null : null,
+      },
+    ))
 
     callback(sortPointLogsByCreatedAt(pointLogs))
   },

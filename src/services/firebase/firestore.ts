@@ -13,6 +13,7 @@ const userDoc = (uid: string) => doc(db, 'users', uid)
 
 const coupleDoc = (coupleId: string) => doc(db, 'couples', coupleId)
 const taskDoc = (taskId: string) => doc(db, 'tasks', taskId)
+const rewardDoc = (rewardId: string) => doc(db, 'rewards', rewardId)
 
 export {
   coupleDoc,
@@ -20,6 +21,7 @@ export {
   notificationsCollection,
   pointLogsCollection,
   redemptionsCollection,
+  rewardDoc,
   rewardsCollection,
   taskDoc,
   tasksCollection,

@@ -16,6 +16,7 @@ interface Redemption {
   id: string
   coupleId: string
   rewardId: string
+  rewardTitle: string | null
   redeemedBy: string
   cost: number
   status: RedemptionStatus
@@ -30,4 +31,4 @@ interface RewardComposerForm {
   visibility: 'active' | 'inactive'
 }
 
-export type { Redemption, RedemptionStatus, Reward,RewardComposerForm }
+export type { Redemption, RedemptionStatus, Reward, RewardComposerForm }

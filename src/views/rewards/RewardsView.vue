@@ -2,6 +2,7 @@
 import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import RewardComposerCard from "@/components/reward/RewardComposerCard.vue";
+import RedemptionHistoryCard from "@/components/reward/RedemptionHistoryCard.vue";
 import RewardListCard from "@/components/reward/RewardListCard.vue";
 import MobileAppShell from "@/components/MobileAppShell.vue";
 import { useRewardsStore } from "@/pinia/rewards";
@@ -21,6 +22,11 @@ const currentPoints = computed(() => userStore.profile?.points ?? 0);
 const myCreatedRewards = computed(() =>
   rewardsStore.rewards.filter(
     (reward) => reward.createdBy === currentUid.value,
+  ),
+);
+const myRedeemedRewards = computed(() =>
+  rewardsStore.redemptions.filter(
+    (redemption) => redemption.redeemedBy === currentUid.value,
   ),
 );
 const redeemableRewards = computed(() =>
@@ -169,9 +175,9 @@ watch(
         </article>
 
         <article class="app-card px-[16px] py-[16px]">
-          <p class="app-label">未啟用</p>
+          <p class="app-label">我已兌換</p>
           <p class="app-text-strong mt-[8px] text-[30px] font-semibold">
-            {{ rewardsStore.getInactiveRewards.length }}
+            {{ myRedeemedRewards.length }}
           </p>
         </article>
       </section>
@@ -212,6 +218,42 @@ watch(
             class="app-text-muted text-[14px] leading-[24px]"
           >
             目前還沒有獎勵，先建立第一個可以兌換的回報吧。
+          </p>
+        </div>
+      </section>
+
+      <section class="app-card px-[20px] py-[20px]">
+        <div class="flex items-center justify-between gap-[12px]">
+          <div>
+            <p class="app-label">兌換紀錄</p>
+            <p
+              class="app-text-strong mt-[8px] text-[24px] font-semibold tracking-[-0.04em]"
+            >
+              最近完成的 redemptions
+            </p>
+          </div>
+
+          <div class="app-accent-panel px-[12px] py-[8px] text-right">
+            <p class="app-kicker">累積筆數</p>
+            <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
+              {{ rewardsStore.redemptions.length }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-[20px] space-y-[16px]">
+          <RedemptionHistoryCard
+            v-for="redemption in rewardsStore.getRecentRedemptions"
+            :key="redemption.id"
+            :current-uid="currentUid"
+            :redemption="redemption"
+          />
+
+          <p
+            v-if="!rewardsStore.redemptions.length"
+            class="app-text-muted text-[14px] leading-[24px]"
+          >
+            還沒有任何兌換紀錄，等有人第一次使用點數後，這裡就會開始累積歷史。
           </p>
         </div>
       </section>

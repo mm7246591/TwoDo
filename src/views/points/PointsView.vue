@@ -41,11 +41,15 @@ const resolvePointLogTitle = (pointLog: PointLog) => {
 
 const resolvePointLogDescription = (pointLog: PointLog) => {
   if (pointLog.taskId) {
-    return `任務編號：${pointLog.taskId}`;
+    return pointLog.taskTitle
+      ? `來自任務：${pointLog.taskTitle}`
+      : `任務編號：${pointLog.taskId}`;
   }
 
   if (pointLog.rewardId) {
-    return `獎勵編號：${pointLog.rewardId}`;
+    return pointLog.rewardTitle
+      ? `兌換獎勵：${pointLog.rewardTitle}`
+      : `獎勵編號：${pointLog.rewardId}`;
   }
 
   return `來源：${pointLog.source}`;
