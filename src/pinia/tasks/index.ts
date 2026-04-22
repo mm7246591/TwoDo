@@ -16,7 +16,7 @@ const normalizeErrorMessage = (error: unknown) => {
     return error.message
   }
 
-  return '任務流程發生未預期錯誤，請稍後再試。'
+  return '待辦流程發生未預期錯誤，請稍後再試。'
 }
 
 const useTasksStore = defineStore('tasks', () => {

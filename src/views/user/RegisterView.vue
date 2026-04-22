@@ -81,12 +81,12 @@ const handleGoogleSignIn = async () => {
 
 <template>
   <AuthScreenShell
-    title="建立帳號，開始共享生活"
-    description="設定暱稱與登入方式，再邀請另一半。"
+    title="建立你們的小空間"
+    description="先設定暱稱與登入方式，再用邀請碼完成配對。"
     card-title="註冊 TwoDo"
-    card-description="使用 Google 或 Email 建立帳號。"
+    card-description="建立帳號後就能邀請另一半。"
   >
-    <div class="space-y-[16px]">
+    <div class="space-y-4">
       <button
         class="app-secondary-button w-full justify-center"
         type="button"
@@ -111,14 +111,14 @@ const handleGoogleSignIn = async () => {
             fill="#EA4335"
           />
         </svg>
-        <span>{{ isGoogleSubmitting ? 'Google 註冊中...' : '使用 Google 註冊 / 登入' }}</span>
+        <span>{{ isGoogleSubmitting ? 'Google 處理中...' : '使用 Google 繼續' }}</span>
       </button>
 
       <div class="app-divider-label">或使用 Email</div>
     </div>
 
-    <form class="mt-[20px] space-y-[16px]" @submit.prevent="handleSignUp">
-      <label class="block space-y-[8px]">
+    <form class="mt-5 space-y-4" @submit.prevent="handleSignUp">
+      <label class="app-field-stack block">
         <span class="app-field-label">暱稱</span>
         <Field
           v-model="displayName"
@@ -131,7 +131,7 @@ const handleGoogleSignIn = async () => {
         />
       </label>
 
-      <label class="block space-y-[8px]">
+      <label class="app-field-stack block">
         <span class="app-field-label">Email</span>
         <Field
           v-model="email"
@@ -144,7 +144,7 @@ const handleGoogleSignIn = async () => {
         />
       </label>
 
-      <label class="block space-y-[8px]">
+      <label class="app-field-stack block">
         <span class="app-field-label">密碼</span>
         <Field
           v-model="password"
@@ -157,8 +157,8 @@ const handleGoogleSignIn = async () => {
         />
       </label>
 
-      <p class="app-banner-support app-text-muted min-h-[72px] px-[16px] py-[12px] text-[12px] leading-[20px]">
-        註冊後會產生邀請碼。
+      <p class="app-banner-support app-card-caption px-4 py-3">
+        註冊完成後會產生邀請碼。
       </p>
       <button
         class="app-primary-button w-full"
@@ -168,7 +168,7 @@ const handleGoogleSignIn = async () => {
         {{ isEmailSubmitting ? '註冊中...' : '建立 TwoDo 帳號' }}
       </button>
 
-      <p class="app-text-soft pt-[4px] text-center text-[14px]">
+      <p class="app-card-caption pt-1 text-center">
         已經有帳號？
         <RouterLink class="app-link font-semibold" :to="{ name: 'login' }">
           返回登入

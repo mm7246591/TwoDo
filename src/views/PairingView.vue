@@ -52,48 +52,48 @@ const handleJoinInvite = async () => {
 
 <template>
   <MobileAppShell>
-    <header class="space-y-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]">
-      <div class="flex items-start justify-between gap-[12px]">
+    <header class="app-page-header">
+      <div class="app-page-header-row">
         <div class="min-w-0">
-          <div class="app-chip">伴侶配對</div>
-          <h1 class="app-text-strong mt-[16px] max-w-[12ch] text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]">
-            輸入邀請碼完成配對
+          <div class="app-chip">配對</div>
+          <h1 class="app-page-title mt-3 max-w-[11ch]">
+            連接你們的小空間
           </h1>
         </div>
       </div>
 
-      <p class="app-text-muted max-w-[34ch] text-[14px] leading-[24px]">
-        分享或輸入邀請碼，一起管理任務與獎勵。
+      <p class="app-page-summary">
+        分享邀請碼，把待辦和獎勵放在一起。
       </p>
     </header>
 
-    <section class="flex-1 space-y-[16px] px-[20px] pb-[24px] sm:px-[28px]">
-      <section class="app-card px-[20px] py-[20px]">
+    <section class="app-page-content app-section-stack flex-1">
+      <section class="app-card app-card-section">
         <p class="app-label">目前狀態</p>
-        <p class="app-text-strong mt-[12px] text-[24px] font-semibold tracking-[-0.04em]">
+        <p class="app-status-title mt-3">
           {{ getPairingStatus }}
         </p>
-        <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          {{ userStore.profile?.coupleId ? '你已加入雙人空間。' : '還沒建立雙人空間。' }}
+        <p class="app-card-caption mt-3">
+          {{ userStore.profile?.coupleId ? '已加入兩人的小空間。' : '尚未加入兩人的小空間。' }}
         </p>
-        <p class="app-text-muted mt-[8px] text-[14px] leading-[24px]">
-          {{ userStore.profile?.partnerUid ? '已找到配對對象，可開始共享任務。' : '輸入對方邀請碼後完成配對。' }}
+        <p class="app-card-caption mt-2">
+          {{ userStore.profile?.partnerUid ? '已找到另一半，可以開始一起分擔。' : '輸入另一半的邀請碼後即可完成配對。' }}
         </p>
       </section>
 
-      <section class="app-card-muted px-[20px] py-[20px]">
+      <section class="app-card-muted app-card-section">
         <p class="app-label">我的邀請碼</p>
-        <p class="app-text-strong mt-[12px] text-[30px] font-semibold tracking-[0.18em]">
+        <p class="app-code-display mt-3">
           {{ userStore.profile?.inviteCode || '--------' }}
         </p>
-        <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          把這組碼傳給另一半。
+        <p class="app-card-caption mt-3">
+          將這組碼傳給另一半。
         </p>
       </section>
 
-      <section class="app-card px-[20px] py-[20px]">
-        <p class="app-label">輸入對方邀請碼</p>
-        <label class="mt-[16px] block space-y-[8px]">
+      <section class="app-card app-card-section">
+        <p class="app-label">輸入另一半邀請碼</p>
+        <label class="app-field-stack mt-4 block">
           <span class="app-field-label">邀請碼</span>
           <Field
             v-model="inviteCodeInput"
@@ -107,7 +107,7 @@ const handleJoinInvite = async () => {
         </label>
 
         <button
-          class="app-secondary-button mt-[20px] w-full"
+          class="app-secondary-button mt-5 w-full"
           type="button"
           :disabled="!getCanJoinInvite"
           @click="handleJoinInvite"

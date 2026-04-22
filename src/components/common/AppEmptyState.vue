@@ -1,21 +1,10 @@
 <script setup lang="ts">
 import { Empty } from "vant";
-
-defineProps<{
-  description: string;
-  title: string;
-}>();
 </script>
 
 <template>
   <div class="rounded-[24px] bg-[rgba(255,255,255,0.58)]">
-    <Empty image="search" image-size="88" :description="title">
-      <p
-        class="mx-auto mt-1 max-w-[24ch] text-center text-[13px] leading-[21px] text-[color:var(--app-text-muted)]"
-      >
-        {{ description }}
-      </p>
-    </Empty>
+    <Empty image="search" image-size="88"> </Empty>
   </div>
 </template>
 
@@ -26,8 +15,8 @@ defineProps<{
 
 :deep(.van-empty__description) {
   color: var(--app-text-strong);
-  font-size: 15px;
+  font-size: var(--app-type-15);
   font-weight: 700;
-  line-height: 22px;
+  line-height: 1.5;
 }
 </style>

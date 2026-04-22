@@ -101,7 +101,7 @@ const subscribeToPointLogs = (
       onError?.(
         error instanceof Error
           ? error
-          : new Error('積分流水補充資料讀取失敗，請稍後再試。'),
+          : new Error('點數流水補充資料讀取失敗，請稍後再試。'),
       )
     }
   },

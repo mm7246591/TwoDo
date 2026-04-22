@@ -78,7 +78,7 @@ const handleUnpairCouple = async () => {
   }
 
   const shouldContinue = await confirmDangerAction(
-    "解除配對後會停止共享。要繼續嗎？",
+    "解除配對後，你們的待辦與獎勵不會再同步。要繼續嗎？",
     "解除配對",
   );
 
@@ -127,94 +127,88 @@ watch(
 
 <template>
   <MobileAppShell>
-    <header
-      class="space-y-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]"
-    >
-      <div class="flex items-start justify-between gap-[12px]">
+    <header class="app-page-header">
+      <div class="app-page-header-row">
         <div class="min-w-0">
           <div class="app-chip">設定</div>
-          <h1 class="app-page-title mt-[14px] max-w-[11ch]">設定</h1>
+          <h1 class="app-page-title mt-3 max-w-[11ch]">帳號設定</h1>
         </div>
       </div>
 
-      <p class="app-page-summary">在這裡管理暱稱、通知、配對和帳號資訊。</p>
+      <p class="app-page-summary">調整個人資料、提醒與配對。</p>
     </header>
 
-    <section class="flex-1 space-y-[16px] px-[20px] pb-[24px] sm:px-[28px]">
-      <section v-if="!getHasProfile" class="app-card px-[20px] py-[20px]">
+    <section class="app-page-content app-section-stack flex-1">
+      <section v-if="!getHasProfile" class="app-card app-card-section">
         <p class="app-label">目前狀態</p>
-        <p
-          class="app-text-strong mt-[12px] text-[24px] font-semibold tracking-[-0.04em]"
-        >
+        <p class="app-status-title mt-3">
           尚未取得使用者資料
         </p>
       </section>
 
       <template v-else>
-        <section class="grid grid-cols-2 gap-[16px]">
-          <article class="app-card px-[16px] py-[16px]">
+        <section class="app-metric-grid">
+          <article class="app-card app-card-section-sm">
             <p class="app-label">目前點數</p>
-            <p class="app-metric-value mt-[8px]">
+            <p class="app-metric-value mt-2">
               {{ userStore.profile?.points ?? 0 }}
             </p>
           </article>
 
-          <article class="app-card-muted px-[16px] py-[16px]">
+          <article class="app-card-muted app-card-section-sm">
             <p class="app-label">未讀通知</p>
-            <p class="app-metric-value mt-[8px]">
+            <p class="app-metric-value mt-2">
               {{ getUnreadNotificationsText }}
             </p>
           </article>
         </section>
 
-        <section class="app-card px-[20px] py-[20px]">
-          <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <p class="app-label">個人資料</p>
-              <p class="app-card-title mt-[8px]">更新你的顯示名稱</p>
-            </div>
+        <section class="app-card app-card-section">
+          <div class="min-w-0">
+            <p class="app-label">個人資料</p>
+            <p class="app-card-title mt-2">顯示名稱</p>
+          </div>
 
-            <div class="app-accent-panel max-w-full self-stretch px-[12px] py-[8px] text-left sm:max-w-[15rem] sm:self-auto sm:text-right">
-              <p class="app-kicker">帳號</p>
-              <p class="app-text-strong mt-[4px] break-all text-[14px] font-semibold leading-[20px]">
+          <div class="mt-5">
+            <label class="app-field-stack block">
+              <span class="app-field-label">暱稱</span>
+              <Field
+                v-model="displayNameInput"
+                class="app-vant-field"
+                type="text"
+                clearable
+                :border="false"
+                maxlength="40"
+                placeholder="輸入新的暱稱"
+              />
+            </label>
+          </div>
+
+          <dl class="settings-info-list mt-4">
+            <div class="settings-info-row">
+              <dt class="settings-info-label">帳號</dt>
+              <dd class="settings-info-value break-all">
                 {{ userStore.profile?.email }}
-              </p>
+              </dd>
             </div>
-          </div>
 
-          <label class="mt-[20px] block space-y-[8px]">
-            <span class="app-field-label">暱稱</span>
-            <Field
-              v-model="displayNameInput"
-              class="app-vant-field"
-              type="text"
-              clearable
-              :border="false"
-              maxlength="40"
-              placeholder="輸入新的暱稱"
-            />
-          </label>
-
-          <div class="mt-[16px] grid gap-[16px] sm:grid-cols-2">
-            <article class="app-card-muted px-[16px] py-[16px]">
-              <p class="app-label">邀請碼</p>
-              <p
-                class="app-text-strong mt-[8px] break-all text-[18px] font-semibold tracking-[0.12em]"
-              >
+            <div class="settings-info-row">
+              <dt class="settings-info-label">邀請碼</dt>
+              <dd class="settings-info-value break-all tracking-[0.12em]">
                 {{ userStore.profile?.inviteCode }}
-              </p>
-            </article>
+              </dd>
+            </div>
 
-            <article class="app-card-muted px-[16px] py-[16px]">
-              <p class="app-label">配對狀態</p>
-              <p class="app-text-strong mt-[8px] text-[18px] font-semibold">
+            <div class="settings-info-row">
+              <dt class="settings-info-label">配對狀態</dt>
+              <dd class="settings-info-value">
                 {{ getHasPairedPartner ? "已配對" : "尚未配對" }}
-              </p>
-            </article>
-          </div>
+              </dd>
+            </div>
+          </dl>
 
           <button
-            class="app-secondary-button mt-[20px] w-full"
+            class="app-secondary-button mt-5 w-full"
             type="button"
             :disabled="!getCanSaveDisplayName"
             @click="handleSaveDisplayName"
@@ -227,27 +221,27 @@ watch(
           </button>
         </section>
 
-        <section class="app-card px-[20px] py-[20px]">
-          <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <p class="app-label">通知與裝置</p>
-              <p class="app-card-title mt-[8px]">通知與推播</p>
-            </div>
-
-            <div class="app-accent-panel self-stretch px-[12px] py-[8px] text-left sm:self-auto sm:text-right">
-              <p class="app-kicker">已綁定裝置</p>
-              <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-                {{ userStore.profile?.fcmTokens.length ?? 0 }}
-              </p>
-            </div>
+        <section class="app-card app-card-section">
+          <div class="min-w-0">
+            <p class="app-label">通知與裝置</p>
+            <p class="app-card-title mt-2">通知入口</p>
           </div>
 
-          <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-            通知不再放在主導覽，統一從這裡管理。
+          <p class="app-card-caption mt-4">
+            查看通知列表與推播設定。
           </p>
 
+          <dl class="settings-info-list mt-4">
+            <div class="settings-info-row">
+              <dt class="settings-info-label">已綁定裝置</dt>
+              <dd class="settings-info-value">
+                {{ userStore.profile?.fcmTokens.length ?? 0 }}
+              </dd>
+            </div>
+          </dl>
+
           <button
-            class="app-ghost-button mt-[20px] w-full"
+            class="app-ghost-button mt-5 w-full"
             type="button"
             @click="goToNotifications"
           >
@@ -255,27 +249,27 @@ watch(
           </button>
         </section>
 
-        <section class="app-card px-[20px] py-[20px]">
-          <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0">
-              <p class="app-label">配對管理</p>
-              <p class="app-card-title mt-[8px]">配對與帳號操作</p>
-            </div>
-
-            <div class="app-accent-panel self-stretch px-[12px] py-[8px] text-left sm:self-auto sm:text-right">
-              <p class="app-kicker">目前狀態</p>
-              <p class="app-text-strong mt-[4px] text-[14px] font-semibold">
-                {{ getHasPairedPartner ? "已配對" : "未配對" }}
-              </p>
-            </div>
+        <section class="app-card app-card-section">
+          <div class="min-w-0">
+            <p class="app-label">配對管理</p>
+            <p class="app-card-title mt-2">配對與登入</p>
           </div>
 
-          <p class="app-text-muted mt-[16px] text-[14px] leading-[24px]">
-            解除後會停止共享，既有紀錄保留。
+          <p class="app-card-caption mt-4">
+            解除配對後，你們的待辦與獎勵不會再同步。
           </p>
 
+          <dl class="settings-info-list mt-4">
+            <div class="settings-info-row">
+              <dt class="settings-info-label">目前狀態</dt>
+              <dd class="settings-info-value">
+                {{ getHasPairedPartner ? "已配對" : "未配對" }}
+              </dd>
+            </div>
+          </dl>
+
           <button
-            class="app-secondary-button mt-[20px] w-full"
+            class="app-secondary-button mt-5 w-full"
             type="button"
             :disabled="!getHasPairedPartner || coupleStore.isSubmitting"
             @click="handleUnpairCouple"
@@ -284,7 +278,7 @@ watch(
           </button>
 
           <button
-            class="app-ghost-button mt-[12px] w-full"
+            class="app-ghost-button mt-3 w-full"
             type="button"
             @click="handleSignOut"
           >
@@ -295,3 +289,57 @@ watch(
     </section>
   </MobileAppShell>
 </template>
+
+<style scoped>
+.settings-info-list {
+  overflow: hidden;
+  border: 1px solid var(--app-card-muted-border);
+  border-radius: 1.35rem;
+  background: var(--app-card-muted-bg);
+  backdrop-filter: blur(10px);
+}
+
+.settings-info-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--app-space-16);
+  margin: 0;
+  padding: var(--app-space-12) var(--app-space-16);
+}
+
+.settings-info-row + .settings-info-row {
+  border-top: 1px solid rgba(191, 206, 228, 0.52);
+}
+
+.settings-info-label {
+  flex: 0 0 auto;
+  color: var(--app-text-soft);
+  font-size: var(--app-type-12);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.5rem;
+}
+
+.settings-info-value {
+  min-width: 0;
+  margin: 0;
+  color: var(--app-text-strong);
+  font-size: var(--app-type-15);
+  font-weight: 600;
+  line-height: 1.5rem;
+  text-align: right;
+}
+
+@media (max-width: 420px) {
+  .settings-info-row {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .settings-info-value {
+    width: 100%;
+    text-align: left;
+  }
+}
+</style>

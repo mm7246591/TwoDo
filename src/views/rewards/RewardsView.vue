@@ -63,7 +63,7 @@ const handleCreateReward = async (
     return;
   }
 
-  showSuccessMessage("獎勵已建立");
+  showSuccessMessage("獎勵已新增");
 };
 
 const handleRedeemReward = async (reward: Reward) => {
@@ -98,7 +98,7 @@ const handleToggleRewardAvailability = async (
     return;
   }
 
-  showSuccessMessage(isActive ? "獎勵已重新啟用" : "獎勵已停用");
+  showSuccessMessage(isActive ? "獎勵已開放兌換" : "獎勵已暫停兌換");
 };
 
 watch(
@@ -117,31 +117,25 @@ watch(
 
 <template>
   <MobileAppShell>
-    <header
-      class="space-y-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]"
-    >
-      <div class="flex items-start justify-between gap-[12px]">
+    <header class="app-page-header">
+      <div class="app-page-header-row">
         <div class="min-w-0">
-          <div class="app-chip">獎勵中心</div>
-          <h1 class="app-page-title mt-[14px] max-w-[11ch]">
-            獎勵清單
-          </h1>
+          <div class="app-chip">獎勵</div>
+          <h1 class="app-page-title mt-3 max-w-[11ch]">兩人的獎勵</h1>
         </div>
       </div>
 
-      <p class="app-page-summary">建立共享獎勵，也可以直接用點數兌換。</p>
+      <p class="app-page-summary">用點數換你們說好的小獎勵。</p>
     </header>
 
-    <section class="flex-1 space-y-[16px] px-[20px] pb-[24px] sm:px-[28px]">
-      <section v-if="!canUseRewards" class="app-card px-[20px] py-[20px]">
+    <section class="app-page-content app-section-stack flex-1">
+      <section v-if="!canUseRewards" class="app-card app-card-section">
         <p class="app-label">目前狀態</p>
-        <p
-          class="app-text-strong mt-[12px] text-[24px] font-semibold tracking-[-0.04em]"
-        >
-          還不能使用獎勵系統
+        <p class="app-status-title mt-3">
+          還不能新增獎勵
         </p>
-        <p class="app-text-muted mt-[12px] text-[14px] leading-[24px]">
-          先完成配對，才能建立與兌換共享獎勵。
+        <p class="app-card-caption mt-3">
+          完成配對後，就能約定小獎勵。
         </p>
       </section>
 
@@ -151,50 +145,37 @@ watch(
         @submit="handleCreateReward"
       />
 
-      <section class="grid grid-cols-2 gap-[16px] sm:grid-cols-3">
-        <article class="app-card px-[16px] py-[16px]">
-          <p class="app-label">可兌換</p>
-          <p class="app-metric-value mt-[8px]">
+      <section class="app-section-grid grid-cols-2 sm:grid-cols-3">
+        <article class="app-card app-card-section-sm">
+          <p class="app-label">可兌換獎勵</p>
+          <p class="app-metric-value mt-2">
             {{ redeemableRewards.length }}
           </p>
         </article>
 
-        <article class="app-card-muted px-[16px] py-[16px]">
-          <p class="app-label">我建立的</p>
-          <p class="app-metric-value mt-[8px]">
+        <article class="app-card-muted app-card-section-sm">
+          <p class="app-label">我準備的獎勵</p>
+          <p class="app-metric-value mt-2">
             {{ myCreatedRewards.length }}
           </p>
         </article>
 
-        <article class="app-card px-[16px] py-[16px] col-span-2 sm:col-span-1">
-          <p class="app-label">我已兌換</p>
-          <p class="app-metric-value mt-[8px]">
+        <article class="app-card app-card-section-sm col-span-2 sm:col-span-1">
+          <p class="app-label">已兌換獎勵</p>
+          <p class="app-metric-value mt-2">
             {{ myRedeemedRewards.length }}
           </p>
         </article>
       </section>
 
-      <section class="app-card px-[20px] py-[20px]">
-        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+      <section class="app-card app-card-section">
+        <div class="app-card-header-split">
           <div class="min-w-0">
             <p class="app-label">獎勵列表</p>
-            <p class="app-card-title mt-[8px]">目前可查看的獎勵</p>
-            <p class="app-card-caption mt-[8px]">
-              建立者可直接切換開放狀態，另一半可直接兌換。
-            </p>
           </div>
-
-          <span
-            :class="[
-              'app-meta-pill',
-              rewardsStore.isLoading ? 'app-meta-pill-accent' : 'app-meta-pill-success',
-            ]"
-          >
-            {{ rewardsStore.isLoading ? "資料同步中" : "資料已同步" }}
-          </span>
         </div>
 
-        <div class="mt-[20px] space-y-[16px]">
+        <div class="app-card-list mt-5">
           <RewardListCard
             v-for="reward in rewardsStore.rewards"
             :key="reward.id"
@@ -206,19 +187,14 @@ watch(
             @toggle-availability="handleToggleRewardAvailability"
           />
 
-          <AppEmptyState
-            v-if="!rewardsStore.rewards.length"
-            title="還沒有獎勵"
-            description="先建立一個可兌換回報。"
-          />
+          <AppEmptyState v-if="!rewardsStore.rewards.length" />
         </div>
       </section>
 
-      <section class="app-card px-[20px] py-[20px]">
-        <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+      <section class="app-card app-card-section">
+        <div class="app-card-header-split">
           <div class="min-w-0">
             <p class="app-label">兌換紀錄</p>
-            <p class="app-card-title mt-[8px]">最近完成的兌換</p>
           </div>
 
           <span class="app-meta-pill app-meta-pill-strong">
@@ -226,7 +202,7 @@ watch(
           </span>
         </div>
 
-        <div class="mt-[20px] space-y-[16px]">
+        <div class="app-card-list mt-5">
           <RedemptionHistoryCard
             v-for="redemption in rewardsStore.getRecentRedemptions"
             :key="redemption.id"
@@ -237,7 +213,7 @@ watch(
           <AppEmptyState
             v-if="!rewardsStore.redemptions.length"
             title="還沒有兌換紀錄"
-            description="第一次兌換後會出現在這裡。"
+            description="換過的獎勵會保留紀錄。"
           />
         </div>
       </section>

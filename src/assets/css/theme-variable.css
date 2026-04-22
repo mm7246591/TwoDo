@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root,
 [data-theme='default'] {
@@ -66,12 +66,7 @@
   --app-shadow-card: 0 16px 40px rgba(148, 163, 184, 0.16);
   --app-shadow-chip: 0 12px 24px rgba(148, 163, 184, 0.12);
 
-  --app-shell-bg:
-    radial-gradient(circle at top left, rgba(29, 143, 242, 0.1), transparent 28%),
-    radial-gradient(circle at top right, rgba(20, 184, 166, 0.08), transparent 24%),
-    linear-gradient(180deg, #fafcff 0%, #f3f7fd 52%, #f4f6fb 100%);
-  --app-shell-orb-primary: radial-gradient(circle at top, rgba(29, 143, 242, 0.16), transparent 62%);
-  --app-shell-orb-secondary: radial-gradient(circle, rgba(20, 184, 166, 0.1), transparent 68%);
+  --app-shell-bg: linear-gradient(180deg, #fbfdff 0%, #f4f7fc 52%, #eef3f8 100%);
   --app-frame-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(245, 248, 252, 0.96) 100%);
   --app-frame-border: rgba(255, 255, 255, 0.72);
   --app-frame-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.34), transparent);

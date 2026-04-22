@@ -63,19 +63,19 @@ const createTask = async (payload: CreateTaskPayload) => {
   const trimmedDescription = payload.description.trim()
 
   if (!trimmedTitle) {
-    throw new Error('請先輸入任務標題。')
+    throw new Error('請先輸入待辦名稱。')
   }
 
   if (!payload.coupleId) {
-    throw new Error('目前沒有配對資料，無法建立任務。')
+    throw new Error('目前沒有配對資料，無法新增待辦。')
   }
 
   if (!payload.assignedTo) {
-    throw new Error('請先選擇指派對象。')
+    throw new Error('請先選擇要交給誰。')
   }
 
   if (payload.points <= 0) {
-    throw new Error('任務點數至少要大於 0。')
+    throw new Error('待辦點數至少要大於 0。')
   }
 
   try {
@@ -110,11 +110,11 @@ const createTask = async (payload: CreateTaskPayload) => {
 
 const completeTask = async (task: Task, actorUid: string) => {
   if (task.assignedTo !== actorUid) {
-    throw new Error('只有被指派的人可以標記任務完成。')
+    throw new Error('只有收到這件待辦的人可以標記完成。')
   }
 
   if (task.status !== 'pending') {
-    throw new Error('目前只有待處理的任務可以標記完成。')
+    throw new Error('目前只有待完成的待辦可以標記完成。')
   }
 
   try {
@@ -135,11 +135,11 @@ const completeTask = async (task: Task, actorUid: string) => {
 
 const confirmTask = async (task: Task, actorUid: string) => {
   if (task.createdBy !== actorUid) {
-    throw new Error('只有建立任務的人可以確認完成。')
+    throw new Error('只有新增這件待辦的人可以確認完成。')
   }
 
   if (task.status !== 'completed_pending_confirm') {
-    throw new Error('只有待確認的任務可以確認完成。')
+    throw new Error('只有待確認的待辦可以確認完成。')
   }
 
   try {
@@ -160,11 +160,11 @@ const confirmTask = async (task: Task, actorUid: string) => {
 
 const cancelTask = async (task: Task, actorUid: string) => {
   if (task.createdBy !== actorUid) {
-    throw new Error('只有建立任務的人可以取消任務。')
+    throw new Error('只有新增這件待辦的人可以取消。')
   }
 
   if (task.status === 'confirmed' || task.status === 'cancelled') {
-    throw new Error('這個任務目前不能取消。')
+    throw new Error('這件待辦目前不能取消。')
   }
 
   try {

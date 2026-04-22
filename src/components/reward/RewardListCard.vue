@@ -14,11 +14,8 @@ const props = defineProps<{
   reward: Reward;
 }>();
 
-const getOwnerText = computed(() =>
-  props.reward.createdBy === props.currentUid ? "我建立的" : "另一半建立的",
-);
 const getStatusText = computed(() =>
-  props.reward.isActive ? "可兌換" : "未啟用",
+  props.reward.isActive ? "可兌換" : "暫不開放",
 );
 const getCanRedeem = computed(() => {
   if (!props.reward.isActive) {
@@ -31,14 +28,12 @@ const getCanRedeem = computed(() => {
 
   return props.currentPoints >= props.reward.cost;
 });
-const getCanManage = computed(() => props.reward.createdBy === props.currentUid);
+const getCanManage = computed(
+  () => props.reward.createdBy === props.currentUid,
+);
 const getRedeemHint = computed(() => {
   if (!props.reward.isActive) {
-    return "停用中";
-  }
-
-  if (props.reward.createdBy === props.currentUid) {
-    return "自己建立";
+    return "暫不開放";
   }
 
   if (props.currentPoints < props.reward.cost) {
@@ -50,23 +45,19 @@ const getRedeemHint = computed(() => {
 </script>
 
 <template>
-  <article class="app-card-muted px-[16px] py-[16px]">
-    <div class="flex items-start justify-between gap-[12px]">
+  <article class="app-card-muted">
+    <div class="flex items-start justify-between gap-3">
       <div class="min-w-0 flex-1">
-        <div class="flex flex-wrap items-center gap-[8px]">
-          <p class="app-text-strong text-[17px] font-semibold leading-[1.35]">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <p class="app-list-title">
             {{ reward.title }}
           </p>
           <span class="app-number-pill">{{ reward.cost }} 點</span>
         </div>
-        <p class="app-text-muted mt-[10px] text-[14px] leading-[22px]">
-          {{ reward.description || "沒有補充說明。" }}
-        </p>
       </div>
     </div>
 
-    <div class="app-meta-list mt-[14px]">
-      <span class="app-meta-pill">建立者：{{ getOwnerText }}</span>
+    <div class="app-meta-list mt-3">
       <span
         :class="[
           'app-meta-pill',
@@ -75,29 +66,19 @@ const getRedeemHint = computed(() => {
       >
         狀態：{{ getStatusText }}
       </span>
-      <span
-        :class="[
-          'app-meta-pill',
-          getCanRedeem ? 'app-meta-pill-accent' : 'app-meta-pill-strong',
-        ]"
-      >
-        {{ getRedeemHint }}
-      </span>
     </div>
 
     <div
       v-if="getCanManage || props.reward.createdBy !== props.currentUid"
-      class="mt-[16px] rounded-[1.15rem] border border-[var(--app-border)] bg-white/70 px-[14px] py-[12px]"
+      class="mt-4 rounded-[1.15rem] border border-[var(--app-border)] bg-white/70 px-4 py-3"
     >
       <div
         v-if="getCanManage"
-        class="flex flex-col gap-[10px] sm:flex-row sm:items-center sm:justify-between"
+        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       >
         <div class="min-w-0">
-          <p class="app-text-strong text-[14px] font-semibold">開放兌換</p>
-          <p class="app-card-caption mt-[4px]">
-            關閉後另一半暫時看得到但不能兌換。
-          </p>
+          <p class="app-inline-title">開放兌換</p>
+          <p class="app-card-caption mt-1">關閉後另一半暫時不能換。</p>
         </div>
 
         <div class="self-end shrink-0">
@@ -112,18 +93,21 @@ const getRedeemHint = computed(() => {
         </div>
       </div>
 
-      <div v-else class="flex flex-wrap items-center justify-between gap-[12px]">
+      <div
+        v-else
+        class="flex flex-wrap items-center justify-between gap-3"
+      >
         <p class="app-card-caption">
-          {{ reward.isActive ? "可直接兌換這個獎勵。" : "建立者目前暫停開放兌換。" }}
+          {{ reward.isActive ? "現在可以換。" : "目前先不開放。" }}
         </p>
 
         <button
-          class="app-secondary-button px-[16px] py-[10px] text-[14px]"
+          class="app-secondary-button px-4 py-3"
           type="button"
           :disabled="isSubmitting || !getCanRedeem"
           @click="emit('redeem', reward)"
         >
-          {{ getCanRedeem ? "立即兌換" : getRedeemHint }}
+          {{ getCanRedeem ? "現在兌換" : getRedeemHint }}
         </button>
       </div>
     </div>

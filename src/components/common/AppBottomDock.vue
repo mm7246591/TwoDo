@@ -37,7 +37,7 @@ const dockItems = computed<DockItem[]>(() => [
   },
   {
     icon: "tasks",
-    label: "任務",
+    label: "待辦",
     routeName: "tasks",
   },
   {
@@ -47,7 +47,7 @@ const dockItems = computed<DockItem[]>(() => [
   },
   {
     icon: "points",
-    label: "積分",
+    label: "點數",
     routeName: "points",
   },
   {
@@ -78,39 +78,127 @@ const navigate = async (routeName: DockRouteName) => {
 
 <template>
   <nav
-    class="fixed bottom-[max(0.85rem,calc(var(--safe-bottom)+0.4rem))] left-1/2 z-20 flex w-[min(calc(100vw-40px),24.5rem)] -translate-x-1/2 rounded-[1.8rem] border border-white/90 bg-white/88 shadow-[0_18px_40px_rgba(15,23,42,0.12)] backdrop-blur-[18px] sm:w-[min(calc(100vw-56px),24.5rem)]"
+    class="app-bottom-dock"
     aria-label="主要功能入口"
   >
     <button
       v-for="item in dockItems"
       :key="item.routeName"
       :class="[
-        'relative grid min-w-0 flex-1 justify-items-center gap-[0.35rem] border-0 bg-transparent px-[0.2rem] py-[0.82rem] text-[0.65rem] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(29,143,242,0.28)] focus-visible:ring-inset sm:px-[0.4rem] sm:text-[0.72rem]',
-        getIsActive(item.routeName)
-          ? 'text-[color:var(--app-text-strong)]'
-          : 'text-[color:var(--app-text-soft)]',
+        'app-bottom-dock__item',
+        getIsActive(item.routeName) ? 'is-active' : '',
       ]"
       type="button"
       :aria-label="`前往${item.label}`"
+      :aria-current="getIsActive(item.routeName) ? 'page' : undefined"
       @click="navigate(item.routeName)"
     >
       <span
-        :class="[
-          'relative inline-flex h-[2.3rem] w-[2.3rem] items-center justify-center rounded-full transition-colors',
-          getIsActive(item.routeName)
-            ? 'bg-[rgba(29,143,242,0.14)] text-[color:var(--app-accent-strong)]'
-            : 'bg-[rgba(29,143,242,0.08)] text-[color:var(--app-accent-strong)]',
-        ]"
+        class="app-bottom-dock__icon"
       >
         <DashboardIcon :name="item.icon" :size="19" />
         <span
           v-if="getBadge(item.routeName)"
-          class="absolute right-[-0.2rem] top-[-0.15rem] h-[1.1rem] min-w-[1.1rem] rounded-full bg-[var(--app-danger)] px-1 text-center text-[0.625rem] leading-[1.1rem] text-white"
+          class="app-bottom-dock__badge"
         >
           {{ getBadge(item.routeName) }}
         </span>
       </span>
-      <span class="truncate">{{ item.label }}</span>
+      <span class="app-bottom-dock__label">{{ item.label }}</span>
     </button>
   </nav>
 </template>
+
+<style scoped>
+.app-bottom-dock {
+  position: sticky;
+  bottom: max(0.75rem, calc(var(--safe-bottom) + 0.25rem));
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: calc(100% - 1.5rem);
+  min-height: 4.5rem;
+  margin: auto auto max(0.75rem, calc(var(--safe-bottom) + 0.25rem));
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  border-radius: 1.6rem;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+.app-bottom-dock__item {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 4.5rem;
+  align-content: center;
+  justify-items: center;
+  gap: 0.2rem;
+  border: 0;
+  background: transparent;
+  padding: 0.45rem 0.15rem 0.5rem;
+  color: var(--app-text-soft);
+  font-size: var(--app-type-12);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.app-bottom-dock__item:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(29, 143, 242, 0.24);
+}
+
+.app-bottom-dock__item.is-active {
+  color: var(--app-accent-strong);
+}
+
+.app-bottom-dock__icon {
+  position: relative;
+  display: inline-flex;
+  width: 3rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: currentColor;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.app-bottom-dock__item.is-active .app-bottom-dock__icon {
+  background: var(--app-accent-soft);
+  transform: translateY(-1px);
+}
+
+.app-bottom-dock__label {
+  max-width: 100%;
+  overflow: hidden;
+  color: currentColor;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-bottom-dock__badge {
+  position: absolute;
+  top: -0.2rem;
+  right: 0.12rem;
+  min-width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: var(--app-danger);
+  padding-inline: 0.25rem;
+  color: #ffffff;
+  font-size: var(--app-type-12);
+  font-weight: 800;
+  line-height: 1rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .app-bottom-dock {
+    width: calc(100% - 2rem);
+  }
+}
+</style>

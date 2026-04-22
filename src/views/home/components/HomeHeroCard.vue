@@ -1,26 +1,19 @@
 <script setup lang="ts">
-import DashboardIcon from '@/components/common/DashboardIcon.vue'
-import type { HomeHeroStatItem } from '../type/interface'
+import DashboardIcon from "@/components/common/DashboardIcon.vue";
+import type { HomeHeroStatItem } from "../type/interface";
 
 defineProps<{
-  description: string
-  stats: HomeHeroStatItem[]
-  title: string
-}>()
+  message: string;
+  stats: HomeHeroStatItem[];
+}>();
 </script>
 
 <template>
-  <section class="app-hero-card relative overflow-hidden p-[20px]">
-    <div class="flex items-start justify-between gap-[16px]">
+  <section class="app-hero-card app-card-section relative overflow-hidden">
+    <div class="flex items-start justify-between gap-4">
       <div>
-        <p class="app-hero-kicker">今天狀態</p>
-        <p
-          class="app-text-strong mt-[12px] max-w-[12ch] text-[28px] font-semibold leading-[1.12] tracking-[-0.04em]"
-        >
-          {{ title }}
-        </p>
-        <p class="app-hero-body mt-[10px] max-w-[34ch] text-[14px] leading-[23px]">
-          {{ description }}
+        <p class="app-hero-title max-w-[16ch]">
+          {{ message }}
         </p>
       </div>
 
@@ -31,19 +24,19 @@ defineProps<{
       </div>
     </div>
 
-    <div class="mt-[20px] grid grid-cols-2 gap-[12px] sm:grid-cols-4">
+    <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
       <article
         v-for="stat in stats"
         :key="stat.label"
-        class="app-hero-stat rounded-[1.4rem] border border-white/65 bg-white/70 px-[16px] py-[16px] backdrop-blur-[12px]"
+        class="app-hero-stat border border-white/65 bg-white/70 p-4 backdrop-blur-[12px] rounded-[1.4rem]"
       >
         <div
           class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--app-accent-soft)] text-[color:var(--app-accent-strong)]"
         >
           <DashboardIcon :name="stat.icon" :size="18" />
         </div>
-        <p class="app-label mt-[12px]">{{ stat.label }}</p>
-        <p class="app-metric-value mt-[8px]">{{ stat.value }}</p>
+        <p class="app-label mt-3">{{ stat.label }}</p>
+        <p class="app-metric-value mt-2">{{ stat.value }}</p>
       </article>
     </div>
   </section>

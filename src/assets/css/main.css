@@ -4,6 +4,25 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --keyboard-inset: 0px;
+  --app-space-4: 0.25rem;
+  --app-space-8: 0.5rem;
+  --app-space-12: 0.75rem;
+  --app-space-16: 1rem;
+  --app-space-20: 1.25rem;
+  --app-space-24: 1.5rem;
+  --app-space-28: 1.75rem;
+  --app-space-32: 2rem;
+  --app-space-40: 2.5rem;
+  /* Typography scale: 12, 13, 15, 16, 18, 20, 24, 28, 32 */
+  --app-type-12: 0.75rem;
+  --app-type-13: 0.8125rem;
+  --app-type-15: 0.9375rem;
+  --app-type-16: 1rem;
+  --app-type-18: 1.125rem;
+  --app-type-20: 1.25rem;
+  --app-type-24: 1.5rem;
+  --app-type-28: 1.75rem;
+  --app-type-32: 2rem;
 }
 
 html,
@@ -20,9 +39,20 @@ html {
 body {
   margin: 0;
   color: var(--app-text);
-  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
+  font-family:
+    'Plus Jakarta Sans',
+    'Noto Sans TC',
+    'PingFang TC',
+    'Microsoft JhengHei',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: var(--app-type-16);
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
   overscroll-behavior-y: none;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
@@ -91,6 +121,86 @@ textarea {
   min-height: 44px;
 }
 
+.app-page-header {
+  display: grid;
+  gap: var(--app-space-20);
+  padding: var(--app-space-32) var(--app-space-20) var(--app-space-24);
+}
+
+.app-page-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--app-space-12);
+}
+
+.app-page-content {
+  padding-right: var(--app-space-20);
+  padding-bottom: var(--app-space-24);
+  padding-left: var(--app-space-20);
+}
+
+.app-section-stack {
+  display: grid;
+  gap: var(--app-space-16);
+}
+
+.app-section-grid {
+  display: grid;
+  gap: var(--app-space-16);
+}
+
+.app-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--app-space-16);
+}
+
+.app-card-section {
+  padding: var(--app-space-20);
+}
+
+.app-card-section-sm {
+  padding: var(--app-space-16);
+}
+
+.app-card-header-split {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-16);
+}
+
+.app-card-list {
+  display: grid;
+  gap: var(--app-space-16);
+}
+
+.app-card-list-compact {
+  display: grid;
+  gap: var(--app-space-12);
+}
+
+.app-form-stack {
+  display: grid;
+  gap: var(--app-space-16);
+}
+
+.app-form-grid-2 {
+  display: grid;
+  gap: var(--app-space-16);
+}
+
+.app-field-stack {
+  display: grid;
+  gap: var(--app-space-8);
+}
+
+.app-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-12);
+}
+
 .app-stage {
   position: relative;
   isolation: isolate;
@@ -99,19 +209,6 @@ textarea {
 
 .app-shell {
   background: var(--app-shell-bg);
-}
-
-.app-shell-orb {
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.app-shell-orb-primary {
-  background-image: var(--app-shell-orb-primary);
-}
-
-.app-shell-orb-secondary {
-  background-image: var(--app-shell-orb-secondary);
 }
 
 .app-frame {
@@ -151,14 +248,14 @@ textarea {
 .app-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: var(--app-space-8);
   border-radius: 999px;
   border: 1px solid var(--app-chip-border);
   background: var(--app-chip-bg);
-  padding: 0.45rem 0.8rem;
-  font-size: 0.72rem;
+  padding: var(--app-space-8) var(--app-space-12);
+  font-size: var(--app-type-13);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.045em;
   line-height: 1.2;
   color: var(--app-chip-text);
   box-shadow: var(--app-shadow-chip);
@@ -168,14 +265,14 @@ textarea {
 .app-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--app-space-8);
   border-radius: 999px;
   background: var(--app-accent-soft-strong);
-  padding: 0.5rem 0.75rem;
+  padding: var(--app-space-8) var(--app-space-12);
   color: var(--app-accent-strong);
-  font-size: 0.75rem;
+  font-size: var(--app-type-13);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.045em;
   line-height: 1.2;
 }
 
@@ -188,23 +285,23 @@ textarea {
 
 .app-label {
   color: var(--app-text-soft);
-  font-size: 0.75rem;
+  font-size: var(--app-type-13);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
+  letter-spacing: 0.03em;
+  line-height: 1.28;
 }
 
 .app-kicker {
   color: var(--app-text-soft);
-  font-size: 0.75rem;
+  font-size: var(--app-type-13);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
+  letter-spacing: 0.03em;
+  line-height: 1.28;
 }
 
 .app-field-label {
   color: var(--app-text-muted);
-  font-size: 0.875rem;
+  font-size: var(--app-type-15);
   font-weight: 600;
 }
 
@@ -226,47 +323,121 @@ textarea {
 
 .app-page-title {
   color: var(--app-text-strong);
-  font-size: clamp(1.85rem, 6vw, 2.25rem);
+  font-size: var(--app-type-32);
   font-weight: 700;
-  line-height: 1.06;
-  letter-spacing: -0.04em;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
 }
 
 .app-page-summary {
-  max-width: 36ch;
+  max-width: 34ch;
   color: var(--app-text-muted);
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: var(--app-type-16);
+  line-height: 1.65;
 }
 
 .app-card-title {
   color: var(--app-text-strong);
-  font-size: 1.35rem;
+  font-size: var(--app-type-18);
   font-weight: 700;
-  line-height: 1.18;
-  letter-spacing: -0.03em;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
 }
 
 .app-card-caption {
   color: var(--app-text-soft);
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: var(--app-type-15);
+  line-height: 1.58;
 }
 
 .app-metric-value {
   color: var(--app-text-strong);
-  font-size: 1.85rem;
+  font-size: var(--app-type-28);
   font-weight: 700;
-  line-height: 1.08;
+  line-height: 1.02;
   letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-display-title {
+  color: var(--app-text-strong);
+  font-size: var(--app-type-32);
+  font-weight: 700;
+  line-height: 1.03;
+  letter-spacing: -0.04em;
+}
+
+.app-display-summary {
+  max-width: 32ch;
+  color: var(--app-text-muted);
+  font-size: var(--app-type-16);
+  line-height: 1.65;
+}
+
+.app-hero-title {
+  color: var(--app-text-strong);
+  font-size: var(--app-type-28);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: -0.03em;
+}
+
+.app-status-title {
+  color: var(--app-text-strong);
+  font-size: var(--app-type-20);
+  font-weight: 700;
+  line-height: 1.24;
+  letter-spacing: -0.02em;
+}
+
+.app-inline-title {
+  color: var(--app-text-strong);
+  font-size: var(--app-type-16);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.app-list-title {
+  color: var(--app-text-strong);
+  font-size: var(--app-type-16);
+  font-weight: 700;
+  line-height: 1.42;
+}
+
+.app-list-body {
+  color: var(--app-text-muted);
+  font-size: var(--app-type-15);
+  line-height: 1.58;
+}
+
+.app-meta-caption {
+  color: var(--app-text-soft);
+  font-size: var(--app-type-13);
+  line-height: 1.5;
+}
+
+.app-badge-text {
+  font-size: var(--app-type-12);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+}
+
+.app-code-display {
+  color: var(--app-text-strong);
+  font-size: var(--app-type-28);
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
 }
 
 .app-status-inline {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--app-space-8);
   color: var(--app-text-soft);
-  font-size: 0.875rem;
+  font-size: var(--app-type-15);
   font-weight: 600;
   line-height: 1.4;
 }
@@ -288,21 +459,21 @@ textarea {
 
 .app-meta-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
+  justify-content: flex-end;
+  gap: var(--app-space-8);
 }
 
 .app-meta-pill,
 .app-number-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--app-space-4);
   min-height: 2rem;
   border: 1px solid var(--app-border);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.78);
-  padding: 0.42rem 0.78rem;
-  font-size: 0.8125rem;
+  padding: var(--app-space-8) var(--app-space-12);
+  font-size: var(--app-type-13);
   font-weight: 600;
   line-height: 1.2;
 }
@@ -335,8 +506,9 @@ textarea {
 }
 
 .app-number-pill {
-  font-size: 0.95rem;
+  font-size: var(--app-type-15);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .app-link {
@@ -402,7 +574,7 @@ textarea {
   border: 1px solid var(--app-input-border);
   border-radius: 1.35rem;
   background: var(--app-input-bg);
-  padding: 0.78rem 1rem;
+  padding: 0.95rem 1rem;
   color: var(--app-text);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
   transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
@@ -422,7 +594,7 @@ textarea {
 
 .app-vant-field .van-field__control {
   color: var(--app-text);
-  font-size: 1rem;
+  font-size: var(--app-type-16);
   line-height: 1.5rem;
 }
 
@@ -453,7 +625,7 @@ textarea {
   border: 0;
   padding: 0 1rem;
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: var(--app-type-15);
   font-weight: 800;
 }
 
@@ -469,55 +641,23 @@ textarea {
   background: #ef4444;
 }
 
-@media (max-width: 480px) {
-  .app-page-title {
-    font-size: 1.95rem;
-  }
-
-  .app-card-title {
-    font-size: 1.2rem;
-  }
-
-  .app-metric-value {
-    font-size: 1.65rem;
-  }
-
-  .app-text-strong.text-\[35px\] {
-    font-size: 2rem;
-    line-height: 1.08;
-  }
-
-  .app-text-strong.text-\[34px\] {
-    max-width: 16ch;
-    font-size: 1.875rem;
-    line-height: 1.08;
-    letter-spacing: -0.035em;
-  }
-
-  .app-text-strong.text-\[30px\] {
-    font-size: 1.7rem;
-    line-height: 1.12;
-  }
-
-  .app-text-strong.text-\[24px\] {
-    font-size: 1.2rem;
-    line-height: 1.18;
-    letter-spacing: -0.025em;
-  }
-}
-
 .app-primary-button,
 .app-secondary-button,
 .app-ghost-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: var(--app-space-8);
   border-radius: 999px;
-  padding: 0.95rem 1.2rem;
-  font-size: 0.95rem;
+  padding: var(--app-space-12) var(--app-space-16);
+  font-size: var(--app-type-15);
   font-weight: 700;
   transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.app-button-compact {
+  font-size: var(--app-type-13);
+  line-height: 1.1;
 }
 
 .app-primary-button {
@@ -571,9 +711,9 @@ textarea {
 .app-divider-label {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: var(--app-space-12);
   color: var(--app-text-soft);
-  font-size: 0.72rem;
+  font-size: var(--app-type-12);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -610,9 +750,9 @@ textarea {
   justify-content: center;
   border-radius: 999px;
   background: var(--app-badge-bg);
-  padding: 0.375rem 0.75rem;
+  padding: var(--app-space-8) var(--app-space-12);
   color: var(--app-badge-text);
-  font-size: 0.75rem;
+  font-size: var(--app-type-12);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -642,7 +782,7 @@ textarea {
 
 .app-hero-kicker {
   color: var(--app-hero-kicker);
-  font-size: 0.75rem;
+  font-size: var(--app-type-12);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -657,9 +797,9 @@ textarea {
   justify-content: center;
   border-radius: 999px;
   background: var(--app-hero-pill-bg);
-  padding: 0.375rem 0.75rem;
+  padding: var(--app-space-8) var(--app-space-12);
   color: var(--app-hero-pill-text);
-  font-size: 0.75rem;
+  font-size: var(--app-type-12);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -684,5 +824,26 @@ textarea {
     padding-right: max(1.5rem, calc(var(--safe-right) + 1rem));
     padding-bottom: max(2.5rem, calc(var(--safe-bottom) + var(--keyboard-inset) + 1rem));
     padding-left: max(1.5rem, calc(var(--safe-left) + 1rem));
+  }
+
+  .app-page-header {
+    padding-top: var(--app-space-40);
+    padding-right: var(--app-space-28);
+    padding-left: var(--app-space-28);
+  }
+
+  .app-page-content {
+    padding-right: var(--app-space-28);
+    padding-left: var(--app-space-28);
+  }
+
+  .app-card-header-split {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .app-form-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

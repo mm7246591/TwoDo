@@ -10,7 +10,7 @@ const normalizeErrorMessage = (error: unknown) => {
     return error.message
   }
 
-  return '積分紀錄同步時發生未預期錯誤，請稍後再試。'
+  return '點數紀錄同步時發生未預期錯誤，請稍後再試。'
 }
 
 const usePointsStore = defineStore('points', () => {

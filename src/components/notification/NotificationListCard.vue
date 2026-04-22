@@ -12,7 +12,7 @@ const props = defineProps<{
 
 const getTypeLabel = computed(() => {
   if (props.notification.type === "new_task") {
-    return "新任務";
+    return "新待辦";
   }
 
   if (props.notification.type === "task_completed_pending_confirm") {
@@ -38,11 +38,11 @@ const getReadStateLabel = computed(() =>
 </script>
 
 <template>
-  <article class="app-card-muted px-[16px] py-[16px]">
-    <div class="flex items-start gap-[12px]">
+  <article class="app-card-muted app-card-section-sm">
+    <div class="flex items-start gap-3">
       <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-[8px]">
-          <p class="app-text-strong text-[17px] font-semibold leading-[1.35]">
+        <div class="flex flex-wrap items-center gap-2">
+          <p class="app-list-title">
             {{ notification.title }}
           </p>
           <span class="app-meta-pill">{{ getTypeLabel }}</span>
@@ -56,11 +56,11 @@ const getReadStateLabel = computed(() =>
           </span>
         </div>
 
-        <p class="app-text-muted mt-[10px] text-[14px] leading-[22px]">
+        <p class="app-list-body mt-2">
           {{ notification.message }}
         </p>
 
-        <p class="app-text-soft mt-[10px] text-[13px] leading-[20px]">
+        <p class="app-meta-caption mt-2">
           {{ formatDateTime(notification.createdAt) }}
         </p>
       </div>
@@ -68,10 +68,10 @@ const getReadStateLabel = computed(() =>
 
     <div
       v-if="!notification.isRead"
-      class="mt-[16px] flex flex-wrap gap-[12px]"
+      class="mt-4 flex flex-wrap gap-3"
     >
       <button
-        class="app-secondary-button px-[16px] py-[12px] text-[14px]"
+        class="app-secondary-button px-4 py-3"
         type="button"
         :disabled="isSubmitting"
         @click="emit('read', notification)"

@@ -45,31 +45,10 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <section class="app-card px-[20px] py-[20px]">
-    <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
-      <div class="min-w-0">
-        <p class="app-label">新增獎勵</p>
-        <p class="app-card-title mt-[8px]">建立可兌換的回報</p>
-        <p class="app-card-caption mt-[8px]">
-          可以先建立，等準備好再開放兌換。
-        </p>
-      </div>
-
-      <div class="flex flex-wrap gap-[8px]">
-        <span
-          :class="[
-            'app-meta-pill',
-            isRewardActive ? 'app-meta-pill-accent' : 'app-meta-pill-strong',
-          ]"
-        >
-          {{ isRewardActive ? "建立後會立即開放" : "建立後先保持隱藏" }}
-        </span>
-      </div>
-    </div>
-
-    <form class="mt-[20px] space-y-[16px]" @submit.prevent="handleSubmit">
-      <label class="block space-y-[8px]">
-        <span class="app-field-label">名稱</span>
+  <section class="app-card app-card-section">
+    <form class="app-form-stack" @submit.prevent="handleSubmit">
+      <label class="app-field-stack block">
+        <span class="app-field-label">獎勵名稱</span>
         <input
           v-model="form.title"
           class="app-input"
@@ -78,17 +57,17 @@ const handleSubmit = () => {
         />
       </label>
 
-      <label class="block space-y-[8px]">
-        <span class="app-field-label">說明</span>
+      <label class="app-field-stack block">
+        <span class="app-field-label">備註</span>
         <textarea
           v-model="form.description"
-          class="app-input min-h-[96px] resize-none py-[16px]"
-          placeholder="補充這個獎勵的內容或兌換條件"
+          class="app-input min-h-[96px] resize-none py-4"
+          placeholder="補充內容或小約定"
         />
       </label>
 
-      <div class="grid gap-[16px] sm:grid-cols-2">
-        <label class="block space-y-[8px]">
+      <div class="app-form-grid-2">
+        <label class="app-field-stack block">
           <span class="app-field-label">所需點數</span>
           <input
             v-model="form.cost"
@@ -99,9 +78,9 @@ const handleSubmit = () => {
           />
         </label>
 
-        <label class="block space-y-[8px]">
-          <span class="app-field-label">狀態</span>
-          <div class="app-input flex items-center justify-between gap-[12px]">
+        <label class="app-field-stack block">
+          <span class="app-field-label">開放兌換</span>
+          <div class="app-input flex items-center justify-between gap-3">
             <span :class="isRewardActive ? 'app-text-strong' : 'app-text-soft'">
               {{ isRewardActive ? "立即開放" : "先不開放" }}
             </span>
@@ -116,11 +95,11 @@ const handleSubmit = () => {
       </div>
 
       <button
-        class="app-primary-button mt-[24px] w-full"
+        class="app-primary-button mt-6 w-full"
         type="submit"
         :disabled="props.isSubmitting"
       >
-        {{ props.isSubmitting ? "建立中..." : "建立獎勵" }}
+        {{ props.isSubmitting ? "新增中..." : "新增獎勵" }}
       </button>
     </form>
   </section>

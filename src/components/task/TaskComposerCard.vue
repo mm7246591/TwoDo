@@ -63,7 +63,7 @@ const getDueDateLabel = computed(() => {
 });
 const getAssigneeLabel = computed(() => {
   if (!form.value.assignedTo) {
-    return "請選擇對象";
+    return "選擇另一半";
   }
 
   const selectedOption = assigneeOptions.value.find(
@@ -147,26 +147,10 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <section class="app-card px-[20px] py-[20px]">
-    <div class="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
-      <div class="min-w-0">
-        <p class="app-label">新增任務</p>
-        <p class="app-card-title mt-[8px]">建一張可追蹤的待辦</p>
-        <p class="app-card-caption mt-[8px]">
-          任務建立後會直接進到對方的待辦清單。
-        </p>
-      </div>
-
-      <div class="flex flex-wrap gap-[8px]">
-        <span class="app-meta-pill app-meta-pill-accent max-w-full">
-          <span class="truncate">指派對象：{{ getAssigneeLabel }}</span>
-        </span>
-      </div>
-    </div>
-
-    <form class="mt-[20px] space-y-[16px]" @submit.prevent="handleSubmit">
-      <label class="block space-y-[8px]">
-        <span class="app-field-label">標題</span>
+  <section class="app-card app-card-section">
+    <form class="app-form-stack" @submit.prevent="handleSubmit">
+      <label class="app-field-stack block">
+        <span class="app-field-label">待辦名稱</span>
         <input
           v-model="form.title"
           class="app-input"
@@ -175,17 +159,17 @@ const handleSubmit = () => {
         />
       </label>
 
-      <label class="block space-y-[8px]">
-        <span class="app-field-label">描述</span>
+      <label class="app-field-stack block">
+        <span class="app-field-label">備註</span>
         <textarea
           v-model="form.description"
-          class="app-input min-h-[96px] resize-none py-[16px]"
-          placeholder="補充任務細節或截止提醒"
+          class="app-input min-h-[96px] resize-none py-4"
+          placeholder="補充細節或提醒"
         />
       </label>
 
-      <div class="grid gap-[16px] sm:grid-cols-2">
-        <label class="block space-y-[8px]">
+      <div class="app-form-grid-2">
+        <label class="app-field-stack block">
           <span class="app-field-label">點數</span>
           <input
             v-model="form.points"
@@ -196,7 +180,7 @@ const handleSubmit = () => {
           />
         </label>
 
-        <label class="block space-y-[8px]">
+        <label class="app-field-stack block">
           <span class="app-field-label">截止日</span>
           <button
             class="app-input flex items-center justify-between text-left"
@@ -210,8 +194,8 @@ const handleSubmit = () => {
         </label>
       </div>
 
-      <label class="block space-y-[8px]">
-        <span class="app-field-label">指派對象</span>
+      <label class="app-field-stack block">
+        <span class="app-field-label">交給誰</span>
         <button
           class="app-input flex items-center justify-between text-left"
           type="button"
@@ -224,11 +208,11 @@ const handleSubmit = () => {
       </label>
 
       <button
-        class="app-primary-button mt-[24px] w-full"
+        class="app-primary-button mt-6 w-full"
         type="submit"
         :disabled="isSubmitting"
       >
-        {{ isSubmitting ? "建立中..." : "建立任務" }}
+        {{ isSubmitting ? "新增中..." : "新增待辦" }}
       </button>
     </form>
 
@@ -260,7 +244,7 @@ const handleSubmit = () => {
     >
       <Picker
         v-model="assigneePickerValue"
-        title="指派對象"
+        title="交給誰"
         cancel-button-text="取消"
         confirm-button-text="確認"
         :columns="assigneeOptions"

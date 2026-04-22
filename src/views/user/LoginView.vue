@@ -78,12 +78,12 @@ const handleGoogleSignIn = async () => {
 
 <template>
   <AuthScreenShell
-    title="登入後開始共享待辦與獎勵"
-    description="查看任務、點數與最近通知。"
+    title="回到你們的日常待辦"
+    description="看看今天的小事、點數與最近更新。"
     card-title="登入 TwoDo"
-    card-description="使用 Google 或 Email 繼續。"
+    card-description="選擇一種方式繼續。"
   >
-    <div class="space-y-[16px]">
+    <div class="space-y-4">
       <button
         class="app-secondary-button w-full justify-center"
         type="button"
@@ -114,8 +114,8 @@ const handleGoogleSignIn = async () => {
       <div class="app-divider-label">或使用 Email</div>
     </div>
 
-    <form class="mt-[20px] space-y-[16px]" @submit.prevent="handleSignIn">
-      <label class="block space-y-[8px]">
+    <form class="mt-5 space-y-4" @submit.prevent="handleSignIn">
+      <label class="app-field-stack block">
         <span class="app-field-label">Email</span>
         <Field
           v-model="email"
@@ -128,7 +128,7 @@ const handleGoogleSignIn = async () => {
         />
       </label>
 
-      <label class="block space-y-[8px]">
+      <label class="app-field-stack block">
         <span class="app-field-label">密碼</span>
         <Field
           v-model="password"
@@ -141,8 +141,8 @@ const handleGoogleSignIn = async () => {
         />
       </label>
 
-      <p class="app-banner-info app-text-muted min-h-[72px] px-[16px] py-[12px] text-[12px] leading-[20px]">
-        首次登入會準備個人資料與邀請碼。
+      <p class="app-banner-info app-card-caption px-4 py-3">
+        首次登入會自動產生邀請碼。
       </p>
       <button
         class="app-primary-button w-full"
@@ -152,7 +152,7 @@ const handleGoogleSignIn = async () => {
         {{ isEmailSubmitting ? '登入中...' : '登入 TwoDo' }}
       </button>
 
-      <p class="app-text-soft pt-[4px] text-center text-[14px]">
+      <p class="app-card-caption pt-1 text-center">
         還沒有帳號？
         <RouterLink class="app-link font-semibold" :to="{ name: 'register' }">
           前往註冊

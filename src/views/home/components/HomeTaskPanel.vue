@@ -1,46 +1,36 @@
 <script setup lang="ts">
-import AppEmptyState from '@/components/common/AppEmptyState.vue'
-import DashboardIcon from '@/components/common/DashboardIcon.vue'
+import AppEmptyState from "@/components/common/AppEmptyState.vue";
+import DashboardIcon from "@/components/common/DashboardIcon.vue";
 import type {
   HomeDashboardRouteName,
-  HomeEmptyStateContent,
   HomePanelAction,
   HomePanelMetric,
   HomeTaskItem,
-} from '../type/interface'
+} from "../type/interface";
 
 defineProps<{
-  action?: HomePanelAction
-  caption: string
-  emptyState: HomeEmptyStateContent
-  eyebrow: string
-  icon: HomePanelAction['icon']
-  items: HomeTaskItem[]
-  metrics?: HomePanelMetric[]
-  title: string
-}>()
+  action?: HomePanelAction;
+  icon: HomePanelAction["icon"];
+  items: HomeTaskItem[];
+  metrics?: HomePanelMetric[];
+  title: string;
+}>();
 
 const emit = defineEmits<{
-  navigate: [routeName: HomeDashboardRouteName]
-}>()
+  navigate: [routeName: HomeDashboardRouteName];
+}>();
 
-const badgeClassMap: Record<HomeTaskItem['badgeTone'], string> = {
-  accent:
-    'bg-[rgba(29,143,242,0.1)] text-[color:var(--app-accent-strong)]',
-  success:
-    'bg-[rgba(20,184,166,0.12)] text-[var(--color-support-700)]',
-}
+const badgeClassMap: Record<HomeTaskItem["badgeTone"], string> = {
+  accent: "bg-[rgba(29,143,242,0.1)] text-[color:var(--app-accent-strong)]",
+  success: "bg-[rgba(20,184,166,0.12)] text-[var(--color-support-700)]",
+};
 </script>
 
 <template>
-  <section class="app-card px-[20px] py-[20px]">
-    <div class="flex items-center justify-between gap-[12px]">
+  <section class="app-card app-card-section">
+    <div class="flex items-center justify-between gap-3">
       <div>
-        <p class="app-label">{{ eyebrow }}</p>
-        <p class="app-card-title mt-[8px]">{{ title }}</p>
-        <p class="app-card-caption mt-[8px]">
-          {{ caption }}
-        </p>
+        <p class="app-card-title">{{ title }}</p>
       </div>
 
       <div
@@ -50,24 +40,24 @@ const badgeClassMap: Record<HomeTaskItem['badgeTone'], string> = {
       </div>
     </div>
 
-    <div class="mt-[20px] space-y-[12px]">
+    <div class="app-card-list-compact mt-5">
       <article
         v-for="item in items"
         :key="item.id"
-        class="flex flex-wrap items-start justify-between gap-[0.875rem] rounded-[1.25rem] border border-[rgba(191,206,228,0.64)] bg-[rgba(249,251,255,0.92)] px-4 py-[0.95rem]"
+        class="flex flex-wrap items-start justify-between gap-3 rounded-[1.25rem] border border-[rgba(191,206,228,0.64)] bg-[rgba(249,251,255,0.92)] p-4"
       >
         <div class="min-w-0">
-          <p class="app-text-strong truncate text-[16px] font-semibold">
+          <p class="app-list-title truncate">
             {{ item.title }}
           </p>
-          <p class="app-text-muted mt-[6px] text-[13px] leading-[20px]">
+          <p class="app-list-body mt-2">
             {{ item.description }}
           </p>
         </div>
 
         <div
           :class="[
-            'shrink-0 whitespace-nowrap rounded-full px-3 py-[0.45rem] text-[0.75rem] font-bold tracking-[0.06em]',
+            'app-badge-text shrink-0 whitespace-nowrap rounded-full px-3 py-2',
             badgeClassMap[item.badgeTone],
           ]"
         >
@@ -75,31 +65,27 @@ const badgeClassMap: Record<HomeTaskItem['badgeTone'], string> = {
         </div>
       </article>
 
-      <AppEmptyState
-        v-if="!items.length"
-        :title="emptyState.title"
-        :description="emptyState.description"
-      />
+      <AppEmptyState v-if="!items.length" />
     </div>
 
-    <div v-if="metrics?.length" class="mt-[20px] grid grid-cols-2 gap-[12px]">
+    <div v-if="metrics?.length" class="mt-5 grid grid-cols-2 gap-3">
       <article
         v-for="metric in metrics"
         :key="metric.label"
-        class="rounded-[1.4rem] border border-white/65 bg-white/70 px-[16px] py-[16px] backdrop-blur-[12px]"
+        class="rounded-[1.4rem] border border-white/65 bg-white/70 p-4 backdrop-blur-[12px]"
       >
         <p class="app-label">{{ metric.label }}</p>
-        <p class="app-card-title mt-[8px]">{{ metric.value }}</p>
+        <p class="app-card-title mt-2">{{ metric.value }}</p>
       </article>
     </div>
 
     <button
       v-if="action"
-      class="app-secondary-button mt-[20px] w-full"
+      class="app-secondary-button mt-5 w-full"
       type="button"
       @click="emit('navigate', action.routeName)"
     >
-      <span class="inline-flex items-center justify-center gap-[10px]">
+      <span class="inline-flex items-center justify-center gap-2">
         <DashboardIcon :name="action.icon" :size="18" />
         {{ action.label }}
       </span>
