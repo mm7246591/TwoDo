@@ -9,6 +9,8 @@ interface AuthErrorMessages {
 interface AuthSession {
   displayName: string
   email: string
+  emailVerified: boolean
+  requiresEmailVerification: boolean
   photoURL: string
   uid: string
 }

@@ -2,6 +2,7 @@ import { computed, ref, toRefs } from 'vue'
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendEmailVerification,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -34,6 +35,17 @@ const AUTH_ERROR_MESSAGES: AuthErrorMessages = {
   'auth/user-not-found': '找不到這個帳號，請先註冊。',
   'auth/weak-password': '密碼強度不足，請至少輸入 6 個字元。',
   'auth/wrong-password': '密碼不正確，請重新輸入。',
+}
+
+const shouldRequireEmailVerification = (user: User) => {
+  const hasPasswordProvider = user.providerData.some(
+    ({ providerId }) => providerId === 'password',
+  )
+  const hasFederatedProvider = user.providerData.some(
+    ({ providerId }) => providerId !== 'password',
+  )
+
+  return hasPasswordProvider && !hasFederatedProvider && !user.emailVerified
 }
 
 const getFirebaseErrorCode = (error: unknown) => {
@@ -71,7 +83,9 @@ const mapAuthSession = (user: User | null): AuthSession | null => {
   return {
     displayName: user.displayName ?? '',
     email: user.email ?? '',
+    emailVerified: user.emailVerified,
     photoURL: user.photoURL ?? '',
+    requiresEmailVerification: shouldRequireEmailVerification(user),
     uid: user.uid,
   }
 }
@@ -88,6 +102,9 @@ const useAuthStore = defineStore('auth', () => {
   })
 
   const getIsLoggedIn = computed(() => authSession.value !== null)
+  const getRequiresEmailVerification = computed(
+    () => authSession.value?.requiresEmailVerification ?? false,
+  )
   const getUserEmail = computed(() => authSession.value?.email ?? '')
   const getUserUid = computed(() => authSession.value?.uid ?? '')
 
@@ -97,6 +114,11 @@ const useAuthStore = defineStore('auth', () => {
 
   const waitForAuthStateProcessing = async () => {
     await authStateProcessingPromise
+  }
+
+  const syncAuthSessionFromCurrentUser = () => {
+    authSession.value = mapAuthSession(firebaseAuth.currentUser)
+    return authSession.value
   }
 
   const init = () => {
@@ -159,7 +181,9 @@ const useAuthStore = defineStore('auth', () => {
         await updateProfile(credential.user, { displayName: displayName.trim() })
       }
 
+      await sendEmailVerification(credential.user)
       await waitForAuthStateProcessing()
+      authSession.value = mapAuthSession(credential.user)
     } catch (error) {
       state.value.errorMessage = normalizeAuthError(error)
       throw error
@@ -173,8 +197,75 @@ const useAuthStore = defineStore('auth', () => {
     clearError()
 
     try {
-      await signInWithEmailAndPassword(firebaseAuth, email, password)
+      const credential = await signInWithEmailAndPassword(firebaseAuth, email, password)
+
       await waitForAuthStateProcessing()
+      await credential.user.reload()
+      authSession.value = mapAuthSession(credential.user)
+
+      if (shouldRequireEmailVerification(credential.user)) {
+        try {
+          await sendEmailVerification(credential.user)
+        } catch {
+          // Firebase may throttle repeated verification emails; login is still blocked until verified.
+        }
+      }
+    } catch (error) {
+      state.value.errorMessage = normalizeAuthError(error)
+      throw error
+    } finally {
+      state.value.isSubmitting = false
+    }
+  }
+
+  const refreshCurrentUser = async () => {
+    state.value.isSubmitting = true
+    clearError()
+
+    try {
+      const user = firebaseAuth.currentUser
+
+      if (!user) {
+        authSession.value = null
+        return null
+      }
+
+      await user.reload()
+      authSession.value = mapAuthSession(user)
+
+      if (!shouldRequireEmailVerification(user)) {
+        const userStore = useUserStore()
+        await userStore.syncProfileForSession(user)
+      }
+
+      return authSession.value
+    } catch (error) {
+      state.value.errorMessage = normalizeAuthError(error)
+      throw error
+    } finally {
+      state.value.isSubmitting = false
+    }
+  }
+
+  const resendVerificationEmail = async () => {
+    state.value.isSubmitting = true
+    clearError()
+
+    try {
+      const user = firebaseAuth.currentUser
+
+      if (!user) {
+        throw new Error('請重新登入後再寄送驗證信。')
+      }
+
+      await user.reload()
+      authSession.value = mapAuthSession(user)
+
+      if (!shouldRequireEmailVerification(user)) {
+        return
+      }
+
+      await sendEmailVerification(user)
     } catch (error) {
       state.value.errorMessage = normalizeAuthError(error)
       throw error
@@ -218,6 +309,7 @@ const useAuthStore = defineStore('auth', () => {
     authSession,
     clearError,
     getIsLoggedIn,
+    getRequiresEmailVerification,
     getUserEmail,
     getUserUid,
     init,
@@ -225,6 +317,9 @@ const useAuthStore = defineStore('auth', () => {
     signInWithGoogle,
     signOutUser,
     signUp,
+    refreshCurrentUser,
+    resendVerificationEmail,
+    syncAuthSessionFromCurrentUser,
     waitForAuthStateProcessing,
   }
 })

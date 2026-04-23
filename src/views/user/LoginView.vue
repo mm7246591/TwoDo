@@ -1,163 +1,373 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
-import { Field } from 'vant'
-import AuthScreenShell from '@/components/AuthScreenShell.vue'
-import { useErrorToast } from '@/composables/useErrorToast'
-import { useAuthStore } from '@/pinia/auth'
-import { showSuccessMessage } from '@/services/uiFeedback'
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { RouterLink, useRouter } from "vue-router";
+import { useErrorToast } from "@/composables/useErrorToast";
+import { useAuthStore } from "@/pinia/auth";
+import { useUserStore } from "@/pinia/user";
+import { showSuccessMessage } from "@/services/uiFeedback";
+import { getUserProfile } from "@/services/userService";
 
-const authStore = useAuthStore()
-const router = useRouter()
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const router = useRouter();
 
-useErrorToast(() => authStore.errorMessage)
+useErrorToast(() => authStore.errorMessage);
 
-const email = ref('')
-const password = ref('')
-const isEmailSubmitting = ref(false)
-const isGoogleSubmitting = ref(false)
-const isViewActive = ref(true)
+const email = ref("");
+const password = ref("");
+const isEmailSubmitting = ref(false);
+const isGoogleSubmitting = ref(false);
+const isViewActive = ref(true);
+const hasSubmitted = ref(false);
+const hasEmailBlurred = ref(false);
+const hasPasswordBlurred = ref(false);
 
-const trimmedEmail = computed(() => email.value.trim())
-const trimmedPassword = computed(() => password.value.trim())
-const isEmailReady = computed(() => trimmedEmail.value !== '')
-const isPasswordReady = computed(() => trimmedPassword.value.length >= 6)
-const canUseEmailAuth = computed(() => isEmailReady.value && isPasswordReady.value)
-const isAuthActionPending = computed(() => isEmailSubmitting.value || isGoogleSubmitting.value)
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const trimmedEmail = computed(() => email.value.trim());
+const trimmedPassword = computed(() => password.value.trim());
+const isEmailReady = computed(() => trimmedEmail.value !== "");
+const isEmailFormatValid = computed(() => emailPattern.test(trimmedEmail.value));
+const isPasswordReady = computed(() => trimmedPassword.value.length >= 6);
+const emailErrorMessage = computed(() => {
+  if (!isEmailReady.value) {
+    return "請輸入電子郵件";
+  }
+
+  if (!isEmailFormatValid.value) {
+    return "請輸入有效的電子郵件格式";
+  }
+
+  return "";
+});
+const passwordErrorMessage = computed(() => {
+  if (!trimmedPassword.value) {
+    return "請輸入密碼";
+  }
+
+  if (!isPasswordReady.value) {
+    return "密碼至少需要 6 個字元";
+  }
+
+  return "";
+});
+const canUseEmailAuth = computed(
+  () => !emailErrorMessage.value && !passwordErrorMessage.value,
+);
+const isAuthActionPending = computed(
+  () => isEmailSubmitting.value || isGoogleSubmitting.value,
+);
+const shouldShowEmailError = computed(
+  () => Boolean(emailErrorMessage.value) && (hasSubmitted.value || hasEmailBlurred.value),
+);
+const shouldShowPasswordError = computed(
+  () => Boolean(passwordErrorMessage.value) && (hasSubmitted.value || hasPasswordBlurred.value),
+);
 
 onMounted(() => {
-  isViewActive.value = true
-  authStore.clearError()
-})
+  isViewActive.value = true;
+  hasSubmitted.value = false;
+  hasEmailBlurred.value = false;
+  hasPasswordBlurred.value = false;
+  authStore.clearError();
+});
 
 onBeforeUnmount(() => {
-  isViewActive.value = false
-  isEmailSubmitting.value = false
-  isGoogleSubmitting.value = false
-  authStore.clearError()
-})
+  isViewActive.value = false;
+  isEmailSubmitting.value = false;
+  isGoogleSubmitting.value = false;
+  authStore.clearError();
+});
 
-const handleSignIn = async () => {
-  if (!canUseEmailAuth.value || isAuthActionPending.value) {
-    return
+const getPostAuthRouteName = async () => {
+  const uid = authStore.getUserUid;
+
+  if (!uid) {
+    return "pairing";
   }
 
   try {
-    isEmailSubmitting.value = true
-    await authStore.signIn(trimmedEmail.value, trimmedPassword.value)
-    showSuccessMessage('登入成功')
-    await router.push({ name: 'home' })
+    const profile =
+      userStore.profile?.uid === uid
+        ? userStore.profile
+        : await getUserProfile(uid);
+
+    return profile?.partnerUid ? "home" : "pairing";
+  } catch {
+    return "pairing";
+  }
+};
+
+const goToPostAuthRoute = async () => {
+  await router.push({ name: await getPostAuthRouteName() });
+};
+
+const handleSignIn = async () => {
+  if (isAuthActionPending.value) {
+    return;
+  }
+
+  hasSubmitted.value = true;
+
+  if (!canUseEmailAuth.value) {
+    return;
+  }
+
+  try {
+    isEmailSubmitting.value = true;
+    await authStore.signIn(trimmedEmail.value, trimmedPassword.value);
+    if (authStore.getRequiresEmailVerification) {
+      showSuccessMessage("請先到信箱完成驗證。");
+      await router.push({ name: "verify-email" });
+      return;
+    }
+
+    showSuccessMessage("歡迎回來");
+    await goToPostAuthRoute();
   } catch {
     if (!isViewActive.value) {
-      authStore.clearError()
+      authStore.clearError();
     }
   } finally {
-    isEmailSubmitting.value = false
+    isEmailSubmitting.value = false;
   }
-}
+};
 
 const handleGoogleSignIn = async () => {
   if (isAuthActionPending.value) {
-    return
+    return;
   }
 
   try {
-    isGoogleSubmitting.value = true
-    await authStore.signInWithGoogle()
-    showSuccessMessage('Google 登入成功')
-    await router.push({ name: 'home' })
+    isGoogleSubmitting.value = true;
+    await authStore.signInWithGoogle();
+    showSuccessMessage("歡迎回來");
+    await goToPostAuthRoute();
   } catch {
     if (!isViewActive.value) {
-      authStore.clearError()
+      authStore.clearError();
     }
   } finally {
-    isGoogleSubmitting.value = false
+    isGoogleSubmitting.value = false;
   }
-}
+};
+
+const handleForgotPasswordPreview = () => {
+  showSuccessMessage("重設密碼功能即將開放。");
+};
 </script>
 
 <template>
-  <AuthScreenShell
-    title="回到你們的日常待辦"
-    description="看看今天的小事、點數與最近更新。"
-    card-title="登入 TwoDo"
-    card-description="選擇一種方式繼續。"
+  <main
+    class="relative flex min-h-[max(884px,100dvh)] items-center justify-center overflow-hidden bg-[var(--auth-background)] px-[20px] py-[40px] text-[var(--auth-on-background,var(--auth-on-surface))] antialiased md:p-[48px]"
   >
-    <div class="space-y-4">
-      <button
-        class="app-secondary-button w-full justify-center"
-        type="button"
-        :disabled="isAuthActionPending"
-        @click="handleGoogleSignIn"
-      >
-        <svg aria-hidden="true" class="h-[20px] w-[20px]" viewBox="0 0 24 24">
-          <path
-            d="M21.35 11.1h-9.18v2.98h5.27c-.23 1.51-1.14 2.79-2.43 3.65v2.43h3.13c1.83-1.69 2.88-4.18 2.88-7.11 0-.66-.06-1.3-.17-1.92Z"
-            fill="#4285F4"
-          />
-          <path
-            d="M12.17 21c2.61 0 4.8-.86 6.4-2.34l-3.13-2.43c-.87.58-1.98.92-3.27.92-2.51 0-4.64-1.69-5.4-3.97H3.53v2.51A9.67 9.67 0 0 0 12.17 21Z"
-            fill="#34A853"
-          />
-          <path
-            d="M6.77 13.18a5.82 5.82 0 0 1 0-3.71V6.96H3.53a9.67 9.67 0 0 0 0 8.73l3.24-2.51Z"
-            fill="#FBBC05"
-          />
-          <path
-            d="M12.17 5.5c1.42 0 2.69.49 3.69 1.44l2.77-2.77C16.96 2.63 14.78 1.8 12.17 1.8A9.67 9.67 0 0 0 3.53 6.96l3.24 2.51c.76-2.28 2.89-3.97 5.4-3.97Z"
-            fill="#EA4335"
-          />
-        </svg>
-        <span>{{ isGoogleSubmitting ? 'Google 登入中...' : '使用 Google 登入' }}</span>
-      </button>
-
-      <div class="app-divider-label">或使用 Email</div>
+    <div class="absolute inset-0 z-0">
+      <div
+        class="h-full w-full bg-[image:var(--auth-login-bg-image)] bg-cover bg-center opacity-30"
+        aria-hidden="true"
+      />
+      <div
+        class="absolute inset-0 bg-gradient-to-tr from-[rgb(255_248_246_/_0.9)] via-[rgb(255_248_246_/_0.7)] to-[rgb(255_241_236_/_0.8)] mix-blend-overlay"
+      />
+      <div
+        class="absolute inset-0 bg-[rgb(255_248_246_/_0.6)] backdrop-blur-[60px]"
+      />
     </div>
 
-    <form class="mt-5 space-y-4" @submit.prevent="handleSignIn">
-      <label class="app-field-stack block">
-        <span class="app-field-label">Email</span>
-        <Field
-          v-model="email"
-          class="app-vant-field"
-          type="email"
-          clearable
-          :border="false"
-          autocomplete="email"
-          placeholder="請輸入你的 Email"
-        />
-      </label>
-
-      <label class="app-field-stack block">
-        <span class="app-field-label">密碼</span>
-        <Field
-          v-model="password"
-          class="app-vant-field"
-          type="password"
-          clearable
-          :border="false"
-          autocomplete="current-password"
-          placeholder="請輸入你的密碼"
-        />
-      </label>
-
-      <p class="app-banner-info app-card-caption px-4 py-3">
-        首次登入會自動產生邀請碼。
-      </p>
-      <button
-        class="app-primary-button w-full"
-        type="submit"
-        :disabled="isAuthActionPending || !canUseEmailAuth"
+    <section
+      class="relative z-10 flex w-full max-w-[460px] flex-col gap-[40px] rounded-[32px] border border-[rgb(255_241_236_/_0.5)] bg-[var(--auth-surface-container-lowest)] p-[40px] shadow-[0_16px_60px_-15px_rgba(148,72,53,0.1)] md:p-[64px]"
+      aria-labelledby="login-title"
+    >
+      <header
+        class="flex flex-col items-center gap-[12px] text-center md:items-start md:text-left"
       >
-        {{ isEmailSubmitting ? '登入中...' : '登入 TwoDo' }}
-      </button>
-
-      <p class="app-card-caption pt-1 text-center">
-        還沒有帳號？
-        <RouterLink class="app-link font-semibold" :to="{ name: 'register' }">
-          前往註冊
+        <RouterLink
+          class="mb-[12px] flex items-center gap-[8px] text-[var(--auth-primary)] no-underline"
+          :to="{ name: 'login' }"
+          aria-label="TwoDo 登入"
+        >
+          <span
+            class="material-symbols-outlined fill text-[32px] text-[var(--auth-primary-container)]"
+            aria-hidden="true"
+            >favorite</span
+          >
+          <span class="text-[24px] font-semibold leading-[32px] tracking-tight"
+            >TwoDo</span
+          >
         </RouterLink>
-      </p>
-    </form>
-  </AuthScreenShell>
+
+        <h1
+          id="login-title"
+          class="m-0 text-[32px] font-bold leading-[40px] tracking-[-0.01em] text-[var(--auth-on-surface)]"
+        >
+          歡迎回來
+        </h1>
+        <p
+          class="m-0 text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface-variant)]"
+        >
+          回到你們的日常節奏。
+        </p>
+      </header>
+
+      <div class="flex flex-col gap-[24px]">
+        <button
+          class="flex h-14 w-full items-center justify-center gap-[12px] rounded-xl border border-[var(--auth-outline-variant)] bg-[var(--auth-surface-container-lowest)] text-[var(--auth-on-surface)] transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          type="button"
+          :disabled="isAuthActionPending"
+          @click="handleGoogleSignIn"
+        >
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4"
+            />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853"
+            />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335"
+            />
+          </svg>
+          <span
+            class="text-[14px] font-semibold leading-[20px] tracking-[0.01em]"
+          >
+            {{ isGoogleSubmitting ? "連線中..." : "使用 Google 帳號繼續" }}
+          </span>
+        </button>
+
+        <div class="flex items-center gap-[12px]">
+          <div class="h-px flex-1 bg-[rgb(218_193_187_/_0.5)]" />
+          <span
+            class="text-[12px] font-medium uppercase leading-[16px] tracking-wider text-[var(--auth-on-surface-variant)]"
+            >或</span
+          >
+          <div class="h-px flex-1 bg-[rgb(218_193_187_/_0.5)]" />
+        </div>
+      </div>
+
+      <form class="flex flex-col gap-[16px]" novalidate @submit.prevent="handleSignIn">
+        <label class="flex flex-col gap-[8px]">
+          <span
+            class="pl-[4px] text-[12px] font-medium leading-[16px] text-[var(--auth-on-surface-variant)]"
+            >電子郵件</span
+          >
+          <input
+            v-model="email"
+            class="h-14 rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-0 transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-2 focus:ring-[var(--auth-primary-container)] focus:ring-offset-0 focus-visible:outline-none"
+            :class="{
+              'border-[var(--auth-error)] focus:ring-[var(--auth-error)]': shouldShowEmailError,
+            }"
+            :aria-describedby="shouldShowEmailError ? 'login-email-error' : undefined"
+            :aria-invalid="shouldShowEmailError"
+            autocomplete="email"
+            placeholder="請輸入電子郵件"
+            type="email"
+            @blur="hasEmailBlurred = true"
+          />
+          <Transition name="auth-field-error">
+            <p
+              v-if="shouldShowEmailError"
+              id="login-email-error"
+              class="m-0 px-[4px] text-[12px] font-medium leading-[16px] text-[var(--auth-error)]"
+            >
+              {{ emailErrorMessage }}
+            </p>
+          </Transition>
+        </label>
+
+        <label class="flex flex-col gap-[8px]">
+          <span
+            class="text-[12px] font-medium leading-[16px] text-[var(--auth-on-surface-variant)]"
+            >密碼</span
+          >
+          <input
+            v-model="password"
+            class="h-14 rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-0 transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-2 focus:ring-[var(--auth-primary-container)] focus:ring-offset-0 focus-visible:outline-none"
+            :class="{
+              'border-[var(--auth-error)] focus:ring-[var(--auth-error)]': shouldShowPasswordError,
+            }"
+            :aria-describedby="shouldShowPasswordError ? 'login-password-error' : undefined"
+            :aria-invalid="shouldShowPasswordError"
+            autocomplete="current-password"
+            placeholder="請輸入密碼"
+            type="password"
+            @blur="hasPasswordBlurred = true"
+          />
+          <Transition name="auth-field-error">
+            <p
+              v-if="shouldShowPasswordError"
+              id="login-password-error"
+              class="m-0 px-[4px] text-[12px] font-medium leading-[16px] text-[var(--auth-error)]"
+            >
+              {{ passwordErrorMessage }}
+            </p>
+          </Transition>
+          <button
+            class="flex min-h-0 items-center justify-end border-0 bg-transparent p-0 text-[12px] font-medium leading-[16px] text-[var(--auth-primary)] transition-colors"
+            type="button"
+            @click="handleForgotPasswordPreview"
+          >
+            忘記密碼
+          </button>
+        </label>
+
+        <button
+          class="mt-[8px] flex h-14 w-full items-center justify-center rounded-xl bg-[var(--auth-primary)] text-[14px] font-semibold leading-[20px] tracking-[0.01em] text-[var(--auth-on-primary)] shadow-[0_8px_24px_-6px_rgba(148,72,53,0.3)] transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          type="submit"
+          :disabled="isAuthActionPending"
+        >
+          {{ isEmailSubmitting ? "登入中..." : "登入" }}
+        </button>
+      </form>
+
+      <div class="pt-[4px]">
+        <span
+          class="flex justify-center items-center text-[14px] font-semibold leading-[20px] tracking-[0.01em] no-underline"
+        >
+          還沒有帳號？<RouterLink
+            :to="{ name: 'register' }"
+            class="flex justify-center items-center text-[var(--auth-primary)]"
+            >立即註冊</RouterLink
+          >
+        </span>
+      </div>
+    </section>
+  </main>
 </template>
+
+<style scoped>
+.auth-field-error-enter-active,
+.auth-field-error-leave-active {
+  max-height: 40px;
+  overflow: hidden;
+  transition:
+    max-height 180ms ease,
+    opacity 160ms ease,
+    transform 180ms ease;
+}
+
+.auth-field-error-enter-from,
+.auth-field-error-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.auth-field-error-enter-to,
+.auth-field-error-leave-from {
+  max-height: 40px;
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>

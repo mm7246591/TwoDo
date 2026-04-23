@@ -30,6 +30,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/verify-email',
+      name: 'verify-email',
+      component: () => import('@/views/user/VerifyEmailView.vue'),
+      meta: {
+        allowsUnverifiedEmail: true,
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/pairing',
       name: 'pairing',
       component: () => import('@/views/PairingView.vue'),
@@ -87,6 +96,21 @@ router.beforeEach(async (to) => {
 
   if (to.meta.requiresAuth && !authStore.getIsLoggedIn) {
     return { name: 'login' }
+  }
+
+  if (
+    authStore.getRequiresEmailVerification
+    && !to.meta.allowsUnverifiedEmail
+  ) {
+    return { name: 'verify-email' }
+  }
+
+  if (
+    to.name === 'verify-email'
+    && authStore.getIsLoggedIn
+    && !authStore.getRequiresEmailVerification
+  ) {
+    return { name: 'pairing' }
   }
 
   if (to.meta.requiresGuest && authStore.getIsLoggedIn) {
