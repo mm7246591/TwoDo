@@ -1,35 +1,30 @@
-import {
-  closeToast,
-  showConfirmDialog,
-  showFailToast,
-  showLoadingToast,
-  showSuccessToast,
-} from 'vant'
+import { showConfirmDialog } from 'vant'
+import { hideAppToast, showAppToast } from '@/services/appToast'
 
 const showSuccessMessage = (message: string) => {
-  showSuccessToast({
-    duration: 1800,
+  showAppToast({
     message,
+    variant: 'success',
   })
 }
 
 const showErrorMessage = (message: string) => {
-  showFailToast({
-    duration: 2200,
+  showAppToast({
     message,
+    variant: 'error',
   })
 }
 
 const showLoadingMessage = (message: string) => {
-  showLoadingToast({
-    duration: 0,
-    forbidClick: true,
+  showAppToast({
+    dismissible: false,
     message,
+    variant: 'loading',
   })
 }
 
 const hideLoadingMessage = () => {
-  closeToast()
+  hideAppToast()
 }
 
 const confirmDangerAction = async (message: string, title = '請確認') => {
