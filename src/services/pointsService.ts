@@ -52,7 +52,11 @@ const subscribeToPointLogs = (
   callback: (pointLogs: PointLog[]) => void,
   onError?: (error: Error) => void,
 ): Unsubscribe => onSnapshot(
-  query(pointLogsCollection, where('userUid', '==', userUid)),
+  query(
+    pointLogsCollection,
+    where('userUid', '==', userUid),
+    where('coupleId', '==', coupleId),
+  ),
   async (snapshot) => {
     try {
       const rawPointLogs = snapshot.docs
@@ -60,7 +64,6 @@ const subscribeToPointLogs = (
           data: documentSnapshot.data() as FirestorePointLog,
           id: documentSnapshot.id,
         }))
-        .filter((pointLog) => pointLog.data.coupleId === coupleId)
 
       const taskIds = Array.from(
         new Set(rawPointLogs.map((pointLog) => pointLog.data.taskId).filter(Boolean)),

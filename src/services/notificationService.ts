@@ -42,14 +42,16 @@ const subscribeToNotifications = (
   callback: (notifications: NotificationItem[]) => void,
   onError?: (error: Error) => void,
 ): Unsubscribe => onSnapshot(
-  query(notificationsCollection, where('userUid', '==', userUid)),
+  query(
+    notificationsCollection,
+    where('userUid', '==', userUid),
+    where('coupleId', '==', coupleId),
+  ),
   (snapshot) => {
-    const notifications = snapshot.docs
-      .map((documentSnapshot) => mapNotification(
-        documentSnapshot.id,
-        documentSnapshot.data() as FirestoreNotification,
-      ))
-      .filter((notification) => notification.coupleId === coupleId)
+    const notifications = snapshot.docs.map((documentSnapshot) => mapNotification(
+      documentSnapshot.id,
+      documentSnapshot.data() as FirestoreNotification,
+    ))
 
     callback(sortNotificationsByCreatedAt(notifications))
   },
@@ -68,6 +70,7 @@ const markAllNotificationsAsRead = async (userUid: string, coupleId: string) => 
   const snapshot = await getDocs(query(
     notificationsCollection,
     where('userUid', '==', userUid),
+    where('coupleId', '==', coupleId),
   ))
 
   const batch = writeBatch(db)
@@ -75,7 +78,7 @@ const markAllNotificationsAsRead = async (userUid: string, coupleId: string) => 
   snapshot.docs.forEach((documentSnapshot) => {
     const notification = documentSnapshot.data() as FirestoreNotification
 
-    if (notification.coupleId !== coupleId || notification.isRead) {
+    if (notification.isRead) {
       return
     }
 
