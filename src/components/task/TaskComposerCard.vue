@@ -54,7 +54,7 @@ const assigneeOptions = computed(() => {
 });
 const getDueDateLabel = computed(() => {
   if (!form.value.dueDate) {
-    return "選擇截止日";
+    return "選擇日期";
   }
 
   return new Intl.DateTimeFormat("zh-TW", { dateStyle: "medium" }).format(
@@ -181,7 +181,7 @@ const handleSubmit = () => {
         </label>
 
         <label class="app-field-stack block">
-          <span class="app-field-label">截止日</span>
+          <span class="app-field-label">日期</span>
           <button
             class="app-input flex items-center justify-between text-left"
             type="button"
@@ -225,7 +225,7 @@ const handleSubmit = () => {
     >
       <DatePicker
         v-model="datePickerValue"
-        title="截止日"
+        title="日期"
         cancel-button-text="取消"
         confirm-button-text="確認"
         :min-date="minDueDate"

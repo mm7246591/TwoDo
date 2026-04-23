@@ -5,11 +5,17 @@ import {
   Timestamp,
 } from 'firebase-admin/firestore'
 import { getMessaging } from 'firebase-admin/messaging'
+import { setGlobalOptions } from 'firebase-functions/v2'
 import { HttpsError, onCall } from 'firebase-functions/v2/https'
 
 initializeApp()
+setGlobalOptions({ invoker: 'public' })
 
 const db = getFirestore()
+const callableOptions = {
+  cors: true,
+  invoker: 'public',
+} as const
 
 type UserProfile = {
   uid: string
@@ -175,7 +181,7 @@ const sendPushNotification = async (payload: {
   }
 }
 
-export const joinCoupleByInviteCode = onCall(async (request) => {
+export const joinCoupleByInviteCode = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const rawInviteCode = typeof request.data?.inviteCode === 'string' ? request.data.inviteCode : ''
   const inviteCode = normalizeInviteCode(rawInviteCode)
@@ -258,7 +264,7 @@ export const joinCoupleByInviteCode = onCall(async (request) => {
   return { coupleId: coupleReference.id }
 })
 
-export const unpairCouple = onCall(async (request) => {
+export const unpairCouple = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const currentUser = await getUserProfile(uid)
 
@@ -308,7 +314,7 @@ export const unpairCouple = onCall(async (request) => {
   return { success: true as const }
 })
 
-export const createTask = onCall(async (request) => {
+export const createTask = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const title = typeof request.data?.title === 'string' ? request.data.title.trim() : ''
   const description = typeof request.data?.description === 'string' ? request.data.description.trim() : ''
@@ -365,7 +371,7 @@ export const createTask = onCall(async (request) => {
   return { taskId: taskReference.id }
 })
 
-export const completeTask = onCall(async (request) => {
+export const completeTask = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const taskId = typeof request.data?.taskId === 'string' ? request.data.taskId : ''
 
@@ -418,7 +424,7 @@ export const completeTask = onCall(async (request) => {
   return { success: true as const }
 })
 
-export const confirmTask = onCall(async (request) => {
+export const confirmTask = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const taskId = typeof request.data?.taskId === 'string' ? request.data.taskId : ''
   let pushPayload: Parameters<typeof sendPushNotification>[0] | null = null
@@ -496,7 +502,7 @@ export const confirmTask = onCall(async (request) => {
   return { success: true as const }
 })
 
-export const cancelTask = onCall(async (request) => {
+export const cancelTask = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const taskId = typeof request.data?.taskId === 'string' ? request.data.taskId : ''
 
@@ -532,7 +538,7 @@ export const cancelTask = onCall(async (request) => {
   return { success: true as const }
 })
 
-export const createReward = onCall(async (request) => {
+export const createReward = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const title = typeof request.data?.title === 'string' ? request.data.title.trim() : ''
   const description = typeof request.data?.description === 'string' ? request.data.description.trim() : ''
@@ -568,7 +574,7 @@ export const createReward = onCall(async (request) => {
   return { rewardId: rewardReference.id }
 })
 
-export const updateRewardStatus = onCall(async (request) => {
+export const updateRewardStatus = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const rewardId = typeof request.data?.rewardId === 'string' ? request.data.rewardId : ''
   const isActive = Boolean(request.data?.isActive)
@@ -602,7 +608,7 @@ export const updateRewardStatus = onCall(async (request) => {
   return { success: true as const }
 })
 
-export const redeemReward = onCall(async (request) => {
+export const redeemReward = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const rewardId = typeof request.data?.rewardId === 'string' ? request.data.rewardId : ''
   let pushPayload: Parameters<typeof sendPushNotification>[0] | null = null

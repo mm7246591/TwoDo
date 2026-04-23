@@ -45,7 +45,7 @@ const getRedeemHint = computed(() => {
 </script>
 
 <template>
-  <article class="app-card-muted">
+  <article class="app-card-muted p-[16px]">
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0 flex-1">
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -93,10 +93,7 @@ const getRedeemHint = computed(() => {
         </div>
       </div>
 
-      <div
-        v-else
-        class="flex flex-wrap items-center justify-between gap-3"
-      >
+      <div v-else class="flex flex-wrap items-center justify-between gap-3">
         <p class="app-card-caption">
           {{ reward.isActive ? "現在可以換。" : "目前先不開放。" }}
         </p>
