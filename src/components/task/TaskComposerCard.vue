@@ -2,16 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { DatePicker, Picker, Popup, type PickerConfirmEventParams } from "vant";
 import type { CreateTaskInput } from "@/pinia/tasks/types/interface";
-import type { TaskAssignmentType } from "@/views/tasks/types/interface";
-
-interface TaskComposerForm {
-  assignedTo: string | null;
-  assignmentType: TaskAssignmentType;
-  description: string;
-  dueDate: string;
-  points: number;
-  title: string;
-}
+import type { TaskComposerForm } from "@/views/tasks/types/interface";
 
 const ASSIGNEE_COUPLE_VALUE = "__couple__";
 

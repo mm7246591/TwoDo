@@ -27,4 +27,13 @@ interface Task {
   updatedAt: Date
 }
 
-export type { Task, TaskAssignmentType, TaskStatus }
+interface TaskComposerForm {
+  assignedTo: string | null;
+  assignmentType: TaskAssignmentType;
+  description: string;
+  dueDate: string;
+  points: number;
+  title: string;
+}
+
+export type { Task, TaskAssignmentType, TaskStatus, TaskComposerForm }
