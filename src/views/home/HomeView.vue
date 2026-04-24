@@ -3,31 +3,23 @@ import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useErrorToast } from "@/composables/useErrorToast";
 import MobileAppShell from "@/components/MobileAppShell.vue";
-import { useCoupleStore } from "@/pinia/couple";
 import { useNotificationsStore } from "@/pinia/notifications";
 import { usePointsStore } from "@/pinia/points";
 import { useRewardsStore } from "@/pinia/rewards";
 import { useTasksStore } from "@/pinia/tasks";
 import { useUserStore } from "@/pinia/user";
-import type { NotificationType } from "@/views/notifications/types/interface";
-import type { PointLogType } from "@/views/points/types/interface";
-import type { RedemptionStatus } from "@/views/rewards/types/interface";
+import { showSuccessMessage } from "@/services/uiFeedback";
 import type { Task } from "@/views/tasks/types/interface";
-import HomeActivityFeedCard from "./components/HomeActivityFeedCard.vue";
-import HomeHeader from "./components/HomeHeader.vue";
-import HomeHeroCard from "./components/HomeHeroCard.vue";
-import HomeTaskPanel from "./components/HomeTaskPanel.vue";
 import type {
-  HomeActivityItem,
-  HomeDashboardIconName,
   HomeDashboardRouteName,
-  HomeHeroStatItem,
   HomePanelAction,
-  HomePanelMetric,
   HomeTaskItem,
 } from "./type/interface";
 
-const coupleStore = useCoupleStore();
+import Header from "@/components/home/Header.vue";
+import PointCard from "@/components/home/PointCard.vue";
+import TaskPanel from "@/components/home/TaskPanel.vue";
+
 const notificationsStore = useNotificationsStore();
 const pointsStore = usePointsStore();
 const rewardsStore = useRewardsStore();
@@ -48,6 +40,11 @@ const pendingAssignedTasks = computed(() =>
     (task) => task.assignedTo === currentUid.value && task.status === "pending",
   ),
 );
+const pendingCreatedTasks = computed(() =>
+  tasksStore.tasks.filter(
+    (task) => task.createdBy === currentUid.value && task.status === "pending",
+  ),
+);
 const waitingConfirmTasks = computed(() =>
   tasksStore.tasks.filter(
     (task) =>
@@ -55,46 +52,22 @@ const waitingConfirmTasks = computed(() =>
       task.status === "completed_pending_confirm",
   ),
 );
-const redeemableRewardsCount = computed(
-  () =>
-    rewardsStore.rewards.filter((reward) => {
-      if (!reward.isActive || reward.createdBy === currentUid.value) {
-        return false;
-      }
-
-      return currentPoints.value >= reward.cost;
-    }).length,
-);
-const recentAssignedTasks = computed(() =>
-  pendingAssignedTasks.value.slice(0, 3),
+const todayFocusTasks = computed(() =>
+  [
+    ...pendingAssignedTasks.value,
+    ...pendingCreatedTasks.value.filter(
+      (task) => task.assignedTo !== currentUid.value,
+    ),
+  ]
+    .sort(
+      (leftTask, rightTask) =>
+        rightTask.updatedAt.getTime() - leftTask.updatedAt.getTime(),
+    )
+    .slice(0, 3),
 );
 const recentWaitingConfirmTasks = computed(() =>
-  waitingConfirmTasks.value.slice(0, 3),
+  waitingConfirmTasks.value.slice(0, 1),
 );
-const heroMessage = computed(() => {
-  if (!coupleStore.getIsPaired) {
-    if (coupleStore.currentCoupleId) {
-      return "正在同步配對資料，待辦、點數和獎勵很快就會出現。";
-    }
-
-    return "先完成配對，之後待辦、點數和獎勵就會一起同步。";
-  }
-
-  if (waitingConfirmTasks.value.length) {
-    return `有 ${waitingConfirmTasks.value.length} 件事等你確認，確認後點數就會入帳。`;
-  }
-
-  if (pendingAssignedTasks.value.length) {
-    if (pendingAssignedTasks.value.length === 1) {
-      return "今天有 1 件待辦在等你，完成它，今天就會順很多。";
-    }
-
-    return `今天有 ${pendingAssignedTasks.value.length} 件待辦在等你，先完成最重要的一件就好。`;
-  }
-
-  return "今天暫時沒有待辦，剛好留點時間給自己，也陪陪彼此。";
-});
-
 const formatDateTime = (value: Date) =>
   new Intl.DateTimeFormat("zh-TW", {
     dateStyle: "medium",
@@ -113,53 +86,66 @@ const goTo = async (routeName: HomeDashboardRouteName) => {
   await router.push({ name: routeName });
 };
 
-const notificationTypeIconMap: Record<NotificationType, HomeDashboardIconName> =
-  {
-    new_task: "tasks",
-    reward_redeemed: "gift",
-    task_completed_pending_confirm: "shield-check",
-    task_confirmed: "points",
-  };
+const findTaskById = (taskId: string) =>
+  tasksStore.tasks.find((task) => task.id === taskId);
 
-const pointLogTypeIconMap: Record<PointLogType, HomeDashboardIconName> = {
-  manual_adjust: "activity",
-  reward_redeem: "gift",
-  task_reward: "points",
+const handleCompleteTask = async (taskId: string) => {
+  const task = findTaskById(taskId);
+
+  if (!task || !currentUid.value) {
+    return;
+  }
+
+  try {
+    await tasksStore.markTaskCompleted(task, currentUid.value);
+  } catch {
+    return;
+  }
+
+  showSuccessMessage("已標記完成");
 };
 
-const redemptionStatusLabelMap: Record<RedemptionStatus, string> = {
-  cancelled: "已取消",
-  completed: "已完成",
-  pending: "待確認",
+const handleConfirmTask = async (taskId: string) => {
+  const task = findTaskById(taskId);
+
+  if (!task || !currentUid.value) {
+    return;
+  }
+
+  try {
+    await tasksStore.confirmTaskCompletion(task, currentUid.value);
+  } catch {
+    return;
+  }
+
+  showSuccessMessage("已確認並加點數");
 };
 
-const heroStats = computed<HomeHeroStatItem[]>(() => [
-  {
-    icon: "points",
-    label: "目前點數",
-    value: currentPoints.value,
-  },
-  {
-    icon: "tasks",
-    label: "交給我的",
-    value: pendingAssignedTasks.value.length,
-  },
-  {
-    icon: "shield-check",
-    label: "待確認",
-    value: waitingConfirmTasks.value.length,
-  },
-  {
-    icon: "bell",
-    label: "未讀通知",
-    value: notificationsStore.getUnreadCount,
-  },
-]);
+const handleRemindTask = (taskId: string) => {
+  if (!findTaskById(taskId)) {
+    return;
+  }
 
-const assignedTaskItems = computed<HomeTaskItem[]>(() =>
-  recentAssignedTasks.value.map((task) => ({
-    badge: `${task.points} 點`,
-    badgeTone: "accent",
+  showSuccessMessage("會先保留在待確認清單");
+};
+
+const getTaskOwnerBadge = (task: Task) => {
+  if (task.assignedTo === currentUid.value) {
+    return "我";
+  }
+
+  if (task.assignedTo === userStore.profile?.partnerUid) {
+    return "你";
+  }
+
+  return "我們";
+};
+
+const focusTaskItems = computed<HomeTaskItem[]>(() =>
+  todayFocusTasks.value.map((task) => ({
+    badge: getTaskOwnerBadge(task),
+    badgeTone: task.assignedTo === currentUid.value ? "accent" : "neutral",
+    canComplete: task.assignedTo === currentUid.value,
     description: task.description || resolveTaskMeta(task),
     id: task.id,
     title: task.title,
@@ -170,6 +156,7 @@ const waitingConfirmTaskItems = computed<HomeTaskItem[]>(() =>
   recentWaitingConfirmTasks.value.map((task) => ({
     badge: "待確認",
     badgeTone: "success",
+    canConfirm: true,
     description: task.completedAt
       ? `完成於 ${formatDateTime(task.completedAt)}`
       : "等你確認",
@@ -178,78 +165,11 @@ const waitingConfirmTaskItems = computed<HomeTaskItem[]>(() =>
   })),
 );
 
-const rewardMetrics = computed<HomePanelMetric[]>(() => [
-  {
-    label: "可兌換獎勵",
-    value: redeemableRewardsCount.value,
-  },
-  {
-    label: "最近兌換",
-    value: rewardsStore.getRecentRedemptions.length,
-  },
-]);
-
 const tasksPanelAction: HomePanelAction = {
-  icon: "add",
-  label: "查看待辦",
+  icon: "tasks",
+  label: "查看全部",
   routeName: "tasks",
 };
-
-const recentActivities = computed<HomeActivityItem[]>(() => {
-  const notificationActivities = notificationsStore.notifications
-    .slice(0, 4)
-    .map((notification) => ({
-      createdAt: notification.createdAt,
-      description: notification.message,
-      icon: notificationTypeIconMap[notification.type],
-      id: `notification-${notification.id}`,
-      label: notification.title,
-      timestampLabel: formatDateTime(notification.createdAt),
-    }));
-
-  const pointActivities = pointsStore.pointLogs.slice(0, 4).map((pointLog) => ({
-    createdAt: pointLog.createdAt,
-    description: pointLog.taskTitle
-      ? `待辦「${pointLog.taskTitle}」已更新 ${pointLog.points > 0 ? "+" : ""}${pointLog.points} 點`
-      : pointLog.rewardTitle
-        ? `獎勵「${pointLog.rewardTitle}」變動 ${pointLog.points > 0 ? "+" : ""}${pointLog.points} 點`
-        : `點數變動 ${pointLog.points > 0 ? "+" : ""}${pointLog.points}`,
-    icon: pointLogTypeIconMap[pointLog.type],
-    id: `point-${pointLog.id}`,
-    label:
-      pointLog.type === "task_reward"
-        ? "點數入帳"
-        : pointLog.type === "reward_redeem"
-          ? "獎勵扣點"
-          : "手動調整",
-    timestampLabel: formatDateTime(pointLog.createdAt),
-  }));
-
-  const redemptionActivities = rewardsStore.getRecentRedemptions
-    .slice(0, 4)
-    .map((redemption) => ({
-      createdAt: redemption.createdAt,
-      description: `${redemption.rewardTitle || "未命名獎勵"}，${redemption.cost} 點，${redemptionStatusLabelMap[redemption.status]}`,
-      icon: "gift" as const,
-      id: `redemption-${redemption.id}`,
-      label:
-        redemption.redeemedBy === currentUid.value
-          ? "我兌換了獎勵"
-          : "另一半兌換了獎勵",
-      timestampLabel: formatDateTime(redemption.createdAt),
-    }));
-
-  return [
-    ...notificationActivities,
-    ...pointActivities,
-    ...redemptionActivities,
-  ]
-    .sort(
-      (leftItem, rightItem) =>
-        rightItem.createdAt.getTime() - leftItem.createdAt.getTime(),
-    )
-    .slice(0, 6);
-});
 
 watch(
   () => ({
@@ -276,33 +196,55 @@ watch(
 
 <template>
   <MobileAppShell>
-    <HomeHeader :user-name="userName" summary="今天你們的小事都整理好了。" />
+    <Header
+      :photo-url="userStore.profile?.photoURL"
+      summary="今天也是美好的一天，一起加油。"
+      :unread-count="notificationsStore.getUnreadCount"
+      :user-name="userName"
+      @notifications="goTo('notifications')"
+    />
 
-    <section class="app-page-content app-section-stack flex-1">
-      <HomeHeroCard :message="heroMessage" :stats="heroStats" />
+    <section class="app-page-content grid flex-1 gap-[var(--app-space-24)]">
+      <PointCard
+        :current-points="currentPoints"
+        :user-name="userName"
+        :user-photo-url="userStore.profile?.photoURL"
+        @redeem="goTo('rewards')"
+      />
 
-      <section class="app-section-grid lg:grid-cols-2">
-        <HomeTaskPanel
+      <section class="grid gap-[var(--app-space-24)]">
+        <TaskPanel
           :action="tasksPanelAction"
-          :items="assignedTaskItems"
+          :empty-state="{
+            title: '現在很輕鬆',
+            description: '要不要為夥伴建立一個小驚喜？',
+          }"
+          empty-variant="focus"
+          :is-submitting="tasksStore.isSubmitting"
+          :items="focusTaskItems"
           icon="tasks"
-          title="待完成"
+          title="今日焦點"
+          @complete="handleCompleteTask"
+          @confirm="handleConfirmTask"
           @navigate="goTo"
+          @remind="handleRemindTask"
         />
 
-        <HomeTaskPanel
-          :items="waitingConfirmTaskItems"
-          :metrics="rewardMetrics"
+        <TaskPanel
           :empty-state="{
-            title: '沒有待確認項目',
-            description: '另一半完成後，會在這裡等你確認。',
+            description: '夥伴還在努力中，等他完成任務後再來給個大大的擁抱吧！',
           }"
+          empty-variant="confirmation"
+          :is-submitting="tasksStore.isSubmitting"
+          :items="waitingConfirmTaskItems"
           icon="shield-check"
-          title="待確認"
+          title="需要你的肯定"
+          @complete="handleCompleteTask"
+          @confirm="handleConfirmTask"
+          @navigate="goTo"
+          @remind="handleRemindTask"
         />
       </section>
-
-      <HomeActivityFeedCard :activities="recentActivities" />
     </section>
   </MobileAppShell>
 </template>

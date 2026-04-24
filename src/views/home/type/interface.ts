@@ -17,17 +17,13 @@ type HomeDashboardIconName =
   | "shield-check"
   | "tasks";
 
-type HomeTaskBadgeTone = "accent" | "success";
-
-interface HomeHeroStatItem {
-  icon: HomeDashboardIconName;
-  label: string;
-  value: number | string;
-}
+type HomeTaskBadgeTone = "accent" | "neutral" | "success";
 
 interface HomeTaskItem {
   badge: string;
   badgeTone: HomeTaskBadgeTone;
+  canComplete?: boolean;
+  canConfirm?: boolean;
   description: string;
   id: string;
   title: string;
@@ -62,7 +58,6 @@ export type {
   HomeDashboardRouteName,
   HomeDashboardIconName,
   HomeTaskBadgeTone,
-  HomeHeroStatItem,
   HomeTaskItem,
   HomePanelMetric,
   HomePanelAction,
