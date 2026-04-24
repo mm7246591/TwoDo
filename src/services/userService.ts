@@ -45,6 +45,7 @@ const mapUserProfile = (data: FirestoreUserProfile): UserProfile => ({
   createdAt: toDate(data.createdAt),
   updatedAt: toDate(data.updatedAt),
   fcmTokens: Array.isArray(data.fcmTokens) ? data.fcmTokens : [],
+  hasSeenPairingOnboarding: data.hasSeenPairingOnboarding ?? true,
 })
 
 const ensureUserProfile = async (authUser: FirebaseUser) => {
@@ -65,6 +66,7 @@ const ensureUserProfile = async (authUser: FirebaseUser) => {
       partnerUid: null,
       points: 0,
       fcmTokens: [],
+      hasSeenPairingOnboarding: false,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     })
@@ -87,6 +89,7 @@ const ensureUserProfile = async (authUser: FirebaseUser) => {
       partnerUid: existingProfile.partnerUid ?? null,
       points: typeof existingProfile.points === 'number' ? existingProfile.points : 0,
       fcmTokens: Array.isArray(existingProfile.fcmTokens) ? existingProfile.fcmTokens : [],
+      hasSeenPairingOnboarding: existingProfile.hasSeenPairingOnboarding ?? true,
       updatedAt: serverTimestamp(),
     },
     { merge: true },
@@ -129,6 +132,13 @@ const updateUserDisplayName = async (uid: string, displayName: string) => {
   })
 }
 
+const markPairingOnboardingSeen = async (uid: string) => {
+  await updateDoc(userDoc(uid), {
+    hasSeenPairingOnboarding: true,
+    updatedAt: serverTimestamp(),
+  })
+}
+
 const addUserFcmToken = async (uid: string, token: string) => {
   const normalizedToken = token.trim()
 
@@ -159,6 +169,7 @@ export {
   addUserFcmToken,
   ensureUserProfile,
   getUserProfile,
+  markPairingOnboardingSeen,
   removeUserFcmToken,
   subscribeToUserProfile,
   updateUserDisplayName,

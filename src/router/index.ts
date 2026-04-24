@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { pinia } from '@/pinia'
 import { useAuthStore } from '@/pinia/auth'
+import { useUserStore } from '@/pinia/user'
+import { resolvePostAuthRouteName } from '@/services/authNavigation'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -99,6 +101,7 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore(pinia)
+  const userStore = useUserStore(pinia)
 
   await authStore.init()
 
@@ -118,11 +121,21 @@ router.beforeEach(async (to) => {
     && authStore.getIsLoggedIn
     && !authStore.getRequiresEmailVerification
   ) {
-    return { name: 'pairing' }
+    return {
+      name: await resolvePostAuthRouteName(
+        authStore.getUserUid,
+        userStore.profile,
+      ),
+    }
   }
 
   if (to.meta.requiresGuest && authStore.getIsLoggedIn) {
-    return { name: 'home' }
+    return {
+      name: await resolvePostAuthRouteName(
+        authStore.getUserUid,
+        userStore.profile,
+      ),
+    }
   }
 })
 

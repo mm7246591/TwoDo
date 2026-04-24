@@ -12,6 +12,7 @@ interface FirestoreUserProfile {
   createdAt?: Timestamp
   updatedAt?: Timestamp
   fcmTokens?: string[]
+  hasSeenPairingOnboarding?: boolean
 }
 
 export type { FirestoreUserProfile }

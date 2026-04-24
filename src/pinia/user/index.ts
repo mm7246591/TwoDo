@@ -9,6 +9,7 @@ import { useRewardsStore } from '@/pinia/rewards'
 import { useTasksStore } from '@/pinia/tasks'
 import {
   ensureUserProfile,
+  markPairingOnboardingSeen,
   subscribeToUserProfile,
   updateUserDisplayName,
 } from '@/services/userService'
@@ -114,6 +115,19 @@ const useUserStore = defineStore('user', () => {
     }
   }
 
+  const markPairingOnboardingAsSeen = async () => {
+    if (!profile.value || profile.value.hasSeenPairingOnboarding) {
+      return
+    }
+
+    try {
+      await markPairingOnboardingSeen(profile.value.uid)
+    } catch (error) {
+      state.value.errorMessage = normalizeErrorMessage(error)
+      throw error
+    }
+  }
+
   const reset = () => {
     stopSync()
     profile.value = null
@@ -132,6 +146,7 @@ const useUserStore = defineStore('user', () => {
     clearError,
     getHasCoupleContext,
     getIsPaired,
+    markPairingOnboardingAsSeen,
     profile,
     reset,
     saveDisplayName,

@@ -5,10 +5,13 @@ type PostAuthRouteName = 'home' | 'pairing'
 
 const resolvePostAuthRouteName = async (
   uid: string,
-  currentProfile: Pick<UserProfile, 'uid' | 'partnerUid'> | null = null,
+  currentProfile: Pick<
+    UserProfile,
+    'uid' | 'partnerUid' | 'hasSeenPairingOnboarding'
+  > | null = null,
 ): Promise<PostAuthRouteName> => {
   if (!uid) {
-    return 'pairing'
+    return 'home'
   }
 
   try {
@@ -16,9 +19,13 @@ const resolvePostAuthRouteName = async (
       ? currentProfile
       : await getUserProfile(uid)
 
-    return profile?.partnerUid ? 'home' : 'pairing'
-  } catch {
+    if (!profile || profile.partnerUid || profile.hasSeenPairingOnboarding) {
+      return 'home'
+    }
+
     return 'pairing'
+  } catch {
+    return 'home'
   }
 }
 

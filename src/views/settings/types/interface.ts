@@ -10,6 +10,7 @@ interface UserProfile {
   createdAt: Date | null
   updatedAt: Date | null
   fcmTokens: string[]
+  hasSeenPairingOnboarding: boolean
 }
 
 export type { UserProfile }
