@@ -27,7 +27,9 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const trimmedEmail = computed(() => email.value.trim());
 const trimmedPassword = computed(() => password.value.trim());
 const isEmailReady = computed(() => trimmedEmail.value !== "");
-const isEmailFormatValid = computed(() => emailPattern.test(trimmedEmail.value));
+const isEmailFormatValid = computed(() =>
+  emailPattern.test(trimmedEmail.value),
+);
 const isPasswordReady = computed(() => trimmedPassword.value.length >= 6);
 const emailErrorMessage = computed(() => {
   if (!isEmailReady.value) {
@@ -58,10 +60,14 @@ const isAuthActionPending = computed(
   () => isEmailSubmitting.value || isGoogleSubmitting.value,
 );
 const shouldShowEmailError = computed(
-  () => Boolean(emailErrorMessage.value) && (hasSubmitted.value || hasEmailBlurred.value),
+  () =>
+    Boolean(emailErrorMessage.value) &&
+    (hasSubmitted.value || hasEmailBlurred.value),
 );
 const shouldShowPasswordError = computed(
-  () => Boolean(passwordErrorMessage.value) && (hasSubmitted.value || hasPasswordBlurred.value),
+  () =>
+    Boolean(passwordErrorMessage.value) &&
+    (hasSubmitted.value || hasPasswordBlurred.value),
 );
 
 onMounted(() => {
@@ -86,7 +92,10 @@ onBeforeUnmount(() => {
 
 const goToPostAuthRoute = async () => {
   await router.push({
-    name: await resolvePostAuthRouteName(authStore.getUserUid, userStore.profile),
+    name: await resolvePostAuthRouteName(
+      authStore.getUserUid,
+      userStore.profile,
+    ),
   });
 };
 
@@ -175,7 +184,7 @@ const handleForgotPasswordPreview = () => {
           aria-label="TwoDo 登入"
         >
           <span
-            class="material-symbols-outlined fill text-[32px] text-[var(--auth-primary-container)]"
+            class="material-symbols-outlined fill text-[24px] text-[var(--auth-primary-container)]"
             aria-hidden="true"
             >favorite</span
           >
@@ -245,7 +254,11 @@ const handleForgotPasswordPreview = () => {
         </div>
       </div>
 
-      <form class="flex flex-col gap-[16px]" novalidate @submit.prevent="handleSignIn">
+      <form
+        class="flex flex-col gap-[16px]"
+        novalidate
+        @submit.prevent="handleSignIn"
+      >
         <label class="flex flex-col gap-[8px]">
           <span
             class="pl-[4px] text-[12px] font-medium leading-[16px] text-[var(--auth-on-surface-variant)]"
@@ -255,9 +268,12 @@ const handleForgotPasswordPreview = () => {
             v-model="email"
             class="h-[56px] rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
             :class="{
-              'border-[var(--auth-error)] focus:ring-[var(--auth-error)]': shouldShowEmailError,
+              'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
+                shouldShowEmailError,
             }"
-            :aria-describedby="shouldShowEmailError ? 'login-email-error' : undefined"
+            :aria-describedby="
+              shouldShowEmailError ? 'login-email-error' : undefined
+            "
             :aria-invalid="shouldShowEmailError"
             autocomplete="email"
             placeholder="請輸入電子郵件"
@@ -291,9 +307,12 @@ const handleForgotPasswordPreview = () => {
             v-model="password"
             class="h-[56px] rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
             :class="{
-              'border-[var(--auth-error)] focus:ring-[var(--auth-error)]': shouldShowPasswordError,
+              'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
+                shouldShowPasswordError,
             }"
-            :aria-describedby="shouldShowPasswordError ? 'login-password-error' : undefined"
+            :aria-describedby="
+              shouldShowPasswordError ? 'login-password-error' : undefined
+            "
             :aria-invalid="shouldShowPasswordError"
             autocomplete="current-password"
             placeholder="請輸入密碼"
