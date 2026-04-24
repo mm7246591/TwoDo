@@ -7,6 +7,11 @@ import { useErrorToast } from "@/composables/useErrorToast";
 import MobileAppShell from "@/components/MobileAppShell.vue";
 import { useTasksStore } from "@/pinia/tasks";
 import { useUserStore } from "@/pinia/user";
+import {
+  canCompleteTask,
+  canConfirmTask,
+  isWaitingForOtherParticipant,
+} from "@/services/taskWorkflow";
 import { getUserProfile } from "@/services/userService";
 import { showSuccessMessage } from "@/services/uiFeedback";
 import type { CreateTaskInput } from "@/pinia/tasks/types/interface";
@@ -27,18 +32,28 @@ const canUseTasks = computed(() =>
 );
 const currentUid = computed(() => userStore.profile?.uid ?? "");
 const myAssignedTasks = computed(() =>
-  tasksStore.tasks.filter(
-    (task) => task.assignedTo === currentUid.value && task.status === "pending",
-  ),
+  tasksStore.tasks.filter((task) => canCompleteTask(task, currentUid.value)),
 );
 const myCreatedTasks = computed(() =>
   tasksStore.tasks.filter(
-    (task) => task.createdBy === currentUid.value && task.status === "pending",
+    (task) =>
+      task.assignmentType === "user" &&
+      task.createdBy === currentUid.value &&
+      task.status === "pending",
   ),
 );
+const waitingOtherCompletionTasks = computed(() =>
+  tasksStore.tasks.filter((task) =>
+    isWaitingForOtherParticipant(task, currentUid.value),
+  ),
+);
+const waitingOtherTasks = computed(() => [
+  ...myCreatedTasks.value,
+  ...waitingOtherCompletionTasks.value,
+]);
 const waitingConfirmTasks = computed(() =>
   tasksStore.getCompletedPendingConfirmTasks.filter(
-    (task) => task.createdBy === currentUid.value,
+    (task) => canConfirmTask(task, currentUid.value),
   ),
 );
 const confirmedTasks = computed(() => tasksStore.getConfirmedTasks);
@@ -239,7 +254,7 @@ const handleCancelTask = async (task: Task) => {
 
         <div class="app-card-list mt-[20px]">
           <TaskListCard
-            v-for="task in myCreatedTasks"
+            v-for="task in waitingOtherTasks"
             :key="task.id"
             :current-uid="currentUid"
             :is-submitting="tasksStore.isSubmitting"
@@ -250,7 +265,7 @@ const handleCancelTask = async (task: Task) => {
             @confirm="handleConfirmTask"
           />
 
-          <AppEmptyState v-if="!myCreatedTasks.length" />
+          <AppEmptyState v-if="!waitingOtherTasks.length" />
         </div>
       </section>
 

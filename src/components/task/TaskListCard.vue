@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { SwipeCell } from "vant";
+import {
+  canCompleteTask,
+  canConfirmTask,
+  isCoupleTask,
+} from "@/services/taskWorkflow";
 import type { Task } from "@/views/tasks/types/interface";
 
 const props = defineProps<{
@@ -47,21 +52,36 @@ const getTimelineText = computed(() => {
 });
 
 const getDescriptionText = computed(() => props.task.description?.trim() ?? "");
+const getParticipantCount = computed(() =>
+  Math.max(
+    props.task.participantUids.length,
+    props.task.assignmentType === "couple" ? 2 : 1,
+  ),
+);
+const getAssignmentLabel = computed(() => {
+  if (isCoupleTask(props.task)) {
+    const completedCount = props.task.completedByUids.length;
+    const confirmedCount = props.task.confirmedByUids.length;
+    const participantCount = getParticipantCount.value;
+
+    return `我們 · 完成 ${completedCount}/${participantCount} · 確認 ${confirmedCount}/${participantCount}`;
+  }
+
+  return props.task.assignedTo === props.currentUid
+    ? "交給我"
+    : `交給 ${props.partnerName || "另一半"}`;
+});
 const shouldShowDescription = computed(
   () =>
     Boolean(getDescriptionText.value) &&
     getDescriptionText.value !== props.task.title.trim(),
 );
 
-const getCanComplete = computed(
-  () =>
-    props.task.assignedTo === props.currentUid &&
-    props.task.status === "pending",
+const getCanComplete = computed(() =>
+  canCompleteTask(props.task, props.currentUid),
 );
-const getCanConfirm = computed(
-  () =>
-    props.task.createdBy === props.currentUid &&
-    props.task.status === "completed_pending_confirm",
+const getCanConfirm = computed(() =>
+  canConfirmTask(props.task, props.currentUid),
 );
 const getCanCancel = computed(
   () =>
@@ -90,6 +110,7 @@ const getHasSwipeActions = computed(
       </div>
 
       <p class="app-card-caption mt-[12px]">{{ getTimelineText }}</p>
+      <p class="app-card-caption mt-[4px]">{{ getAssignmentLabel }}</p>
     </article>
 
     <template #right>

@@ -2,14 +2,18 @@
 import { computed, ref, watch } from "vue";
 import { DatePicker, Picker, Popup, type PickerConfirmEventParams } from "vant";
 import type { CreateTaskInput } from "@/pinia/tasks/types/interface";
+import type { TaskAssignmentType } from "@/views/tasks/types/interface";
 
 interface TaskComposerForm {
-  assignedTo: string;
+  assignedTo: string | null;
+  assignmentType: TaskAssignmentType;
   description: string;
   dueDate: string;
   points: number;
   title: string;
 }
+
+const ASSIGNEE_COUPLE_VALUE = "__couple__";
 
 const props = defineProps<{
   assigneeLabel?: string;
@@ -23,6 +27,7 @@ const emit = defineEmits<{
 
 const form = ref<TaskComposerForm>({
   assignedTo: props.defaultAssignedTo,
+  assignmentType: "user",
   description: "",
   dueDate: "",
   points: 10,
@@ -50,6 +55,10 @@ const assigneeOptions = computed(() => {
       text: getPartnerLabel.value,
       value: props.defaultAssignedTo,
     },
+    {
+      text: "我們",
+      value: ASSIGNEE_COUPLE_VALUE,
+    },
   ];
 });
 const getDueDateLabel = computed(() => {
@@ -62,6 +71,10 @@ const getDueDateLabel = computed(() => {
   );
 });
 const getAssigneeLabel = computed(() => {
+  if (form.value.assignmentType === "couple") {
+    return "我們";
+  }
+
   if (!form.value.assignedTo) {
     return "選擇另一半";
   }
@@ -81,7 +94,11 @@ const minDueDate = computed(() => {
 watch(
   () => props.defaultAssignedTo,
   (partnerUid) => {
-    if (!form.value.assignedTo && partnerUid) {
+    if (
+      form.value.assignmentType === "user" &&
+      !form.value.assignedTo &&
+      partnerUid
+    ) {
       form.value.assignedTo = partnerUid;
     }
   },
@@ -93,6 +110,7 @@ const resetForm = () => {
   form.value.description = "";
   form.value.points = 10;
   form.value.dueDate = "";
+  form.value.assignmentType = "user";
   form.value.assignedTo = props.defaultAssignedTo;
   datePickerValue.value = [];
 };
@@ -112,7 +130,9 @@ const openDueDatePicker = () => {
 
 const openAssigneePicker = () => {
   assigneePickerValue.value = [
-    form.value.assignedTo || props.defaultAssignedTo || "",
+    form.value.assignmentType === "couple"
+      ? ASSIGNEE_COUPLE_VALUE
+      : form.value.assignedTo || props.defaultAssignedTo || "",
   ];
   showAssigneePicker.value = true;
 };
@@ -129,13 +149,24 @@ const handleConfirmDueDate = ({
 const handleConfirmAssignee = ({
   selectedValues,
 }: PickerConfirmEventParams) => {
-  form.value.assignedTo = String(selectedValues[0] ?? "");
+  const selectedValue = String(selectedValues[0] ?? "");
+
+  if (selectedValue === ASSIGNEE_COUPLE_VALUE) {
+    form.value.assignmentType = "couple";
+    form.value.assignedTo = null;
+    showAssigneePicker.value = false;
+    return;
+  }
+
+  form.value.assignmentType = "user";
+  form.value.assignedTo = selectedValue;
   showAssigneePicker.value = false;
 };
 
 const handleSubmit = () => {
   emit("submit", {
     assignedTo: form.value.assignedTo,
+    assignmentType: form.value.assignmentType,
     description: form.value.description,
     dueDate: form.value.dueDate ? new Date(form.value.dueDate) : null,
     points: Number(form.value.points),
@@ -201,7 +232,13 @@ const handleSubmit = () => {
           type="button"
           @click="openAssigneePicker"
         >
-          <span :class="form.assignedTo ? 'app-text-strong' : 'app-text-soft'">
+          <span
+            :class="
+              form.assignedTo || form.assignmentType === 'couple'
+                ? 'app-text-strong'
+                : 'app-text-soft'
+            "
+          >
             {{ getAssigneeLabel }}
           </span>
         </button>

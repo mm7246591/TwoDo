@@ -1,5 +1,8 @@
+import type { TaskAssignmentType } from '@/views/tasks/types/interface'
+
 interface CreateTaskInput {
-  assignedTo: string
+  assignedTo: string | null
+  assignmentType: TaskAssignmentType
   coupleId: string
   createdBy: string
   description: string

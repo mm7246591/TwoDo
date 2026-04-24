@@ -36,8 +36,14 @@ type TaskStatus =
   | 'cancelled'
   | 'rejected'
 
+type TaskAssignmentType = 'user' | 'couple'
+
 type TaskRecord = {
-  assignedTo: string
+  assignedTo?: string | null
+  assignmentType?: TaskAssignmentType
+  participantUids?: string[]
+  completedByUids?: string[]
+  confirmedByUids?: string[]
   completedAt?: Timestamp | null
   confirmedAt?: Timestamp | null
   coupleId: string
@@ -102,6 +108,36 @@ const createNotificationPayload = (payload: {
   isRead: false,
   createdAt: FieldValue.serverTimestamp(),
 })
+
+const uniqueStrings = (values: unknown[]) => Array.from(
+  new Set(
+    values
+      .filter((value): value is string => typeof value === 'string')
+      .map((value) => value.trim())
+      .filter(Boolean),
+  ),
+)
+
+const getTaskAssignmentType = (task: TaskRecord): TaskAssignmentType => (
+  task.assignmentType === 'couple' ? 'couple' : 'user'
+)
+
+const getTaskParticipantUids = (task: TaskRecord) => {
+  if (getTaskAssignmentType(task) === 'couple') {
+    return uniqueStrings(task.participantUids ?? [])
+  }
+
+  return task.assignedTo ? [task.assignedTo] : []
+}
+
+const appendUniqueUid = (uids: string[] | undefined, uid: string) => (
+  uniqueStrings([...(uids ?? []), uid])
+)
+
+const hasEveryParticipant = (participantUids: string[], actorUids: string[]) => (
+  participantUids.length > 0 &&
+  participantUids.every((participantUid) => actorUids.includes(participantUid))
+)
 
 const normalizeFcmTokens = (tokens?: string[]) => Array.from(
   new Set(
@@ -319,6 +355,7 @@ export const createTask = onCall(callableOptions, async (request) => {
   const title = typeof request.data?.title === 'string' ? request.data.title.trim() : ''
   const description = typeof request.data?.description === 'string' ? request.data.description.trim() : ''
   const assignedTo = typeof request.data?.assignedTo === 'string' ? request.data.assignedTo : ''
+  const assignmentType: TaskAssignmentType = request.data?.assignmentType === 'couple' ? 'couple' : 'user'
   const points = typeof request.data?.points === 'number' ? request.data.points : 0
   const dueDateIso = typeof request.data?.dueDateIso === 'string' ? request.data.dueDateIso : null
   const currentUser = await getUserProfile(uid)
@@ -331,7 +368,7 @@ export const createTask = onCall(callableOptions, async (request) => {
     throw new HttpsError('failed-precondition', '目前沒有配對資料，無法建立任務。')
   }
 
-  if (assignedTo !== currentUser.partnerUid) {
+  if (assignmentType === 'user' && assignedTo !== currentUser.partnerUid) {
     throw new HttpsError('failed-precondition', '目前只能把任務指派給你的另一半。')
   }
 
@@ -340,16 +377,23 @@ export const createTask = onCall(callableOptions, async (request) => {
   }
 
   const taskReference = tasksCollection.doc()
+  const participantUids = assignmentType === 'couple'
+    ? [uid, currentUser.partnerUid]
+    : [assignedTo]
 
   await taskReference.set({
-    assignedTo,
+    assignedTo: assignmentType === 'user' ? assignedTo : null,
+    assignmentType,
+    completedByUids: [],
     completedAt: null,
+    confirmedByUids: [],
     confirmedAt: null,
     coupleId: currentUser.coupleId,
     createdAt: FieldValue.serverTimestamp(),
     createdBy: uid,
     description,
     dueDate: dueDateIso ? Timestamp.fromDate(new Date(dueDateIso)) : null,
+    participantUids,
     points,
     status: 'pending',
     title,
@@ -357,11 +401,13 @@ export const createTask = onCall(callableOptions, async (request) => {
   })
 
   const notificationPayload = {
-    userUid: assignedTo,
+    userUid: currentUser.partnerUid,
     coupleId: currentUser.coupleId,
     type: 'new_task',
-    title: '你有新的待辦事項',
-    message: `對方指派了「${title}」給你`,
+    title: assignmentType === 'couple' ? '你們有新的共同待辦' : '你有新的待辦事項',
+    message: assignmentType === 'couple'
+      ? `對方建立了共同任務「${title}」`
+      : `對方指派了「${title}」給你`,
     refId: taskReference.id,
   } as const
 
@@ -380,9 +426,8 @@ export const completeTask = onCall(callableOptions, async (request) => {
   }
 
   const taskReference = tasksCollection.doc(taskId)
-  let pushPayload: Parameters<typeof sendPushNotification>[0] | null = null
-
-  await db.runTransaction(async (transaction) => {
+  const pushPayloads = await db.runTransaction(async (transaction) => {
+    const nextPushPayloads: Parameters<typeof sendPushNotification>[0][] = []
     const taskSnapshot = await transaction.get(taskReference)
 
     if (!taskSnapshot.exists) {
@@ -390,36 +435,78 @@ export const completeTask = onCall(callableOptions, async (request) => {
     }
 
     const task = taskSnapshot.data() as TaskRecord
+    const assignmentType = getTaskAssignmentType(task)
+    const participantUids = getTaskParticipantUids(task)
 
-    if (task.assignedTo !== uid) {
+    if (assignmentType === 'user' && task.assignedTo !== uid) {
       throw new HttpsError('permission-denied', '只有被指派的人可以標記任務完成。')
+    }
+
+    if (assignmentType === 'couple' && !participantUids.includes(uid)) {
+      throw new HttpsError('permission-denied', '只有共同任務成員可以標記完成。')
     }
 
     if (task.status !== 'pending') {
       throw new HttpsError('failed-precondition', '目前只有待處理的任務可以標記完成。')
     }
 
+    if (assignmentType === 'couple') {
+      if ((task.completedByUids ?? []).includes(uid)) {
+        throw new HttpsError('failed-precondition', '你已經標記過這個共同任務。')
+      }
+
+      const nextCompletedByUids = appendUniqueUid(task.completedByUids, uid)
+      const isFullyCompleted = hasEveryParticipant(participantUids, nextCompletedByUids)
+
+      transaction.update(taskReference, {
+        completedAt: isFullyCompleted ? FieldValue.serverTimestamp() : null,
+        completedByUids: nextCompletedByUids,
+        status: isFullyCompleted ? 'completed_pending_confirm' : 'pending',
+        updatedAt: FieldValue.serverTimestamp(),
+      })
+
+      if (isFullyCompleted) {
+        participantUids.forEach((participantUid) => {
+          const pushPayload = {
+            userUid: participantUid,
+            coupleId: task.coupleId,
+            type: 'task_completed_pending_confirm',
+            title: '共同任務等待確認',
+            message: `「${task.title}」已由雙方標記完成，請一起確認。`,
+            refId: taskId,
+          } as const
+
+          nextPushPayloads.push(pushPayload)
+          transaction.set(notificationsCollection.doc(), createNotificationPayload(pushPayload))
+        })
+      }
+
+      return nextPushPayloads
+    }
+
     transaction.update(taskReference, {
       completedAt: FieldValue.serverTimestamp(),
+      completedByUids: [uid],
       status: 'completed_pending_confirm',
       updatedAt: FieldValue.serverTimestamp(),
     })
 
-    pushPayload = {
+    const pushPayload = {
       userUid: task.createdBy,
       coupleId: task.coupleId,
       type: 'task_completed_pending_confirm',
       title: '有任務等待你確認',
       message: `「${task.title}」已標記完成，等你確認後就會加分。`,
       refId: taskId,
-    }
+    } as const
 
+    nextPushPayloads.push(pushPayload)
     transaction.set(notificationsCollection.doc(), createNotificationPayload(pushPayload))
+
+    return nextPushPayloads
   })
 
-  if (pushPayload) {
-    await sendPushNotification(pushPayload)
-  }
+  await Promise.all(pushPayloads.map((pushPayload) => sendPushNotification(pushPayload)))
 
   return { success: true as const }
 })
@@ -427,13 +514,12 @@ export const completeTask = onCall(callableOptions, async (request) => {
 export const confirmTask = onCall(callableOptions, async (request) => {
   const uid = getAuthenticatedUid(request.auth)
   const taskId = typeof request.data?.taskId === 'string' ? request.data.taskId : ''
-  let pushPayload: Parameters<typeof sendPushNotification>[0] | null = null
-
   if (!taskId) {
     throw new HttpsError('invalid-argument', '缺少 taskId。')
   }
 
-  await db.runTransaction(async (transaction) => {
+  const pushPayloads = await db.runTransaction(async (transaction) => {
+    const nextPushPayloads: Parameters<typeof sendPushNotification>[0][] = []
     const taskReference = tasksCollection.doc(taskId)
     const taskSnapshot = await transaction.get(taskReference)
 
@@ -442,13 +528,110 @@ export const confirmTask = onCall(callableOptions, async (request) => {
     }
 
     const task = taskSnapshot.data() as TaskRecord
+    const assignmentType = getTaskAssignmentType(task)
+    const participantUids = getTaskParticipantUids(task)
 
-    if (task.createdBy !== uid) {
+    if (assignmentType === 'user' && task.createdBy !== uid) {
       throw new HttpsError('permission-denied', '只有建立任務的人可以確認完成。')
+    }
+
+    if (assignmentType === 'couple' && !participantUids.includes(uid)) {
+      throw new HttpsError('permission-denied', '只有共同任務成員可以確認完成。')
     }
 
     if (task.status !== 'completed_pending_confirm') {
       throw new HttpsError('failed-precondition', '只有待確認的任務可以確認完成。')
+    }
+
+    if (assignmentType === 'couple') {
+      if ((task.confirmedByUids ?? []).includes(uid)) {
+        throw new HttpsError('failed-precondition', '你已經確認過這個共同任務。')
+      }
+
+      const nextConfirmedByUids = appendUniqueUid(task.confirmedByUids, uid)
+      const isFullyConfirmed = hasEveryParticipant(participantUids, nextConfirmedByUids)
+
+      if (!isFullyConfirmed) {
+        transaction.update(taskReference, {
+          confirmedByUids: nextConfirmedByUids,
+          updatedAt: FieldValue.serverTimestamp(),
+        })
+
+        participantUids
+          .filter((participantUid) => !nextConfirmedByUids.includes(participantUid))
+          .forEach((participantUid) => {
+            const pushPayload = {
+              userUid: participantUid,
+              coupleId: task.coupleId,
+              type: 'task_completed_pending_confirm',
+              title: '共同任務等待你確認',
+              message: `「${task.title}」已有人確認，等你確認後雙方就會加分。`,
+              refId: taskId,
+            } as const
+
+            nextPushPayloads.push(pushPayload)
+            transaction.set(notificationsCollection.doc(), createNotificationPayload(pushPayload))
+          })
+
+        return nextPushPayloads
+      }
+
+      const participantRefs = participantUids.map((participantUid) => usersCollection.doc(participantUid))
+      const participantSnapshots = await Promise.all(
+        participantRefs.map((participantRef) => transaction.get(participantRef)),
+      )
+
+      participantSnapshots.forEach((participantSnapshot) => {
+        if (!participantSnapshot.exists) {
+          throw new HttpsError('not-found', '共同任務成員資料不存在，無法發放積分。')
+        }
+      })
+
+      transaction.update(taskReference, {
+        confirmedAt: FieldValue.serverTimestamp(),
+        confirmedByUids: nextConfirmedByUids,
+        status: 'confirmed',
+        updatedAt: FieldValue.serverTimestamp(),
+      })
+
+      participantRefs.forEach((participantRef, index) => {
+        const participant = participantSnapshots[index].data() as UserProfile
+        const nextPoints = (typeof participant.points === 'number' ? participant.points : 0) + task.points
+
+        transaction.update(participantRef, {
+          points: nextPoints,
+          updatedAt: FieldValue.serverTimestamp(),
+        })
+
+        transaction.set(pointLogsCollection.doc(), {
+          coupleId: task.coupleId,
+          userUid: participantUids[index],
+          type: 'task_reward',
+          points: task.points,
+          taskId,
+          rewardId: null,
+          source: 'task_confirmed',
+          createdAt: FieldValue.serverTimestamp(),
+        })
+
+        const pushPayload = {
+          userUid: participantUids[index],
+          coupleId: task.coupleId,
+          type: 'task_confirmed',
+          title: '共同任務已確認完成',
+          message: `「${task.title}」已由雙方確認完成，你獲得 ${task.points} 點。`,
+          refId: taskId,
+        } as const
+
+        nextPushPayloads.push(pushPayload)
+        transaction.set(notificationsCollection.doc(), createNotificationPayload(pushPayload))
+      })
+
+      return nextPushPayloads
+    }
+
+    if (!task.assignedTo) {
+      throw new HttpsError('failed-precondition', '這筆任務缺少被指派者資料。')
     }
 
     const assignedUserRef = usersCollection.doc(task.assignedTo)
@@ -463,6 +646,7 @@ export const confirmTask = onCall(callableOptions, async (request) => {
 
     transaction.update(taskReference, {
       confirmedAt: FieldValue.serverTimestamp(),
+      confirmedByUids: [uid],
       status: 'confirmed',
       updatedAt: FieldValue.serverTimestamp(),
     })
@@ -483,21 +667,22 @@ export const confirmTask = onCall(callableOptions, async (request) => {
       createdAt: FieldValue.serverTimestamp(),
     })
 
-    pushPayload = {
+    const pushPayload = {
       userUid: task.assignedTo,
       coupleId: task.coupleId,
       type: 'task_confirmed',
       title: '任務已確認完成',
       message: `「${task.title}」已確認完成，你獲得 ${task.points} 點。`,
       refId: taskId,
-    }
+    } as const
 
+    nextPushPayloads.push(pushPayload)
     transaction.set(notificationsCollection.doc(), createNotificationPayload(pushPayload))
+
+    return nextPushPayloads
   })
 
-  if (pushPayload) {
-    await sendPushNotification(pushPayload)
-  }
+  await Promise.all(pushPayloads.map((pushPayload) => sendPushNotification(pushPayload)))
 
   return { success: true as const }
 })

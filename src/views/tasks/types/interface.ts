@@ -5,6 +5,8 @@ type TaskStatus =
   | 'cancelled'
   | 'rejected'
 
+type TaskAssignmentType = 'user' | 'couple'
+
 interface Task {
   id: string
   coupleId: string
@@ -12,7 +14,11 @@ interface Task {
   description?: string
   points: number
   status: TaskStatus
-  assignedTo: string
+  assignmentType: TaskAssignmentType
+  assignedTo: string | null
+  participantUids: string[]
+  completedByUids: string[]
+  confirmedByUids: string[]
   createdBy: string
   dueDate?: Date | null
   completedAt?: Date | null
@@ -21,4 +27,4 @@ interface Task {
   updatedAt: Date
 }
 
-export type { Task, TaskStatus }
+export type { Task, TaskAssignmentType, TaskStatus }

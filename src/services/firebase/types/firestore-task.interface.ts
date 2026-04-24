@@ -1,8 +1,12 @@
 import type { Timestamp } from 'firebase/firestore'
-import type { TaskStatus } from '@/views/tasks/types/interface'
+import type { TaskAssignmentType, TaskStatus } from '@/views/tasks/types/interface'
 
 interface FirestoreTask {
-  assignedTo: string
+  assignedTo?: string | null
+  assignmentType?: TaskAssignmentType
+  participantUids?: string[]
+  completedByUids?: string[]
+  confirmedByUids?: string[]
   completedAt?: Timestamp | null
   confirmedAt?: Timestamp | null
   coupleId: string
@@ -17,7 +21,8 @@ interface FirestoreTask {
 }
 
 interface CreateTaskPayload {
-  assignedTo: string
+  assignedTo: string | null
+  assignmentType: TaskAssignmentType
   coupleId: string
   createdBy: string
   description: string

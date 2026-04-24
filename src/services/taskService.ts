@@ -12,20 +12,37 @@ import {
 import { firebaseFunctions } from '@/services/firebase/app'
 import { tasksCollection } from '@/services/firebase/firestore'
 import type { CreateTaskPayload, FirestoreTask } from '@/services/firebase/types/firestore-task.interface'
+import { canCompleteTask, canConfirmTask } from '@/services/taskWorkflow'
 import type { Task } from '@/views/tasks/types/interface'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : null
 
 const mapTask = (taskId: string, data: FirestoreTask): Task => ({
   id: taskId,
-  assignedTo: data.assignedTo,
+  assignedTo: data.assignedTo ?? null,
+  assignmentType: data.assignmentType ?? 'user',
   completedAt: toDate(data.completedAt),
+  completedByUids: Array.isArray(data.completedByUids)
+    ? data.completedByUids
+    : data.assignedTo && data.completedAt
+      ? [data.assignedTo]
+      : [],
   confirmedAt: toDate(data.confirmedAt),
+  confirmedByUids: Array.isArray(data.confirmedByUids)
+    ? data.confirmedByUids
+    : data.assignedTo && data.confirmedAt
+      ? [data.createdBy, data.assignedTo]
+      : [],
   coupleId: data.coupleId,
   createdAt: toDate(data.createdAt) ?? new Date(),
   createdBy: data.createdBy,
   description: data.description ?? '',
   dueDate: toDate(data.dueDate),
+  participantUids: Array.isArray(data.participantUids)
+    ? data.participantUids
+    : data.assignedTo
+      ? [data.assignedTo]
+      : [],
   points: typeof data.points === 'number' ? data.points : 0,
   status: data.status,
   title: data.title,
@@ -70,7 +87,7 @@ const createTask = async (payload: CreateTaskPayload) => {
     throw new Error('目前沒有配對資料，無法新增待辦。')
   }
 
-  if (!payload.assignedTo) {
+  if (payload.assignmentType === 'user' && !payload.assignedTo) {
     throw new Error('請先選擇要交給誰。')
   }
 
@@ -81,7 +98,8 @@ const createTask = async (payload: CreateTaskPayload) => {
   try {
     const createTaskCallable = httpsCallable<
       {
-        assignedTo: string
+        assignedTo: string | null
+        assignmentType: CreateTaskPayload['assignmentType']
         coupleId: string
         description: string
         dueDateIso: string | null
@@ -93,6 +111,7 @@ const createTask = async (payload: CreateTaskPayload) => {
 
     await createTaskCallable({
       assignedTo: payload.assignedTo,
+      assignmentType: payload.assignmentType,
       coupleId: payload.coupleId,
       description: trimmedDescription,
       dueDateIso: payload.dueDate ? payload.dueDate.toISOString() : null,
@@ -109,8 +128,10 @@ const createTask = async (payload: CreateTaskPayload) => {
 }
 
 const completeTask = async (task: Task, actorUid: string) => {
-  if (task.assignedTo !== actorUid) {
-    throw new Error('只有收到這件待辦的人可以標記完成。')
+  if (!canCompleteTask(task, actorUid)) {
+    throw new Error(task.assignmentType === 'couple'
+      ? '只有共同任務成員可以標記自己的完成進度。'
+      : '只有收到這件待辦的人可以標記完成。')
   }
 
   if (task.status !== 'pending') {
@@ -134,8 +155,10 @@ const completeTask = async (task: Task, actorUid: string) => {
 }
 
 const confirmTask = async (task: Task, actorUid: string) => {
-  if (task.createdBy !== actorUid) {
-    throw new Error('只有新增這件待辦的人可以確認完成。')
+  if (!canConfirmTask(task, actorUid)) {
+    throw new Error(task.assignmentType === 'couple'
+      ? '只有共同任務成員可以確認自己的完成狀態。'
+      : '只有新增這件待辦的人可以確認完成。')
   }
 
   if (task.status !== 'completed_pending_confirm') {

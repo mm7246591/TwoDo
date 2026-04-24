@@ -8,6 +8,12 @@ import { usePointsStore } from "@/pinia/points";
 import { useRewardsStore } from "@/pinia/rewards";
 import { useTasksStore } from "@/pinia/tasks";
 import { useUserStore } from "@/pinia/user";
+import {
+  canCompleteTask,
+  canConfirmTask,
+  isCoupleTask,
+  isWaitingForOtherParticipant,
+} from "@/services/taskWorkflow";
 import { showSuccessMessage } from "@/services/uiFeedback";
 import type { Task } from "@/views/tasks/types/interface";
 import type {
@@ -36,28 +42,29 @@ const userName = computed(() => userStore.profile?.displayName || "TwoDo User");
 const currentUid = computed(() => userStore.profile?.uid ?? "");
 const currentPoints = computed(() => userStore.profile?.points ?? 0);
 const pendingAssignedTasks = computed(() =>
-  tasksStore.tasks.filter(
-    (task) => task.assignedTo === currentUid.value && task.status === "pending",
-  ),
+  tasksStore.tasks.filter((task) => canCompleteTask(task, currentUid.value)),
 );
 const pendingCreatedTasks = computed(() =>
   tasksStore.tasks.filter(
-    (task) => task.createdBy === currentUid.value && task.status === "pending",
+    (task) =>
+      task.assignmentType === "user" &&
+      task.createdBy === currentUid.value &&
+      task.status === "pending",
+  ),
+);
+const waitingOtherCompletionTasks = computed(() =>
+  tasksStore.tasks.filter((task) =>
+    isWaitingForOtherParticipant(task, currentUid.value),
   ),
 );
 const waitingConfirmTasks = computed(() =>
-  tasksStore.tasks.filter(
-    (task) =>
-      task.createdBy === currentUid.value &&
-      task.status === "completed_pending_confirm",
-  ),
+  tasksStore.tasks.filter((task) => canConfirmTask(task, currentUid.value)),
 );
 const todayFocusTasks = computed(() =>
   [
     ...pendingAssignedTasks.value,
-    ...pendingCreatedTasks.value.filter(
-      (task) => task.assignedTo !== currentUid.value,
-    ),
+    ...pendingCreatedTasks.value,
+    ...waitingOtherCompletionTasks.value,
   ]
     .sort(
       (leftTask, rightTask) =>
@@ -130,6 +137,10 @@ const handleRemindTask = (taskId: string) => {
 };
 
 const getTaskOwnerBadge = (task: Task) => {
+  if (isCoupleTask(task)) {
+    return "我們";
+  }
+
   if (task.assignedTo === currentUid.value) {
     return "我";
   }
@@ -144,8 +155,8 @@ const getTaskOwnerBadge = (task: Task) => {
 const focusTaskItems = computed<HomeTaskItem[]>(() =>
   todayFocusTasks.value.map((task) => ({
     badge: getTaskOwnerBadge(task),
-    badgeTone: task.assignedTo === currentUid.value ? "accent" : "neutral",
-    canComplete: task.assignedTo === currentUid.value,
+    badgeTone: canCompleteTask(task, currentUid.value) ? "accent" : "neutral",
+    canComplete: canCompleteTask(task, currentUid.value),
     description: task.description || resolveTaskMeta(task),
     id: task.id,
     title: task.title,
