@@ -163,7 +163,7 @@ const handleSubmit = () => {
         <span class="app-field-label">備註</span>
         <textarea
           v-model="form.description"
-          class="app-input min-h-[96px] resize-none py-4"
+          class="app-input min-h-[96px] resize-none py-[16px]"
           placeholder="補充細節或提醒"
         />
       </label>
@@ -208,7 +208,7 @@ const handleSubmit = () => {
       </label>
 
       <button
-        class="app-primary-button mt-6 w-full"
+        class="app-primary-button mt-[24px] w-full"
         type="submit"
         :disabled="isSubmitting"
       >

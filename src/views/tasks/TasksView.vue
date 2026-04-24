@@ -144,9 +144,9 @@ const handleCancelTask = async (task: Task) => {
   <MobileAppShell>
     <header class="app-page-header">
       <div class="app-page-header-row">
-        <div class="min-w-0">
+        <div class="min-w-[0px]">
           <div class="app-chip">待辦</div>
-          <h1 class="app-page-title mt-3 max-w-[11ch]">一起分擔</h1>
+          <h1 class="app-page-title mt-[12px] max-w-[11ch]">一起分擔</h1>
         </div>
       </div>
 
@@ -156,8 +156,8 @@ const handleCancelTask = async (task: Task) => {
     <section class="app-page-content app-section-stack flex-1">
       <section v-if="!canUseTasks" class="app-card app-card-section">
         <p class="app-label">目前狀態</p>
-        <p class="app-status-title mt-3">還不能新增待辦</p>
-        <p class="app-card-caption mt-3">完成配對後，就能開始一起分擔。</p>
+        <p class="app-status-title mt-[12px]">還不能新增待辦</p>
+        <p class="app-card-caption mt-[12px]">完成配對後，就能開始一起分擔。</p>
       </section>
 
       <TaskComposerCard
@@ -171,12 +171,12 @@ const handleCancelTask = async (task: Task) => {
       <section class="app-metric-grid">
         <article class="app-card app-card-section-sm">
           <p class="app-label">交給我的</p>
-          <p class="app-metric-value mt-2">{{ myAssignedTasks.length }}</p>
+          <p class="app-metric-value mt-[8px]">{{ myAssignedTasks.length }}</p>
         </article>
 
         <article class="app-card-muted app-card-section-sm">
           <p class="app-label">待我確認</p>
-          <p class="app-metric-value mt-2">
+          <p class="app-metric-value mt-[8px]">
             {{ waitingConfirmTasks.length }}
           </p>
         </article>
@@ -184,12 +184,12 @@ const handleCancelTask = async (task: Task) => {
 
       <section class="app-card app-card-section">
         <div class="app-card-header-split">
-          <div class="min-w-0">
+          <div class="min-w-[0px]">
             <p class="app-card-title">待完成</p>
           </div>
         </div>
 
-        <div class="app-card-list mt-5">
+        <div class="app-card-list mt-[20px]">
           <TaskListCard
             v-for="task in myAssignedTasks"
             :key="task.id"
@@ -208,12 +208,12 @@ const handleCancelTask = async (task: Task) => {
 
       <section class="app-card app-card-section">
         <div class="app-card-header-split">
-          <div class="min-w-0">
+          <div class="min-w-[0px]">
             <p class="app-card-title">待確認</p>
           </div>
         </div>
 
-        <div class="app-card-list mt-5">
+        <div class="app-card-list mt-[20px]">
           <TaskListCard
             v-for="task in waitingConfirmTasks"
             :key="task.id"
@@ -232,12 +232,12 @@ const handleCancelTask = async (task: Task) => {
 
       <section class="app-card app-card-section">
         <div class="app-card-header-split">
-          <div class="min-w-0">
+          <div class="min-w-[0px]">
             <p class="app-card-title">等另一半完成</p>
           </div>
         </div>
 
-        <div class="app-card-list mt-5">
+        <div class="app-card-list mt-[20px]">
           <TaskListCard
             v-for="task in myCreatedTasks"
             :key="task.id"
@@ -257,12 +257,12 @@ const handleCancelTask = async (task: Task) => {
       <section class="app-metric-grid">
         <article class="app-card app-card-section-sm">
           <p class="app-label">已完成</p>
-          <p class="app-metric-value mt-2">{{ confirmedTasks.length }}</p>
+          <p class="app-metric-value mt-[8px]">{{ confirmedTasks.length }}</p>
         </article>
 
         <article class="app-card-muted app-card-section-sm">
           <p class="app-label">已取消</p>
-          <p class="app-metric-value mt-2">{{ cancelledTasks.length }}</p>
+          <p class="app-metric-value mt-[8px]">{{ cancelledTasks.length }}</p>
         </article>
       </section>
 
@@ -271,7 +271,7 @@ const handleCancelTask = async (task: Task) => {
           <p class="app-card-title">已完成的事</p>
         </div>
 
-        <div class="app-card-list mt-5">
+        <div class="app-card-list mt-[20px]">
           <TaskListCard
             v-for="task in confirmedTasks"
             :key="task.id"
@@ -293,7 +293,7 @@ const handleCancelTask = async (task: Task) => {
           <p class="app-card-title">已取消的事</p>
         </div>
 
-        <div class="app-card-list mt-5">
+        <div class="app-card-list mt-[20px]">
           <TaskListCard
             v-for="task in cancelledTasks"
             :key="task.id"

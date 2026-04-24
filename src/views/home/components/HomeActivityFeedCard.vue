@@ -10,35 +10,35 @@ defineProps<{
 
 <template>
   <section class="app-card app-card-section">
-    <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center justify-between gap-[12px]">
       <div>
         <p class="app-card-title">最近更新</p>
       </div>
 
       <div
-        class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--app-accent-soft)] text-[color:var(--app-accent-strong)]"
+        class="inline-flex h-[36px] w-[36px] items-center justify-center rounded-full bg-[var(--app-accent-soft)] text-[color:var(--app-accent-strong)]"
       >
         <DashboardIcon name="activity" :size="18" />
       </div>
     </div>
 
-    <div class="app-card-list-compact mt-5">
+    <div class="app-card-list-compact mt-[20px]">
       <article
         v-for="activity in activities"
         :key="activity.id"
-        class="flex flex-wrap items-start justify-between gap-3 rounded-[1.25rem] border border-[rgba(191,206,228,0.64)] bg-[rgba(249,251,255,0.92)] p-4"
+        class="flex flex-wrap items-start justify-between gap-[12px] rounded-[1.25rem] border border-[rgba(191,206,228,0.64)] bg-[rgba(249,251,255,0.92)] p-[16px]"
       >
         <span
-          class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--app-accent-soft)] text-[color:var(--app-accent-strong)]"
+          class="inline-flex h-[36px] w-[36px] shrink-0 items-center justify-center rounded-full bg-[var(--app-accent-soft)] text-[color:var(--app-accent-strong)]"
         >
           <DashboardIcon :name="activity.icon" :size="18" />
         </span>
 
-        <div class="min-w-0 flex-1">
+        <div class="min-w-[0px] flex-1">
           <p class="app-list-title">
             {{ activity.label }}
           </p>
-          <p class="app-list-body mt-2">
+          <p class="app-list-body mt-[8px]">
             {{ activity.description }}
           </p>
         </div>

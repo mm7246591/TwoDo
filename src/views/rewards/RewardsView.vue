@@ -119,9 +119,9 @@ watch(
   <MobileAppShell>
     <header class="app-page-header">
       <div class="app-page-header-row">
-        <div class="min-w-0">
+        <div class="min-w-[0px]">
           <div class="app-chip">獎勵</div>
-          <h1 class="app-page-title mt-3 max-w-[11ch]">兩人的獎勵</h1>
+          <h1 class="app-page-title mt-[12px] max-w-[11ch]">兩人的獎勵</h1>
         </div>
       </div>
 
@@ -131,10 +131,10 @@ watch(
     <section class="app-page-content app-section-stack flex-1">
       <section v-if="!canUseRewards" class="app-card app-card-section">
         <p class="app-label">目前狀態</p>
-        <p class="app-status-title mt-3">
+        <p class="app-status-title mt-[12px]">
           還不能新增獎勵
         </p>
-        <p class="app-card-caption mt-3">
+        <p class="app-card-caption mt-[12px]">
           完成配對後，就能約定小獎勵。
         </p>
       </section>
@@ -148,21 +148,21 @@ watch(
       <section class="app-section-grid grid-cols-2 sm:grid-cols-3">
         <article class="app-card app-card-section-sm">
           <p class="app-label">可兌換獎勵</p>
-          <p class="app-metric-value mt-2">
+          <p class="app-metric-value mt-[8px]">
             {{ redeemableRewards.length }}
           </p>
         </article>
 
         <article class="app-card-muted app-card-section-sm">
           <p class="app-label">我準備的獎勵</p>
-          <p class="app-metric-value mt-2">
+          <p class="app-metric-value mt-[8px]">
             {{ myCreatedRewards.length }}
           </p>
         </article>
 
         <article class="app-card app-card-section-sm col-span-2 sm:col-span-1">
           <p class="app-label">已兌換獎勵</p>
-          <p class="app-metric-value mt-2">
+          <p class="app-metric-value mt-[8px]">
             {{ myRedeemedRewards.length }}
           </p>
         </article>
@@ -170,12 +170,12 @@ watch(
 
       <section class="app-card app-card-section">
         <div class="app-card-header-split">
-          <div class="min-w-0">
+          <div class="min-w-[0px]">
             <p class="app-label">獎勵列表</p>
           </div>
         </div>
 
-        <div class="app-card-list mt-5">
+        <div class="app-card-list mt-[20px]">
           <RewardListCard
             v-for="reward in rewardsStore.rewards"
             :key="reward.id"
@@ -193,7 +193,7 @@ watch(
 
       <section class="app-card app-card-section">
         <div class="app-card-header-split">
-          <div class="min-w-0">
+          <div class="min-w-[0px]">
             <p class="app-label">兌換紀錄</p>
           </div>
 
@@ -202,7 +202,7 @@ watch(
           </span>
         </div>
 
-        <div class="app-card-list mt-5">
+        <div class="app-card-list mt-[20px]">
           <RedemptionHistoryCard
             v-for="redemption in rewardsStore.getRecentRedemptions"
             :key="redemption.id"

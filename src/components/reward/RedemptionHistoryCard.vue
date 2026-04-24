@@ -34,9 +34,9 @@ const getStatusText = computed(() => {
 
 <template>
   <article class="app-card-muted app-card-section-sm">
-    <div class="flex items-start gap-3">
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-2">
+    <div class="flex items-start gap-[12px]">
+      <div class="min-w-[0px]">
+        <div class="flex flex-wrap items-center gap-[8px]">
           <p class="app-list-title">
             {{ getRewardTitle }}
           </p>
@@ -53,10 +53,10 @@ const getStatusText = computed(() => {
             {{ getStatusText }}
           </span>
         </div>
-        <p class="app-list-body mt-2">
+        <p class="app-list-body mt-[8px]">
           {{ getRedeemerText }}，用了 {{ redemption.cost }} 點。
         </p>
-        <p class="app-meta-caption mt-2">
+        <p class="app-meta-caption mt-[8px]">
           兌換：{{ formatDateTime(redemption.createdAt) }}
         </p>
       </div>

@@ -129,9 +129,9 @@ watch(
   <MobileAppShell>
     <header class="app-page-header">
       <div class="app-page-header-row">
-        <div class="min-w-0">
+        <div class="min-w-[0px]">
           <div class="app-chip">設定</div>
-          <h1 class="app-page-title mt-3 max-w-[11ch]">帳號設定</h1>
+          <h1 class="app-page-title mt-[12px] max-w-[11ch]">帳號設定</h1>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ watch(
     <section class="app-page-content app-section-stack flex-1">
       <section v-if="!getHasProfile" class="app-card app-card-section">
         <p class="app-label">目前狀態</p>
-        <p class="app-status-title mt-3">
+        <p class="app-status-title mt-[12px]">
           尚未取得使用者資料
         </p>
       </section>
@@ -150,26 +150,26 @@ watch(
         <section class="app-metric-grid">
           <article class="app-card app-card-section-sm">
             <p class="app-label">目前點數</p>
-            <p class="app-metric-value mt-2">
+            <p class="app-metric-value mt-[8px]">
               {{ userStore.profile?.points ?? 0 }}
             </p>
           </article>
 
           <article class="app-card-muted app-card-section-sm">
             <p class="app-label">未讀通知</p>
-            <p class="app-metric-value mt-2">
+            <p class="app-metric-value mt-[8px]">
               {{ getUnreadNotificationsText }}
             </p>
           </article>
         </section>
 
         <section class="app-card app-card-section">
-          <div class="min-w-0">
+          <div class="min-w-[0px]">
             <p class="app-label">個人資料</p>
-            <p class="app-card-title mt-2">顯示名稱</p>
+            <p class="app-card-title mt-[8px]">顯示名稱</p>
           </div>
 
-          <div class="mt-5">
+          <div class="mt-[20px]">
             <label class="app-field-stack block">
               <span class="app-field-label">暱稱</span>
               <Field
@@ -184,7 +184,7 @@ watch(
             </label>
           </div>
 
-          <dl class="settings-info-list mt-4">
+          <dl class="settings-info-list mt-[16px]">
             <div class="settings-info-row">
               <dt class="settings-info-label">帳號</dt>
               <dd class="settings-info-value break-all">
@@ -208,7 +208,7 @@ watch(
           </dl>
 
           <button
-            class="app-secondary-button mt-5 w-full"
+            class="app-secondary-button mt-[20px] w-full"
             type="button"
             :disabled="!getCanSaveDisplayName"
             @click="handleSaveDisplayName"
@@ -222,16 +222,16 @@ watch(
         </section>
 
         <section class="app-card app-card-section">
-          <div class="min-w-0">
+          <div class="min-w-[0px]">
             <p class="app-label">通知與裝置</p>
-            <p class="app-card-title mt-2">通知入口</p>
+            <p class="app-card-title mt-[8px]">通知入口</p>
           </div>
 
-          <p class="app-card-caption mt-4">
+          <p class="app-card-caption mt-[16px]">
             查看通知列表與推播設定。
           </p>
 
-          <dl class="settings-info-list mt-4">
+          <dl class="settings-info-list mt-[16px]">
             <div class="settings-info-row">
               <dt class="settings-info-label">已綁定裝置</dt>
               <dd class="settings-info-value">
@@ -241,7 +241,7 @@ watch(
           </dl>
 
           <button
-            class="app-ghost-button mt-5 w-full"
+            class="app-ghost-button mt-[20px] w-full"
             type="button"
             @click="goToNotifications"
           >
@@ -250,16 +250,16 @@ watch(
         </section>
 
         <section class="app-card app-card-section">
-          <div class="min-w-0">
+          <div class="min-w-[0px]">
             <p class="app-label">配對管理</p>
-            <p class="app-card-title mt-2">配對與登入</p>
+            <p class="app-card-title mt-[8px]">配對與登入</p>
           </div>
 
-          <p class="app-card-caption mt-4">
+          <p class="app-card-caption mt-[16px]">
             解除配對後，你們的待辦與獎勵不會再同步。
           </p>
 
-          <dl class="settings-info-list mt-4">
+          <dl class="settings-info-list mt-[16px]">
             <div class="settings-info-row">
               <dt class="settings-info-label">目前狀態</dt>
               <dd class="settings-info-value">
@@ -269,7 +269,7 @@ watch(
           </dl>
 
           <button
-            class="app-secondary-button mt-5 w-full"
+            class="app-secondary-button mt-[20px] w-full"
             type="button"
             :disabled="!getHasPairedPartner || coupleStore.isSubmitting"
             @click="handleUnpairCouple"
@@ -278,7 +278,7 @@ watch(
           </button>
 
           <button
-            class="app-ghost-button mt-3 w-full"
+            class="app-ghost-button mt-[12px] w-full"
             type="button"
             @click="handleSignOut"
           >

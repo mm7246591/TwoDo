@@ -135,19 +135,19 @@ const handleSignUp = async () => {
       aria-labelledby="register-title"
     >
       <aside
-        class="relative hidden items-center justify-center overflow-hidden bg-surface-container md:flex md:w-5/12"
+        class="relative hidden items-center justify-center overflow-hidden bg-surface-container md:flex md:w-[20px]/12"
       >
         <img
           alt=""
-          class="absolute inset-0 h-full w-full object-cover opacity-90 mix-blend-multiply"
+          class="absolute inset-[0px] h-full w-full object-cover opacity-90 mix-blend-multiply"
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuALTnPSXYxy1aZie594Up8-nErCHm9p8awEkjVzSuhtD9-y3fDo6E66P_Xa4aPPoxN8rN7dpRFFvxVL-lnV3iwx6jefbDlw18xmVR_rnEYIzgyUjBJ_jmFY5-wclA09MkiJIesKFewfqUbPkkY3mSsA0Ko0y0VbiCrWaCE9_w5Wm-VItPy5brlo7Au6I_xlSOBV8iNZ2fw2IoD4fkof9t1kzEBGkGuLn4uKATyhhVPn-d3LqWChePEqWYimXFrbsPHodCEslRPaKiw"
         />
         <div
-          class="absolute inset-0 bg-gradient-to-t from-surface-tint/40 to-transparent"
+          class="absolute inset-[0px] bg-gradient-to-t from-surface-tint/40 to-transparent"
         />
         <div class="relative z-10 flex flex-col items-center p-lg text-center">
           <div
-            class="mb-md flex h-16 w-16 items-center justify-center rounded-full bg-surface-container-lowest/80 shadow-lg backdrop-blur-md"
+            class="mb-md flex h-[64px] w-[64px] items-center justify-center rounded-full bg-surface-container-lowest/80 shadow-lg backdrop-blur-md"
           >
             <span
               class="material-symbols-outlined fill text-[32px] text-primary"
@@ -186,7 +186,7 @@ const handleSignUp = async () => {
         <header class="mb-lg">
           <h1
             id="register-title"
-            class="mb-xs mt-0 font-headline-xl text-headline-lg text-on-surface"
+            class="mb-xs mt-[0px] font-headline-xl text-headline-lg text-on-surface"
           >
             開始你們的旅程
           </h1>
@@ -208,7 +208,7 @@ const handleSignUp = async () => {
               >
               <input
                 v-model="displayName"
-                class="w-full rounded-lg border border-transparent bg-surface-container px-md py-sm font-body-md text-body-md text-on-surface outline-none ring-0 transition-[background-color,box-shadow] duration-200 placeholder:text-outline/60 focus:border-transparent focus:bg-surface-container-lowest focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-0 focus-visible:outline-none"
+                class="w-full rounded-lg border border-transparent bg-surface-container px-md py-sm font-body-md text-body-md text-on-surface outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-outline/60 focus:border-transparent focus:bg-surface-container-lowest focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-primary-container focus:ring-offset-[0px] focus-visible:outline-none"
                 :class="{
                   'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
                     shouldShowDisplayNameError,
@@ -224,7 +224,14 @@ const handleSignUp = async () => {
                 type="text"
                 @blur="hasDisplayNameBlurred = true"
               />
-              <Transition name="auth-field-error">
+              <Transition
+                enter-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                enter-from-class="max-h-[0px] -translate-y-[4px] opacity-0"
+                enter-to-class="max-h-[40px] translate-y-[0px] opacity-100"
+                leave-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                leave-from-class="max-h-[40px] translate-y-[0px] opacity-100"
+                leave-to-class="max-h-[0px] -translate-y-[4px] opacity-0"
+              >
                 <p
                   v-if="shouldShowDisplayNameError"
                   id="register-display-name-error"
@@ -242,7 +249,7 @@ const handleSignUp = async () => {
               >
               <input
                 v-model="email"
-                class="w-full rounded-lg border border-transparent bg-surface-container px-md py-sm font-body-md text-body-md text-on-surface outline-none ring-0 transition-[background-color,box-shadow] duration-200 placeholder:text-outline/60 focus:border-transparent focus:bg-surface-container-lowest focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-0 focus-visible:outline-none"
+                class="w-full rounded-lg border border-transparent bg-surface-container px-md py-sm font-body-md text-body-md text-on-surface outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-outline/60 focus:border-transparent focus:bg-surface-container-lowest focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-primary-container focus:ring-offset-[0px] focus-visible:outline-none"
                 :class="{
                   'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
                     shouldShowEmailError,
@@ -256,7 +263,14 @@ const handleSignUp = async () => {
                 type="email"
                 @blur="hasEmailBlurred = true"
               />
-              <Transition name="auth-field-error">
+              <Transition
+                enter-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                enter-from-class="max-h-[0px] -translate-y-[4px] opacity-0"
+                enter-to-class="max-h-[40px] translate-y-[0px] opacity-100"
+                leave-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                leave-from-class="max-h-[40px] translate-y-[0px] opacity-100"
+                leave-to-class="max-h-[0px] -translate-y-[4px] opacity-0"
+              >
                 <p
                   v-if="shouldShowEmailError"
                   id="register-email-error"
@@ -274,7 +288,7 @@ const handleSignUp = async () => {
               >
               <input
                 v-model="password"
-                class="w-full rounded-lg border border-transparent bg-surface-container px-md py-sm font-body-md text-body-md text-on-surface outline-none ring-0 transition-[background-color,box-shadow] duration-200 placeholder:text-outline/60 focus:border-transparent focus:bg-surface-container-lowest focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-0 focus-visible:outline-none"
+                class="w-full rounded-lg border border-transparent bg-surface-container px-md py-sm font-body-md text-body-md text-on-surface outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-outline/60 focus:border-transparent focus:bg-surface-container-lowest focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-primary-container focus:ring-offset-[0px] focus-visible:outline-none"
                 :class="{
                   'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
                     shouldShowPasswordError,
@@ -290,7 +304,14 @@ const handleSignUp = async () => {
                 type="password"
                 @blur="hasPasswordBlurred = true"
               />
-              <Transition name="auth-field-error">
+              <Transition
+                enter-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                enter-from-class="max-h-[0px] -translate-y-[4px] opacity-0"
+                enter-to-class="max-h-[40px] translate-y-[0px] opacity-100"
+                leave-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                leave-from-class="max-h-[40px] translate-y-[0px] opacity-100"
+                leave-to-class="max-h-[0px] -translate-y-[4px] opacity-0"
+              >
                 <p
                   v-if="shouldShowPasswordError"
                   id="register-password-error"
@@ -304,7 +325,7 @@ const handleSignUp = async () => {
 
           <div class="mt-md flex flex-col items-center gap-md">
             <button
-              class="mt-[8px] flex h-14 w-full items-center justify-center rounded-xl bg-[var(--auth-primary)] text-[14px] font-semibold leading-[20px] tracking-[0.01em] text-[var(--auth-on-primary)] shadow-[0_8px_24px_-6px_rgba(148,72,53,0.3)] transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              class="flex h-[56px] w-full items-center justify-center rounded-xl bg-[var(--auth-primary)] text-[14px] font-semibold leading-[20px] tracking-[0.01em] text-[var(--auth-on-primary)] shadow-[0_8px_24px_-6px_rgba(148,72,53,0.3)] transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
               type="submit"
               :disabled="isEmailSubmitting"
             >
@@ -331,29 +352,3 @@ const handleSignUp = async () => {
     </section>
   </main>
 </template>
-
-<style scoped>
-.auth-field-error-enter-active,
-.auth-field-error-leave-active {
-  max-height: 40px;
-  overflow: hidden;
-  transition:
-    max-height 180ms ease,
-    opacity 160ms ease,
-    transform 180ms ease;
-}
-
-.auth-field-error-enter-from,
-.auth-field-error-leave-to {
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-4px);
-}
-
-.auth-field-error-enter-to,
-.auth-field-error-leave-from {
-  max-height: 40px;
-  opacity: 1;
-  transform: translateY(0);
-}
-</style>

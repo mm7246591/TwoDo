@@ -46,9 +46,9 @@ const getRedeemHint = computed(() => {
 
 <template>
   <article class="app-card-muted p-[16px]">
-    <div class="flex items-start justify-between gap-3">
-      <div class="min-w-0 flex-1">
-        <div class="flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-start justify-between gap-[12px]">
+      <div class="min-w-[0px] flex-1">
+        <div class="flex flex-wrap items-center justify-between gap-[8px]">
           <p class="app-list-title">
             {{ reward.title }}
           </p>
@@ -57,7 +57,7 @@ const getRedeemHint = computed(() => {
       </div>
     </div>
 
-    <div class="app-meta-list mt-3">
+    <div class="app-meta-list mt-[12px]">
       <span
         :class="[
           'app-meta-pill',
@@ -70,15 +70,15 @@ const getRedeemHint = computed(() => {
 
     <div
       v-if="getCanManage || props.reward.createdBy !== props.currentUid"
-      class="mt-4 rounded-[1.15rem] border border-[var(--app-border)] bg-white/70 px-4 py-3"
+      class="mt-[16px] rounded-[1.15rem] border border-[var(--app-border)] bg-white/70 px-[16px] py-[12px]"
     >
       <div
         v-if="getCanManage"
-        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        class="flex flex-col gap-[12px] sm:flex-row sm:items-center sm:justify-between"
       >
-        <div class="min-w-0">
+        <div class="min-w-[0px]">
           <p class="app-inline-title">開放兌換</p>
-          <p class="app-card-caption mt-1">關閉後另一半暫時不能換。</p>
+          <p class="app-card-caption mt-[4px]">關閉後另一半暫時不能換。</p>
         </div>
 
         <div class="self-end shrink-0">
@@ -93,13 +93,13 @@ const getRedeemHint = computed(() => {
         </div>
       </div>
 
-      <div v-else class="flex flex-wrap items-center justify-between gap-3">
+      <div v-else class="flex flex-wrap items-center justify-between gap-[12px]">
         <p class="app-card-caption">
           {{ reward.isActive ? "現在可以換。" : "目前先不開放。" }}
         </p>
 
         <button
-          class="app-secondary-button px-4 py-3"
+          class="app-secondary-button px-[16px] py-[12px]"
           type="button"
           :disabled="isSubmitting || !getCanRedeem"
           @click="emit('redeem', reward)"

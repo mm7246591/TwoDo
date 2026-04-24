@@ -18,7 +18,7 @@ const shellStyle = computed(() => ({
   <main class="app-shell app-stage mobile-page-scroll mobile-safe-shell flex flex-col" :style="shellStyle">
     <div
       class="app-frame mx-auto flex w-full max-w-md min-h-full flex-col rounded-[2rem] sm:min-h-[780px] sm:rounded-[2.5rem]">
-      <div class="app-frame-gloss pointer-events-none absolute inset-x-0 top-0 h-28" />
+      <div class="app-frame-gloss pointer-events-none absolute inset-x-[0px] top-[0px] h-[112px]" />
       <slot />
       <AppBottomDock v-if="showDock" />
     </div>

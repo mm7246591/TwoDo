@@ -76,12 +76,12 @@ const getHasSwipeActions = computed(
 <template>
   <SwipeCell class="app-swipe-cell" :disabled="!getHasSwipeActions">
     <article class="app-card-muted app-card-section-sm">
-      <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0 flex-1">
+      <div class="flex items-start justify-between gap-[12px]">
+        <div class="min-w-[0px] flex-1">
           <p class="app-list-title">
             {{ task.title }}
           </p>
-          <p v-if="shouldShowDescription" class="app-list-body mt-2">
+          <p v-if="shouldShowDescription" class="app-list-body mt-[8px]">
             {{ getDescriptionText }}
           </p>
         </div>
@@ -89,7 +89,7 @@ const getHasSwipeActions = computed(
         <span class="app-number-pill shrink-0">{{ task.points }} 點</span>
       </div>
 
-      <p class="app-card-caption mt-3">{{ getTimelineText }}</p>
+      <p class="app-card-caption mt-[12px]">{{ getTimelineText }}</p>
     </article>
 
     <template #right>

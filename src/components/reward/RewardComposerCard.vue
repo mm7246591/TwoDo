@@ -61,7 +61,7 @@ const handleSubmit = () => {
         <span class="app-field-label">備註</span>
         <textarea
           v-model="form.description"
-          class="app-input min-h-[96px] resize-none py-4"
+          class="app-input min-h-[96px] resize-none py-[16px]"
           placeholder="補充內容或小約定"
         />
       </label>
@@ -80,7 +80,7 @@ const handleSubmit = () => {
 
         <label class="app-field-stack block">
           <span class="app-field-label">開放兌換</span>
-          <div class="app-input flex items-center justify-between gap-3">
+          <div class="app-input flex items-center justify-between gap-[12px]">
             <span :class="isRewardActive ? 'app-text-strong' : 'app-text-soft'">
               {{ isRewardActive ? "立即開放" : "先不開放" }}
             </span>
@@ -95,7 +95,7 @@ const handleSubmit = () => {
       </div>
 
       <button
-        class="app-primary-button mt-6 w-full"
+        class="app-primary-button mt-[24px] w-full"
         type="submit"
         :disabled="props.isSubmitting"
       >

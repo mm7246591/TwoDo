@@ -8,9 +8,9 @@ defineProps<{
 <template>
   <header class="app-page-header">
     <div class="app-page-header-row">
-      <div class="min-w-0">
+      <div class="min-w-[0px]">
         <div class="app-chip">首頁</div>
-        <h1 class="app-page-title mt-3 max-w-[11ch]">
+        <h1 class="app-page-title mt-[12px] max-w-[11ch]">
           嗨，{{ userName }}
         </h1>
       </div>

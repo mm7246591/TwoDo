@@ -28,36 +28,36 @@ const badgeClassMap: Record<HomeTaskItem["badgeTone"], string> = {
 
 <template>
   <section class="app-card app-card-section">
-    <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center justify-between gap-[12px]">
       <div>
         <p class="app-card-title">{{ title }}</p>
       </div>
 
       <div
-        class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--app-accent-soft)] text-[color:var(--app-accent-strong)]"
+        class="inline-flex h-[36px] w-[36px] items-center justify-center rounded-full bg-[var(--app-accent-soft)] text-[color:var(--app-accent-strong)]"
       >
         <DashboardIcon :name="icon" :size="18" />
       </div>
     </div>
 
-    <div class="app-card-list-compact mt-5">
+    <div class="app-card-list-compact mt-[20px]">
       <article
         v-for="item in items"
         :key="item.id"
-        class="flex flex-wrap items-start justify-between gap-3 rounded-[1.25rem] border border-[rgba(191,206,228,0.64)] bg-[rgba(249,251,255,0.92)] p-4"
+        class="flex flex-wrap items-start justify-between gap-[12px] rounded-[1.25rem] border border-[rgba(191,206,228,0.64)] bg-[rgba(249,251,255,0.92)] p-[16px]"
       >
-        <div class="min-w-0">
+        <div class="min-w-[0px]">
           <p class="app-list-title truncate">
             {{ item.title }}
           </p>
-          <p class="app-list-body mt-2">
+          <p class="app-list-body mt-[8px]">
             {{ item.description }}
           </p>
         </div>
 
         <div
           :class="[
-            'app-badge-text shrink-0 whitespace-nowrap rounded-full px-3 py-2',
+            'app-badge-text shrink-0 whitespace-nowrap rounded-full px-[12px] py-[8px]',
             badgeClassMap[item.badgeTone],
           ]"
         >
@@ -68,24 +68,24 @@ const badgeClassMap: Record<HomeTaskItem["badgeTone"], string> = {
       <AppEmptyState v-if="!items.length" />
     </div>
 
-    <div v-if="metrics?.length" class="mt-5 grid grid-cols-2 gap-3">
+    <div v-if="metrics?.length" class="mt-[20px] grid grid-cols-2 gap-[12px]">
       <article
         v-for="metric in metrics"
         :key="metric.label"
-        class="rounded-[1.4rem] border border-white/65 bg-white/70 p-4 backdrop-blur-[12px]"
+        class="rounded-[1.4rem] border border-white/65 bg-white/70 p-[16px] backdrop-blur-[12px]"
       >
         <p class="app-label">{{ metric.label }}</p>
-        <p class="app-card-title mt-2">{{ metric.value }}</p>
+        <p class="app-card-title mt-[8px]">{{ metric.value }}</p>
       </article>
     </div>
 
     <button
       v-if="action"
-      class="app-secondary-button mt-5 w-full"
+      class="app-secondary-button mt-[20px] w-full"
       type="button"
       @click="emit('navigate', action.routeName)"
     >
-      <span class="inline-flex items-center justify-center gap-2">
+      <span class="inline-flex items-center justify-center gap-[8px]">
         <DashboardIcon :name="action.icon" :size="18" />
         {{ action.label }}
       </span>

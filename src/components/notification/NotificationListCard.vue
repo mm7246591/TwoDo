@@ -39,9 +39,9 @@ const getReadStateLabel = computed(() =>
 
 <template>
   <article class="app-card-muted app-card-section-sm">
-    <div class="flex items-start gap-3">
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-2">
+    <div class="flex items-start gap-[12px]">
+      <div class="min-w-[0px]">
+        <div class="flex flex-wrap items-center gap-[8px]">
           <p class="app-list-title">
             {{ notification.title }}
           </p>
@@ -56,11 +56,11 @@ const getReadStateLabel = computed(() =>
           </span>
         </div>
 
-        <p class="app-list-body mt-2">
+        <p class="app-list-body mt-[8px]">
           {{ notification.message }}
         </p>
 
-        <p class="app-meta-caption mt-2">
+        <p class="app-meta-caption mt-[8px]">
           {{ formatDateTime(notification.createdAt) }}
         </p>
       </div>
@@ -68,10 +68,10 @@ const getReadStateLabel = computed(() =>
 
     <div
       v-if="!notification.isRead"
-      class="mt-4 flex flex-wrap gap-3"
+      class="mt-[16px] flex flex-wrap gap-[12px]"
     >
       <button
-        class="app-secondary-button px-4 py-3"
+        class="app-secondary-button px-[16px] py-[12px]"
         type="button"
         :disabled="isSubmitting"
         @click="emit('read', notification)"

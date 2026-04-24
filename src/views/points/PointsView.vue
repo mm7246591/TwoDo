@@ -74,9 +74,9 @@ watch(
   <MobileAppShell>
     <header class="app-page-header">
       <div class="app-page-header-row">
-        <div class="min-w-0">
+        <div class="min-w-[0px]">
           <div class="app-chip">點數</div>
-          <h1 class="app-page-title mt-3 max-w-[11ch]">點數紀錄</h1>
+          <h1 class="app-page-title mt-[12px] max-w-[11ch]">點數紀錄</h1>
         </div>
       </div>
 
@@ -86,8 +86,8 @@ watch(
     <section class="app-page-content app-section-stack flex-1">
       <section v-if="!canUsePoints" class="app-card app-card-section">
         <p class="app-label">目前狀態</p>
-        <p class="app-status-title mt-3">尚未開始累積點數</p>
-        <p class="app-card-caption mt-3">
+        <p class="app-status-title mt-[12px]">尚未開始累積點數</p>
+        <p class="app-card-caption mt-[12px]">
           確認另一半完成後會開始累積點數。
         </p>
       </section>
@@ -95,14 +95,14 @@ watch(
       <section v-else class="app-metric-grid">
         <article class="app-card app-card-section-sm">
           <p class="app-label">目前總分</p>
-          <p class="app-metric-value mt-2">
+          <p class="app-metric-value mt-[8px]">
             {{ currentPoints }}
           </p>
         </article>
 
         <article class="app-card-muted app-card-section-sm">
           <p class="app-label">累積獲得</p>
-          <p class="app-metric-value mt-2">
+          <p class="app-metric-value mt-[8px]">
             {{ pointsStore.getEarnedPoints }}
           </p>
         </article>
@@ -110,20 +110,20 @@ watch(
 
       <section class="app-card app-card-section">
         <div class="app-card-header-split">
-          <div class="min-w-0">
+          <div class="min-w-[0px]">
             <p class="app-card-title">最近變動</p>
           </div>
         </div>
 
-        <div class="app-card-list mt-5">
+        <div class="app-card-list mt-[20px]">
           <article
             v-for="pointLog in pointsStore.pointLogs"
             :key="pointLog.id"
             class="app-card-muted app-card-section-sm"
           >
-            <div class="flex items-start gap-3">
-              <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-2">
+            <div class="flex items-start gap-[12px]">
+              <div class="min-w-[0px]">
+                <div class="flex flex-wrap items-center gap-[8px]">
                   <p class="app-list-title">
                     {{ resolvePointLogTitle(pointLog) }}
                   </p>
@@ -131,10 +131,10 @@ watch(
                     {{ getPointPrefix(pointLog.points) }}{{ pointLog.points }}
                   </span>
                 </div>
-                <p class="app-list-body mt-2">
+                <p class="app-list-body mt-[8px]">
                   {{ resolvePointLogDescription(pointLog) }}
                 </p>
-                <p class="app-meta-caption mt-2">
+                <p class="app-meta-caption mt-[8px]">
                   {{ formatDateTime(pointLog.createdAt) }}
                 </p>
               </div>
