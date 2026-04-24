@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useAuthStore } from "@/pinia/auth";
+import { PASSWORD_MIN_LENGTH } from "@/services/authValidation";
 import { showSuccessMessage } from "@/services/uiFeedback";
 
 const authStore = useAuthStore();
@@ -29,7 +30,9 @@ const isEmailReady = computed(() => trimmedEmail.value !== "");
 const isEmailFormatValid = computed(() =>
   emailPattern.test(trimmedEmail.value),
 );
-const isPasswordReady = computed(() => trimmedPassword.value.length >= 8);
+const isPasswordReady = computed(
+  () => trimmedPassword.value.length >= PASSWORD_MIN_LENGTH,
+);
 const displayNameErrorMessage = computed(() => {
   if (!isDisplayNameReady.value) {
     return "請輸入暱稱";
@@ -54,7 +57,7 @@ const passwordErrorMessage = computed(() => {
   }
 
   if (!isPasswordReady.value) {
-    return "密碼至少需要 8 個字元";
+    return `密碼至少需要 ${PASSWORD_MIN_LENGTH} 個字元`;
   }
 
   return "";
@@ -300,7 +303,7 @@ const handleSignUp = async () => {
                 "
                 :aria-invalid="shouldShowPasswordError"
                 autocomplete="new-password"
-                placeholder="請輸入密碼（至少 8 字元）"
+                :placeholder="`請輸入密碼（至少 ${PASSWORD_MIN_LENGTH} 字元）`"
                 type="password"
                 @blur="hasPasswordBlurred = true"
               />

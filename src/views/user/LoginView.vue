@@ -30,7 +30,6 @@ const isEmailReady = computed(() => trimmedEmail.value !== "");
 const isEmailFormatValid = computed(() =>
   emailPattern.test(trimmedEmail.value),
 );
-const isPasswordReady = computed(() => trimmedPassword.value.length >= 6);
 const emailErrorMessage = computed(() => {
   if (!isEmailReady.value) {
     return "請輸入電子郵件";
@@ -45,10 +44,6 @@ const emailErrorMessage = computed(() => {
 const passwordErrorMessage = computed(() => {
   if (!trimmedPassword.value) {
     return "請輸入密碼";
-  }
-
-  if (!isPasswordReady.value) {
-    return "密碼至少需要 6 個字元";
   }
 
   return "";

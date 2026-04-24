@@ -15,6 +15,7 @@ import {
   firebaseAuth,
   googleProvider,
 } from '@/services/firebase/auth'
+import { PASSWORD_MIN_LENGTH } from '@/services/authValidation'
 import { useUserStore } from '@/pinia/user'
 import type {
   AuthErrorLike,
@@ -37,7 +38,7 @@ const AUTH_ERROR_MESSAGES: AuthErrorMessages = {
   'auth/too-many-requests': '操作太頻繁了，請稍後再試。',
   'auth/user-disabled': '這個帳號目前已被停用。',
   'auth/user-not-found': '找不到這個帳號，請先註冊。',
-  'auth/weak-password': '密碼強度不足，請至少輸入 6 個字元。',
+  'auth/weak-password': `密碼強度不足，請至少輸入 ${PASSWORD_MIN_LENGTH} 個字元。`,
   'auth/wrong-password': '密碼不正確，請重新輸入。',
 }
 
