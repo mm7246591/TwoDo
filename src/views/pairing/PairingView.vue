@@ -54,9 +54,9 @@ const handleJoinInvite = async () => {
   <MobileAppShell>
     <header class="app-page-header">
       <div class="app-page-header-row">
-        <div class="min-w-0">
+        <div class="min-w-[0px]">
           <div class="app-chip">配對</div>
-          <h1 class="app-page-title mt-3 max-w-[11ch]">
+          <h1 class="app-page-title mt-[12px] max-w-[11ch]">
             連接你們的小空間
           </h1>
         </div>
@@ -70,30 +70,30 @@ const handleJoinInvite = async () => {
     <section class="app-page-content app-section-stack flex-1">
       <section class="app-card app-card-section">
         <p class="app-label">目前狀態</p>
-        <p class="app-status-title mt-3">
+        <p class="app-status-title mt-[12px]">
           {{ getPairingStatus }}
         </p>
-        <p class="app-card-caption mt-3">
+        <p class="app-card-caption mt-[12px]">
           {{ userStore.profile?.coupleId ? '已加入兩人的小空間。' : '尚未加入兩人的小空間。' }}
         </p>
-        <p class="app-card-caption mt-2">
+        <p class="app-card-caption mt-[8px]">
           {{ userStore.profile?.partnerUid ? '已找到另一半，可以開始一起分擔。' : '輸入另一半的邀請碼後即可完成配對。' }}
         </p>
       </section>
 
       <section class="app-card-muted app-card-section">
         <p class="app-label">我的邀請碼</p>
-        <p class="app-code-display mt-3">
+        <p class="app-code-display mt-[12px]">
           {{ userStore.profile?.inviteCode || '--------' }}
         </p>
-        <p class="app-card-caption mt-3">
+        <p class="app-card-caption mt-[12px]">
           將這組碼傳給另一半。
         </p>
       </section>
 
       <section class="app-card app-card-section">
         <p class="app-label">輸入另一半邀請碼</p>
-        <label class="app-field-stack mt-4 block">
+        <label class="app-field-stack mt-[16px] block">
           <span class="app-field-label">邀請碼</span>
           <Field
             v-model="inviteCodeInput"
@@ -107,7 +107,7 @@ const handleJoinInvite = async () => {
         </label>
 
         <button
-          class="app-secondary-button mt-5 w-full"
+          class="app-secondary-button mt-[20px] w-full"
           type="button"
           :disabled="!getCanJoinInvite"
           @click="handleJoinInvite"

@@ -49,7 +49,7 @@ const router = createRouter({
     {
       path: '/pairing',
       name: 'pairing',
-      component: () => import('@/views/PairingView.vue'),
+      component: () => import('@/views/pairing/PairingView.vue'),
       meta: {
         requiresAuth: true,
       },
