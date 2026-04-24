@@ -10,7 +10,11 @@ import {
   type User,
 } from 'firebase/auth'
 import { defineStore } from 'pinia'
-import { firebaseAuth, googleProvider } from '@/services/firebase/auth'
+import {
+  createEmailVerificationActionSettings,
+  firebaseAuth,
+  googleProvider,
+} from '@/services/firebase/auth'
 import { useUserStore } from '@/pinia/user'
 import type {
   AuthErrorLike,
@@ -181,7 +185,7 @@ const useAuthStore = defineStore('auth', () => {
         await updateProfile(credential.user, { displayName: displayName.trim() })
       }
 
-      await sendEmailVerification(credential.user)
+      await sendEmailVerification(credential.user, createEmailVerificationActionSettings())
       await waitForAuthStateProcessing()
       authSession.value = mapAuthSession(credential.user)
     } catch (error) {
@@ -205,7 +209,7 @@ const useAuthStore = defineStore('auth', () => {
 
       if (shouldRequireEmailVerification(credential.user)) {
         try {
-          await sendEmailVerification(credential.user)
+          await sendEmailVerification(credential.user, createEmailVerificationActionSettings())
         } catch {
           // Firebase may throttle repeated verification emails; login is still blocked until verified.
         }
@@ -262,10 +266,11 @@ const useAuthStore = defineStore('auth', () => {
       authSession.value = mapAuthSession(user)
 
       if (!shouldRequireEmailVerification(user)) {
-        return
+        return 'already-verified' as const
       }
 
-      await sendEmailVerification(user)
+      await sendEmailVerification(user, createEmailVerificationActionSettings())
+      return 'sent' as const
     } catch (error) {
       state.value.errorMessage = normalizeAuthError(error)
       throw error

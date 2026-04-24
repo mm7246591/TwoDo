@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { RouterLink, useRouter } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useAuthStore } from "@/pinia/auth";
 import { useUserStore } from "@/pinia/user";
+import { resolvePostAuthRouteName } from "@/services/authNavigation";
 import { showSuccessMessage } from "@/services/uiFeedback";
-import { getUserProfile } from "@/services/userService";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
+const route = useRoute();
 const router = useRouter();
 
 useErrorToast(() => authStore.errorMessage);
@@ -69,6 +70,11 @@ onMounted(() => {
   hasEmailBlurred.value = false;
   hasPasswordBlurred.value = false;
   authStore.clearError();
+
+  if (route.query.verified === "1") {
+    showSuccessMessage("信箱已驗證，請登入繼續。");
+    void router.replace({ name: "login" });
+  }
 });
 
 onBeforeUnmount(() => {
@@ -78,27 +84,10 @@ onBeforeUnmount(() => {
   authStore.clearError();
 });
 
-const getPostAuthRouteName = async () => {
-  const uid = authStore.getUserUid;
-
-  if (!uid) {
-    return "pairing";
-  }
-
-  try {
-    const profile =
-      userStore.profile?.uid === uid
-        ? userStore.profile
-        : await getUserProfile(uid);
-
-    return profile?.partnerUid ? "home" : "pairing";
-  } catch {
-    return "pairing";
-  }
-};
-
 const goToPostAuthRoute = async () => {
-  await router.push({ name: await getPostAuthRouteName() });
+  await router.push({
+    name: await resolvePostAuthRouteName(authStore.getUserUid, userStore.profile),
+  });
 };
 
 const handleSignIn = async () => {
@@ -160,16 +149,16 @@ const handleForgotPasswordPreview = () => {
   <main
     class="relative flex min-h-[max(884px,100dvh)] items-center justify-center overflow-hidden bg-[var(--auth-background)] px-[20px] py-[40px] text-[var(--auth-on-background,var(--auth-on-surface))] antialiased md:p-[48px]"
   >
-    <div class="absolute inset-0 z-0">
+    <div class="absolute inset-[0px] z-0">
       <div
         class="h-full w-full bg-[image:var(--auth-login-bg-image)] bg-cover bg-center opacity-30"
         aria-hidden="true"
       />
       <div
-        class="absolute inset-0 bg-gradient-to-tr from-[rgb(255_248_246_/_0.9)] via-[rgb(255_248_246_/_0.7)] to-[rgb(255_241_236_/_0.8)] mix-blend-overlay"
+        class="absolute inset-[0px] bg-gradient-to-tr from-[rgb(255_248_246_/_0.9)] via-[rgb(255_248_246_/_0.7)] to-[rgb(255_241_236_/_0.8)] mix-blend-overlay"
       />
       <div
-        class="absolute inset-0 bg-[rgb(255_248_246_/_0.6)] backdrop-blur-[60px]"
+        class="absolute inset-[0px] bg-[rgb(255_248_246_/_0.6)] backdrop-blur-[60px]"
       />
     </div>
 
@@ -210,13 +199,13 @@ const handleForgotPasswordPreview = () => {
 
       <div class="flex flex-col gap-[24px]">
         <button
-          class="flex h-14 w-full items-center justify-center gap-[12px] rounded-xl border border-[var(--auth-outline-variant)] bg-[var(--auth-surface-container-lowest)] text-[var(--auth-on-surface)] transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          class="flex h-[56px] w-full items-center justify-center gap-[12px] rounded-xl border border-[var(--auth-outline-variant)] bg-[var(--auth-surface-container-lowest)] text-[var(--auth-on-surface)] transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
           :disabled="isAuthActionPending"
           @click="handleGoogleSignIn"
         >
           <svg
-            class="h-5 w-5"
+            class="h-[20px] w-[20px]"
             fill="none"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
@@ -264,7 +253,7 @@ const handleForgotPasswordPreview = () => {
           >
           <input
             v-model="email"
-            class="h-14 rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-0 transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-2 focus:ring-[var(--auth-primary-container)] focus:ring-offset-0 focus-visible:outline-none"
+            class="h-[56px] rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
             :class="{
               'border-[var(--auth-error)] focus:ring-[var(--auth-error)]': shouldShowEmailError,
             }"
@@ -275,7 +264,14 @@ const handleForgotPasswordPreview = () => {
             type="email"
             @blur="hasEmailBlurred = true"
           />
-          <Transition name="auth-field-error">
+          <Transition
+            enter-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+            enter-from-class="max-h-[0px] -translate-y-[4px] opacity-0"
+            enter-to-class="max-h-[40px] translate-y-[0px] opacity-100"
+            leave-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+            leave-from-class="max-h-[40px] translate-y-[0px] opacity-100"
+            leave-to-class="max-h-[0px] -translate-y-[4px] opacity-0"
+          >
             <p
               v-if="shouldShowEmailError"
               id="login-email-error"
@@ -293,7 +289,7 @@ const handleForgotPasswordPreview = () => {
           >
           <input
             v-model="password"
-            class="h-14 rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-0 transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-2 focus:ring-[var(--auth-primary-container)] focus:ring-offset-0 focus-visible:outline-none"
+            class="h-[56px] rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
             :class="{
               'border-[var(--auth-error)] focus:ring-[var(--auth-error)]': shouldShowPasswordError,
             }"
@@ -304,7 +300,14 @@ const handleForgotPasswordPreview = () => {
             type="password"
             @blur="hasPasswordBlurred = true"
           />
-          <Transition name="auth-field-error">
+          <Transition
+            enter-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+            enter-from-class="max-h-[0px] -translate-y-[4px] opacity-0"
+            enter-to-class="max-h-[40px] translate-y-[0px] opacity-100"
+            leave-active-class="overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+            leave-from-class="max-h-[40px] translate-y-[0px] opacity-100"
+            leave-to-class="max-h-[0px] -translate-y-[4px] opacity-0"
+          >
             <p
               v-if="shouldShowPasswordError"
               id="login-password-error"
@@ -314,7 +317,7 @@ const handleForgotPasswordPreview = () => {
             </p>
           </Transition>
           <button
-            class="flex min-h-0 items-center justify-end border-0 bg-transparent p-0 text-[12px] font-medium leading-[16px] text-[var(--auth-primary)] transition-colors"
+            class="flex min-h-[0px] items-center justify-end border-[0px] bg-transparent p-[0px] text-[12px] font-medium leading-[16px] text-[var(--auth-primary)] transition-colors"
             type="button"
             @click="handleForgotPasswordPreview"
           >
@@ -323,7 +326,7 @@ const handleForgotPasswordPreview = () => {
         </label>
 
         <button
-          class="mt-[8px] flex h-14 w-full items-center justify-center rounded-xl bg-[var(--auth-primary)] text-[14px] font-semibold leading-[20px] tracking-[0.01em] text-[var(--auth-on-primary)] shadow-[0_8px_24px_-6px_rgba(148,72,53,0.3)] transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          class="mt-[8px] flex h-[56px] w-full items-center justify-center rounded-xl bg-[var(--auth-primary)] text-[14px] font-semibold leading-[20px] tracking-[0.01em] text-[var(--auth-on-primary)] shadow-[0_8px_24px_-6px_rgba(148,72,53,0.3)] transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
           :disabled="isAuthActionPending"
         >
@@ -345,29 +348,3 @@ const handleForgotPasswordPreview = () => {
     </section>
   </main>
 </template>
-
-<style scoped>
-.auth-field-error-enter-active,
-.auth-field-error-leave-active {
-  max-height: 40px;
-  overflow: hidden;
-  transition:
-    max-height 180ms ease,
-    opacity 160ms ease,
-    transform 180ms ease;
-}
-
-.auth-field-error-enter-from,
-.auth-field-error-leave-to {
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-4px);
-}
-
-.auth-field-error-enter-to,
-.auth-field-error-leave-from {
-  max-height: 40px;
-  opacity: 1;
-  transform: translateY(0);
-}
-</style>

@@ -39,6 +39,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/email-action',
+      name: 'email-action',
+      component: () => import('@/views/user/EmailActionView.vue'),
+      meta: {
+        allowsUnverifiedEmail: true,
+      },
+    },
+    {
       path: '/pairing',
       name: 'pairing',
       component: () => import('@/views/PairingView.vue'),
