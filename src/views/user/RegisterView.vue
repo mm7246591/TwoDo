@@ -174,7 +174,7 @@ const handleSignUp = async () => {
           :to="{ name: 'login' }"
           aria-label="TwoDo 登入"
         >
-          <span class="material-symbols-outlined fill" aria-hidden="true"
+          <span class="material-symbols-outlined fill text-[24px]" aria-hidden="true"
             >favorite</span
           >
           <span

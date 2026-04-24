@@ -315,7 +315,7 @@ watch(
           </div>
 
           <button
-            class="app-secondary-button app-button-compact min-h-[44px] shrink-0 px-[12px] py-[8px]"
+            class="app-secondary-button app-button-compact min-h-[40px] shrink-0 px-[12px] py-[8px]"
             type="button"
             :disabled="
               !notificationsStore.getUnreadCount ||

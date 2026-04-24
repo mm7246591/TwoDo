@@ -255,7 +255,7 @@ a[href],
 input,
 select,
 textarea {
-  min-height: 44px;
+  min-height: 40px;
 }
 
 button,
@@ -275,7 +275,6 @@ textarea {
   font-family: 'Material Symbols Outlined Variable', 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
@@ -316,8 +315,8 @@ textarea {
 }
 
 .touch-target {
-  min-width: 44px;
-  min-height: 44px;
+  min-width: 40px;
+  min-height: 40px;
 }
 
 .app-page-header {
