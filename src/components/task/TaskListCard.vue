@@ -6,7 +6,7 @@ import {
   canConfirmTask,
   isCoupleTask,
 } from "@/services/taskWorkflow";
-import type { Task } from "@/views/tasks/types/interface";
+import type { Task } from "@/views/task/types/interface";
 
 const props = defineProps<{
   currentUid: string;
@@ -115,33 +115,18 @@ const getHasSwipeActions = computed(
 
     <template #right>
       <div class="app-swipe-actions">
-        <button
-          v-if="getCanComplete"
-          class="app-swipe-action app-swipe-action-primary"
-          type="button"
-          :disabled="props.isSubmitting"
-          @click="emit('complete', task)"
-        >
+        <button v-if="getCanComplete" class="app-swipe-action app-swipe-action-primary" type="button"
+          :disabled="props.isSubmitting" @click="emit('complete', task)">
           完成
         </button>
 
-        <button
-          v-if="getCanConfirm"
-          class="app-swipe-action app-swipe-action-primary"
-          type="button"
-          :disabled="props.isSubmitting"
-          @click="emit('confirm', task)"
-        >
+        <button v-if="getCanConfirm" class="app-swipe-action app-swipe-action-primary" type="button"
+          :disabled="props.isSubmitting" @click="emit('confirm', task)">
           確認完成
         </button>
 
-        <button
-          v-if="getCanCancel"
-          class="app-swipe-action app-swipe-action-danger"
-          type="button"
-          :disabled="props.isSubmitting"
-          @click="emit('cancel', task)"
-        >
+        <button v-if="getCanCancel" class="app-swipe-action app-swipe-action-danger" type="button"
+          :disabled="props.isSubmitting" @click="emit('cancel', task)">
           取消
         </button>
       </div>
