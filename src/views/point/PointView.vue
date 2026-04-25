@@ -2,10 +2,10 @@
 import { computed, watch } from "vue";
 import AppEmptyState from "@/components/common/AppEmptyState.vue";
 import { useErrorToast } from "@/composables/useErrorToast";
-import MobileAppShell from "@/components/MobileAppShell.vue";
+import MobileAppShell from "@/components/common/MobileAppShell.vue";
 import { usePointsStore } from "@/pinia/points";
 import { useUserStore } from "@/pinia/user";
-import type { PointLog } from "@/views/points/types/interface";
+import type { PointLog } from "@/views/point/types/interface";
 
 const userStore = useUserStore();
 const pointsStore = usePointsStore();
@@ -116,11 +116,8 @@ watch(
         </div>
 
         <div class="app-card-list mt-[20px]">
-          <article
-            v-for="pointLog in pointsStore.pointLogs"
-            :key="pointLog.id"
-            class="app-card-muted app-card-section-sm"
-          >
+          <article v-for="pointLog in pointsStore.pointLogs" :key="pointLog.id"
+            class="app-card-muted app-card-section-sm">
             <div class="flex items-start gap-[12px]">
               <div class="min-w-[0px]">
                 <div class="flex flex-wrap items-center gap-[8px]">
@@ -141,11 +138,7 @@ watch(
             </div>
           </article>
 
-          <AppEmptyState
-            v-if="!pointsStore.pointLogs.length"
-            title="還沒有點數變動"
-            description="完成待辦或兌換獎勵後會出現紀錄。"
-          />
+          <AppEmptyState v-if="!pointsStore.pointLogs.length" title="還沒有點數變動" description="完成待辦或兌換獎勵後會出現紀錄。" />
         </div>
       </section>
     </section>

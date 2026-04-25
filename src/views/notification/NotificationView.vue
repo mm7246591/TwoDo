@@ -2,7 +2,7 @@
 import { computed, ref, watch } from "vue";
 import AppEmptyState from "@/components/common/AppEmptyState.vue";
 import NotificationListCard from "@/components/notification/NotificationListCard.vue";
-import MobileAppShell from "@/components/MobileAppShell.vue";
+import MobileAppShell from "@/components/common/MobileAppShell.vue";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useNotificationsStore } from "@/pinia/notifications";
 import { useUserStore } from "@/pinia/user";
@@ -12,7 +12,7 @@ import {
   getPushNotificationStatus,
 } from "@/services/pushNotificationService";
 import { showSuccessMessage } from "@/services/uiFeedback";
-import type { NotificationItem } from "@/views/notifications/types/interface";
+import type { NotificationItem } from "@/views/notification/types/interface";
 
 const userStore = useUserStore();
 const notificationsStore = useNotificationsStore();
@@ -144,7 +144,7 @@ const handleDisablePush = async () => {
 const handleReadNotification = async (notification: NotificationItem) => {
   try {
     await notificationsStore.markOneAsRead(notification.id);
-  } catch {}
+  } catch { }
 };
 
 const handleReadAll = async () => {
@@ -229,10 +229,7 @@ watch(
         </article>
       </section>
 
-      <section
-        v-if="userStore.profile?.uid"
-        class="app-card app-card-section"
-      >
+      <section v-if="userStore.profile?.uid" class="app-card app-card-section">
         <div class="app-card-header-split">
           <div class="min-w-[0px]">
             <p class="app-label">推播狀態</p>
@@ -242,14 +239,12 @@ watch(
             </p>
           </div>
 
-          <span
-            :class="[
-              'app-meta-pill',
-              pushState.isCurrentDeviceEnabled
-                ? 'app-meta-pill-success'
-                : 'app-meta-pill-strong',
-            ]"
-          >
+          <span :class="[
+            'app-meta-pill',
+            pushState.isCurrentDeviceEnabled
+              ? 'app-meta-pill-success'
+              : 'app-meta-pill-strong',
+          ]">
             {{ pushState.isCurrentDeviceEnabled ? "本機已啟用" : "本機未啟用" }}
           </span>
         </div>
@@ -277,25 +272,13 @@ watch(
         </p>
 
         <div class="app-actions-row mt-[20px]">
-          <button
-            class="app-secondary-button px-[16px] py-[12px]"
-            type="button"
-            :disabled="
-              pushState.isSubmitting || pushState.isCurrentDeviceEnabled
-            "
-            @click="handleEnablePush"
-          >
+          <button class="app-secondary-button px-[16px] py-[12px]" type="button" :disabled="pushState.isSubmitting || pushState.isCurrentDeviceEnabled
+            " @click="handleEnablePush">
             {{ pushState.isSubmitting ? "處理中..." : "開啟推播" }}
           </button>
 
-          <button
-            class="app-ghost-button px-[16px] py-[12px]"
-            type="button"
-            :disabled="
-              pushState.isSubmitting || !pushState.isCurrentDeviceEnabled
-            "
-            @click="handleDisablePush"
-          >
+          <button class="app-ghost-button px-[16px] py-[12px]" type="button" :disabled="pushState.isSubmitting || !pushState.isCurrentDeviceEnabled
+            " @click="handleDisablePush">
             關閉推播
           </button>
         </div>
@@ -314,33 +297,20 @@ watch(
             </div>
           </div>
 
-          <button
-            class="app-secondary-button app-button-compact min-h-[40px] shrink-0 px-[12px] py-[8px]"
-            type="button"
-            :disabled="
-              !notificationsStore.getUnreadCount ||
+          <button class="app-secondary-button app-button-compact min-h-[40px] shrink-0 px-[12px] py-[8px]" type="button"
+            :disabled="!notificationsStore.getUnreadCount ||
               notificationsStore.isSubmitting
-            "
-            @click="handleReadAll"
-          >
+              " @click="handleReadAll">
             全部標為已讀
           </button>
         </div>
 
         <div class="app-card-list mt-[20px]">
-          <NotificationListCard
-            v-for="notification in notificationsStore.notifications"
-            :key="notification.id"
-            :is-submitting="notificationsStore.isSubmitting"
-            :notification="notification"
-            @read="handleReadNotification"
-          />
+          <NotificationListCard v-for="notification in notificationsStore.notifications" :key="notification.id"
+            :is-submitting="notificationsStore.isSubmitting" :notification="notification"
+            @read="handleReadNotification" />
 
-          <AppEmptyState
-            v-if="!notificationsStore.notifications.length"
-            title="目前沒有通知"
-            description="待辦與獎勵提醒會顯示在清單中。"
-          />
+          <AppEmptyState v-if="!notificationsStore.notifications.length" title="目前沒有通知" description="待辦與獎勵提醒會顯示在清單中。" />
         </div>
       </section>
     </section>

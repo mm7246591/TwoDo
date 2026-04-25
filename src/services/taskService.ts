@@ -13,7 +13,7 @@ import { firebaseFunctions } from '@/services/firebase/app'
 import { tasksCollection } from '@/services/firebase/firestore'
 import type { CreateTaskPayload, FirestoreTask } from '@/services/firebase/types/firestore-task.interface'
 import { canCompleteTask, canConfirmTask } from '@/services/taskWorkflow'
-import type { Task } from '@/views/tasks/types/interface'
+import type { Task } from '@/views/task/types/interface'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : null
 

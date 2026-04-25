@@ -12,7 +12,7 @@ import {
 import type {
   Redemption,
   Reward,
-} from '@/views/rewards/types/interface'
+} from '@/views/reward/types/interface'
 
 const normalizeErrorMessage = (error: unknown) => {
   if (error instanceof Error) {

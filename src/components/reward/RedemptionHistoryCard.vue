@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Redemption } from "@/views/rewards/types/interface";
+import type { Redemption } from "@/views/reward/types/interface";
 
 const props = defineProps<{
   currentUid: string;

@@ -24,7 +24,7 @@ import type {
 import type {
   Redemption,
   Reward,
-} from '@/views/rewards/types/interface'
+} from '@/views/reward/types/interface'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : null
 

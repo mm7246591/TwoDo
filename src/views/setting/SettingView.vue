@@ -2,7 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { Field } from "vant";
-import MobileAppShell from "@/components/MobileAppShell.vue";
+import MobileAppShell from "@/components/common/MobileAppShell.vue";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useAuthStore } from "@/pinia/auth";
 import { useCoupleStore } from "@/pinia/couple";
@@ -89,7 +89,7 @@ const handleUnpairCouple = async () => {
   try {
     await coupleStore.unpairCurrentCouple();
     showSuccessMessage("已解除配對");
-  } catch {}
+  } catch { }
 };
 
 const handleSignOut = async () => {
@@ -97,7 +97,7 @@ const handleSignOut = async () => {
     await authStore.signOutUser();
     showSuccessMessage("已登出帳號");
     await router.push({ name: "login" });
-  } catch {}
+  } catch { }
 };
 
 watch(
@@ -172,15 +172,8 @@ watch(
           <div class="mt-[20px]">
             <label class="app-field-stack block">
               <span class="app-field-label">暱稱</span>
-              <Field
-                v-model="displayNameInput"
-                class="app-vant-field"
-                type="text"
-                clearable
-                :border="false"
-                maxlength="40"
-                placeholder="輸入新的暱稱"
-              />
+              <Field v-model="displayNameInput" class="app-vant-field" type="text" clearable :border="false"
+                maxlength="40" placeholder="輸入新的暱稱" />
             </label>
           </div>
 
@@ -207,12 +200,8 @@ watch(
             </div>
           </dl>
 
-          <button
-            class="app-secondary-button mt-[20px] w-full"
-            type="button"
-            :disabled="!getCanSaveDisplayName"
-            @click="handleSaveDisplayName"
-          >
+          <button class="app-secondary-button mt-[20px] w-full" type="button" :disabled="!getCanSaveDisplayName"
+            @click="handleSaveDisplayName">
             {{
               userStore.isUpdatingProfile || profileState.isSubmitting
                 ? "儲存中..."
@@ -240,11 +229,7 @@ watch(
             </div>
           </dl>
 
-          <button
-            class="app-ghost-button mt-[20px] w-full"
-            type="button"
-            @click="goToNotifications"
-          >
+          <button class="app-ghost-button mt-[20px] w-full" type="button" @click="goToNotifications">
             前往通知中心
           </button>
         </section>
@@ -268,20 +253,12 @@ watch(
             </div>
           </dl>
 
-          <button
-            class="app-secondary-button mt-[20px] w-full"
-            type="button"
-            :disabled="!getHasPairedPartner || coupleStore.isSubmitting"
-            @click="handleUnpairCouple"
-          >
+          <button class="app-secondary-button mt-[20px] w-full" type="button"
+            :disabled="!getHasPairedPartner || coupleStore.isSubmitting" @click="handleUnpairCouple">
             {{ coupleStore.isSubmitting ? "解除配對中..." : "解除配對" }}
           </button>
 
-          <button
-            class="app-ghost-button mt-[12px] w-full"
-            type="button"
-            @click="handleSignOut"
-          >
+          <button class="app-ghost-button mt-[12px] w-full" type="button" @click="handleSignOut">
             {{ authStore.isSubmitting ? "登出中..." : "登出帳號" }}
           </button>
         </section>
@@ -308,7 +285,7 @@ watch(
   padding: var(--app-space-12) var(--app-space-16);
 }
 
-.settings-info-row + .settings-info-row {
+.settings-info-row+.settings-info-row {
   border-top: 1px solid rgba(191, 206, 228, 0.52);
 }
 

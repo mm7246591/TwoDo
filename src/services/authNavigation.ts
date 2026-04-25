@@ -1,5 +1,5 @@
 import { getUserProfile } from '@/services/userService'
-import type { UserProfile } from '@/views/settings/types/interface'
+import type { UserProfile } from '@/views/setting/types/interface'
 
 type PostAuthRouteName = 'home' | 'pairing'
 

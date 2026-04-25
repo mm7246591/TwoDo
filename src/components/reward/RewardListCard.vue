@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Switch } from "vant";
-import type { Reward } from "@/views/rewards/types/interface";
+import type { Reward } from "@/views/reward/types/interface";
 
 const emit = defineEmits<{
   redeem: [reward: Reward];

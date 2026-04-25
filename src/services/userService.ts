@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore'
 import { userDoc } from '@/services/firebase/firestore'
 import type { FirestoreUserProfile } from '@/services/firebase/types/firestore-user-profile.interface'
-import type { UserProfile } from '@/views/settings/types/interface'
+import type { UserProfile } from '@/views/setting/types/interface'
 import type { Timestamp } from 'firebase/firestore'
 import { generateInviteCode } from '@/utils/inviteCode'
 

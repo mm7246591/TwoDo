@@ -1,5 +1,5 @@
 import type { Timestamp } from 'firebase/firestore'
-import type { PointLogType } from '@/views/points/types/interface'
+import type { PointLogType } from '@/views/point/types/interface'
 
 interface FirestorePointLog {
   coupleId: string

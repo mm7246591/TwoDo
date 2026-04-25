@@ -1,5 +1,5 @@
 import type { Timestamp } from 'firebase/firestore'
-import type { RedemptionStatus } from '@/views/rewards/types/interface'
+import type { RedemptionStatus } from '@/views/reward/types/interface'
 
 interface FirestoreRedemption {
   coupleId: string

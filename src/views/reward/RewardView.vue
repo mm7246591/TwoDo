@@ -5,12 +5,12 @@ import { useErrorToast } from "@/composables/useErrorToast";
 import RewardComposerCard from "@/components/reward/RewardComposerCard.vue";
 import RedemptionHistoryCard from "@/components/reward/RedemptionHistoryCard.vue";
 import RewardListCard from "@/components/reward/RewardListCard.vue";
-import MobileAppShell from "@/components/MobileAppShell.vue";
+import MobileAppShell from "@/components/common/MobileAppShell.vue";
 import { useRewardsStore } from "@/pinia/rewards";
 import { useUserStore } from "@/pinia/user";
 import { showSuccessMessage } from "@/services/uiFeedback";
 import type { CreateRewardInput } from "@/pinia/rewards/types/interface";
-import type { Reward } from "@/views/rewards/types/interface";
+import type { Reward } from "@/views/reward/types/interface";
 
 const userStore = useUserStore();
 const rewardsStore = useRewardsStore();
@@ -24,7 +24,7 @@ const currentUid = computed(() => userStore.profile?.uid ?? "");
 const currentPoints = computed(() => userStore.profile?.points ?? 0);
 const myCreatedRewards = computed(() =>
   rewardsStore.rewards.filter(
-    (reward) => reward.createdBy === currentUid.value,
+    (reward: Reward) => reward.createdBy === currentUid.value,
   ),
 );
 const myRedeemedRewards = computed(() =>
@@ -139,11 +139,7 @@ watch(
         </p>
       </section>
 
-      <RewardComposerCard
-        v-else
-        :is-submitting="rewardsStore.isSubmitting"
-        @submit="handleCreateReward"
-      />
+      <RewardComposerCard v-else :is-submitting="rewardsStore.isSubmitting" @submit="handleCreateReward" />
 
       <section class="app-section-grid grid-cols-2 sm:grid-cols-3">
         <article class="app-card app-card-section-sm">
@@ -176,16 +172,9 @@ watch(
         </div>
 
         <div class="app-card-list mt-[20px]">
-          <RewardListCard
-            v-for="reward in rewardsStore.rewards"
-            :key="reward.id"
-            :current-points="currentPoints"
-            :current-uid="currentUid"
-            :is-submitting="rewardsStore.isSubmitting"
-            :reward="reward"
-            @redeem="handleRedeemReward"
-            @toggle-availability="handleToggleRewardAvailability"
-          />
+          <RewardListCard v-for="reward in rewardsStore.rewards" :key="reward.id" :current-points="currentPoints"
+            :current-uid="currentUid" :is-submitting="rewardsStore.isSubmitting" :reward="reward"
+            @redeem="handleRedeemReward" @toggle-availability="handleToggleRewardAvailability" />
 
           <AppEmptyState v-if="!rewardsStore.rewards.length" />
         </div>
@@ -203,18 +192,10 @@ watch(
         </div>
 
         <div class="app-card-list mt-[20px]">
-          <RedemptionHistoryCard
-            v-for="redemption in rewardsStore.getRecentRedemptions"
-            :key="redemption.id"
-            :current-uid="currentUid"
-            :redemption="redemption"
-          />
+          <RedemptionHistoryCard v-for="redemption in rewardsStore.getRecentRedemptions" :key="redemption.id"
+            :current-uid="currentUid" :redemption="redemption" />
 
-          <AppEmptyState
-            v-if="!rewardsStore.redemptions.length"
-            title="還沒有兌換紀錄"
-            description="換過的獎勵會保留紀錄。"
-          />
+          <AppEmptyState v-if="!rewardsStore.redemptions.length" title="還沒有兌換紀錄" description="換過的獎勵會保留紀錄。" />
         </div>
       </section>
     </section>

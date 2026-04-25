@@ -9,7 +9,7 @@ import {
   createTask,
   subscribeToTasks,
 } from '@/services/taskService'
-import type { Task } from '@/views/tasks/types/interface'
+import type { Task } from '@/views/task/types/interface'
 
 const normalizeErrorMessage = (error: unknown) => {
   if (error instanceof Error) {

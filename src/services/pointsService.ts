@@ -14,7 +14,7 @@ import {
 import type { FirestorePointLog } from '@/services/firebase/types/firestore-point-log.interface'
 import type { FirestoreReward } from '@/services/firebase/types/firestore-reward.interface'
 import type { FirestoreTask } from '@/services/firebase/types/firestore-task.interface'
-import type { PointLog } from '@/views/points/types/interface'
+import type { PointLog } from '@/views/point/types/interface'
 
 const toDate = (value?: Timestamp | null) => value ? value.toDate() : new Date()
 

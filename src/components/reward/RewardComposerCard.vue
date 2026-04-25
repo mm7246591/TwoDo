@@ -2,7 +2,7 @@
 import { computed, ref } from "vue";
 import { Switch } from "vant";
 import type { CreateRewardInput } from "@/pinia/rewards/types/interface";
-import type { RewardComposerForm } from "@/views/rewards/types/interface";
+import type { RewardComposerForm } from "@/views/reward/types/interface";
 
 const emit = defineEmits<{
   submit: [payload: Omit<CreateRewardInput, "coupleId" | "createdBy">];

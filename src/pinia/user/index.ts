@@ -14,7 +14,7 @@ import {
   updateUserDisplayName,
 } from '@/services/userService'
 import type { UserStoreState } from '@/pinia/user/types/interface'
-import type { UserProfile } from '@/views/settings/types/interface'
+import type { UserProfile } from '@/views/setting/types/interface'
 
 const normalizeErrorMessage = (error: unknown) => {
   if (error instanceof Error) {

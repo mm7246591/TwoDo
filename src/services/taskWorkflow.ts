@@ -1,4 +1,4 @@
-import type { Task } from '@/views/tasks/types/interface'
+import type { Task } from '@/views/task/types/interface'
 
 const getTaskParticipantUids = (task: Task) => {
   if (task.assignmentType === 'couple') {

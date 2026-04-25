@@ -1,5 +1,5 @@
 import type { Timestamp } from 'firebase/firestore'
-import type { TaskAssignmentType, TaskStatus } from '@/views/tasks/types/interface'
+import type { TaskAssignmentType, TaskStatus } from '@/views/task/types/interface'
 
 interface FirestoreTask {
   assignedTo?: string | null

@@ -1,4 +1,4 @@
-import type { TaskAssignmentType } from '@/views/tasks/types/interface'
+import type { TaskAssignmentType } from '@/views/task/types/interface'
 
 interface CreateTaskInput {
   assignedTo: string | null

@@ -1,4 +1,4 @@
-import { computed, ref, watch } from "vue";
+﻿import { computed, ref, watch } from "vue";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useTasksStore } from "@/pinia/tasks";
 import { useUserStore } from "@/pinia/user";
@@ -10,7 +10,7 @@ import {
 import { getUserProfile } from "@/services/userService";
 import { showSuccessMessage } from "@/services/uiFeedback";
 import type { CreateTaskInput } from "@/pinia/tasks/types/interface";
-import type { Task } from "@/views/tasks/types/interface";
+import type { Task } from "@/views/task/types/interface";
 
 const useTasksDashboard = () => {
   const userStore = useUserStore();
@@ -171,3 +171,4 @@ const useTasksDashboard = () => {
 };
 
 export { useTasksDashboard };
+

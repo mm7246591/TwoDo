@@ -3,7 +3,7 @@ import { computed, ref, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import { subscribeToPointLogs } from '@/services/pointsService'
 import type { PointsStoreState } from '@/pinia/points/types/interface'
-import type { PointLog } from '@/views/points/types/interface'
+import type { PointLog } from '@/views/point/types/interface'
 
 const normalizeErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
