@@ -13,7 +13,7 @@ import {
   isWaitingForOtherParticipant,
 } from "@/services/taskWorkflow";
 import { showSuccessMessage } from "@/services/uiFeedback";
-import type { Task } from "@/views/tasks/types/interface";
+import type { Task } from "@/views/task/types/interface";
 import type {
   HomeDashboardRouteName,
   HomePanelAction,

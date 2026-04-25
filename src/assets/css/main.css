@@ -414,9 +414,6 @@ textarea {
   overflow: hidden;
   flex-shrink: 0;
   min-height: 100%;
-  border: 1px solid var(--app-frame-border);
-  background: var(--app-frame-bg);
-  box-shadow: var(--app-shadow-soft);
 }
 
 .app-frame-gloss {

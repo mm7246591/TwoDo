@@ -165,7 +165,7 @@ const handleRemind = (taskId: string) => {
 
       <div
         v-if="!items.length && emptyVariant === 'focus'"
-        class="flex flex-col items-center rounded-[24px] bg-[var(--app-surface-strong)] p-[32px] text-center shadow-[0_8px_30px_rgba(148,72,53,0.05)]"
+        class="flex flex-col items-center rounded-[24px] border-[2px] border-dashed border-[rgba(218,193,187,0.72)] bg-[var(--app-surface-strong)] p-[32px] text-center shadow-[0_8px_30px_rgba(148,72,53,0.05)]"
       >
         <div class="mt-[24px] grid gap-[8px]">
           <p
