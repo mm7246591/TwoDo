@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { NotificationItem } from "@/views/notifications/types/interface";
+import type { NotificationItem } from "@/views/notification/types/interface";
 
 const emit = defineEmits<{
   read: [notification: NotificationItem];
@@ -46,12 +46,10 @@ const getReadStateLabel = computed(() =>
             {{ notification.title }}
           </p>
           <span class="app-meta-pill">{{ getTypeLabel }}</span>
-          <span
-            :class="[
-              'app-meta-pill',
-              notification.isRead ? 'app-meta-pill-strong' : 'app-meta-pill-danger',
-            ]"
-          >
+          <span :class="[
+            'app-meta-pill',
+            notification.isRead ? 'app-meta-pill-strong' : 'app-meta-pill-danger',
+          ]">
             {{ getReadStateLabel }}
           </span>
         </div>
@@ -66,16 +64,9 @@ const getReadStateLabel = computed(() =>
       </div>
     </div>
 
-    <div
-      v-if="!notification.isRead"
-      class="mt-[16px] flex flex-wrap gap-[12px]"
-    >
-      <button
-        class="app-secondary-button px-[16px] py-[12px]"
-        type="button"
-        :disabled="isSubmitting"
-        @click="emit('read', notification)"
-      >
+    <div v-if="!notification.isRead" class="mt-[16px] flex flex-wrap gap-[12px]">
+      <button class="app-secondary-button px-[16px] py-[12px]" type="button" :disabled="isSubmitting"
+        @click="emit('read', notification)">
         標記已讀
       </button>
     </div>
