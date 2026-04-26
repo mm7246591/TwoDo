@@ -101,6 +101,7 @@ const router = createRouter({
       name: "setting",
       component: () => import("@/views/setting/SettingView.vue"),
       meta: {
+        hideAppChrome: true,
         requiresAuth: true,
       },
     },

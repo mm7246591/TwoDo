@@ -24,6 +24,14 @@ const handleNotifications = async () => {
   await router.push({ name: "notification" });
 };
 
+const handleSettings = async () => {
+  if (route.name === "setting") {
+    return;
+  }
+
+  await router.push({ name: "setting" });
+};
+
 watch(
   () => ({
     coupleId: userStore.profile?.coupleId ?? "",
@@ -45,12 +53,12 @@ watch(
   <header
     class="sticky top-[0px] z-[30] flex items-center justify-between gap-[16px] border-b border-[rgba(255,255,255,0.68)] bg-[rgba(255,253,251,0.82)] px-[20px] py-[12px] shadow-[0_14px_34px_rgba(148,72,53,0.08)] backdrop-blur-[18px] sm:px-[28px]">
     <div class="inline-flex min-w-[0px] items-center gap-[12px]">
-      <span
-        class="inline-flex h-[40px] w-[40px] flex-none items-center justify-center overflow-hidden rounded-full bg-[var(--app-coral)] text-[15px] font-[800] text-white"
-        aria-hidden="true">
+      <button
+        class="inline-flex h-[40px] min-h-[40px] w-[40px] min-w-[40px] flex-none items-center justify-center overflow-hidden rounded-full border-[0px] bg-[var(--app-coral)] p-[0px] text-[15px] font-[800] text-white transition-transform duration-[180ms] hover:scale-[1.04] active:scale-[0.96] focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--app-input-focus-ring)]"
+        type="button" aria-label="開啟設定" @click="handleSettings">
         <img v-if="photoUrl" class="h-full w-full object-cover" :src="photoUrl" :alt="`${userName} avatar`" />
         <span v-else>{{ getInitial(userName) }}</span>
-      </span>
+      </button>
     </div>
 
     <button
