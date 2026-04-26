@@ -9,6 +9,35 @@ import type { Task } from "@/views/task/types/interface";
 
 type TaskTab = "active" | "confirm" | "done";
 
+const getStartOfWeek = (date: Date) => {
+  const start = new Date(date);
+  const day = start.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+
+  start.setDate(start.getDate() + diffToMonday);
+  start.setHours(0, 0, 0, 0);
+
+  return start;
+};
+
+const getEndOfWeek = (date: Date) => {
+  const end = getStartOfWeek(date);
+
+  end.setDate(end.getDate() + 7);
+
+  return end;
+};
+
+const getTaskWeekDate = (task: Task) => task.dueDate ?? task.createdAt;
+
+const getIsThisWeekTask = (task: Task) => {
+  const taskDate = getTaskWeekDate(task);
+  const startOfWeek = getStartOfWeek(new Date());
+  const endOfWeek = getEndOfWeek(new Date());
+
+  return taskDate >= startOfWeek && taskDate < endOfWeek;
+};
+
 const {
   assigneeLabel,
   cancelledTasks,
@@ -66,14 +95,26 @@ const taskTabs = computed(() => [
   },
 ]);
 
-const finishedCount = computed(() => confirmedTasks.value.length);
-const totalTrackedCount = computed(
-  () =>
-    activeTasks.value.length +
-    waitingConfirmTasks.value.length +
-    confirmedTasks.value.length +
-    cancelledTasks.value.length,
+const weeklyTrackedTasks = computed(() => {
+  const taskMap = new Map<string, Task>();
+
+  [
+    ...activeTasks.value,
+    ...waitingConfirmTasks.value,
+    ...confirmedTasks.value,
+    ...cancelledTasks.value,
+  ].forEach((task) => {
+    if (getIsThisWeekTask(task)) {
+      taskMap.set(task.id, task);
+    }
+  });
+
+  return [...taskMap.values()];
+});
+const finishedCount = computed(
+  () => weeklyTrackedTasks.value.filter((task) => task.status === "confirmed").length,
 );
+const totalTrackedCount = computed(() => weeklyTrackedTasks.value.length);
 const progressPercent = computed(() => {
   if (!totalTrackedCount.value) {
     return 0;
