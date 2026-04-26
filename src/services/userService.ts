@@ -132,6 +132,13 @@ const updateUserDisplayName = async (uid: string, displayName: string) => {
   })
 }
 
+const updateUserPhotoURL = async (uid: string, photoURL: string) => {
+  await updateDoc(userDoc(uid), {
+    photoURL,
+    updatedAt: serverTimestamp(),
+  })
+}
+
 const markPairingOnboardingSeen = async (uid: string) => {
   await updateDoc(userDoc(uid), {
     hasSeenPairingOnboarding: true,
@@ -173,4 +180,5 @@ export {
   removeUserFcmToken,
   subscribeToUserProfile,
   updateUserDisplayName,
+  updateUserPhotoURL,
 }

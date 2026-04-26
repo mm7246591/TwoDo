@@ -7,11 +7,13 @@ import { useNotificationsStore } from '@/pinia/notifications'
 import { usePointsStore } from '@/pinia/points'
 import { useRewardsStore } from '@/pinia/rewards'
 import { useTasksStore } from '@/pinia/tasks'
+import { uploadUserAvatar } from '@/services/avatarService'
 import {
   ensureUserProfile,
   markPairingOnboardingSeen,
   subscribeToUserProfile,
   updateUserDisplayName,
+  updateUserPhotoURL,
 } from '@/services/userService'
 import type { UserStoreState } from '@/pinia/user/types/interface'
 import type { UserProfile } from '@/views/setting/types/interface'
@@ -115,6 +117,25 @@ const useUserStore = defineStore('user', () => {
     }
   }
 
+  const saveProfilePhoto = async (file: File) => {
+    if (!profile.value) {
+      throw new Error('目前沒有可更新的使用者資料。')
+    }
+
+    state.value.isUpdatingProfile = true
+    clearError()
+
+    try {
+      const photoURL = await uploadUserAvatar(profile.value.uid, file)
+      await updateUserPhotoURL(profile.value.uid, photoURL)
+    } catch (error) {
+      state.value.errorMessage = normalizeErrorMessage(error)
+      throw error
+    } finally {
+      state.value.isUpdatingProfile = false
+    }
+  }
+
   const markPairingOnboardingAsSeen = async () => {
     if (!profile.value || profile.value.hasSeenPairingOnboarding) {
       return
@@ -150,6 +171,7 @@ const useUserStore = defineStore('user', () => {
     profile,
     reset,
     saveDisplayName,
+    saveProfilePhoto,
     syncProfileForSession,
   }
 })

@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getFunctions } from 'firebase/functions'
 import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
 const getRequiredEnv = (name: keyof ImportMetaEnv) => {
   const value = import.meta.env[name]
@@ -34,6 +35,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig)
 const db = getFirestore(firebaseApp)
 const firebaseFunctions = getFunctions(firebaseApp)
+const firebaseStorage = getStorage(firebaseApp)
 const firebaseWebPushVapidKey = getOptionalEnv('VITE_FIREBASE_VAPID_KEY')
 
-export { db, firebaseApp, firebaseConfig, firebaseFunctions, firebaseWebPushVapidKey }
+export { db, firebaseApp, firebaseConfig, firebaseFunctions, firebaseStorage, firebaseWebPushVapidKey }
