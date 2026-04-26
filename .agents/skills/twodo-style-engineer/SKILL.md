@@ -1,64 +1,89 @@
 ---
 name: twodo-style-engineer
-description: 資深 CSS、SCSS 與 Tailwind 實作指引，專用於 TwoDo 這個 Vue 專案。當 Codex 需要在此 repository 中調整或重構畫面、元件、表單、驗證流程或行動版版面；管理主題色與設計 token；減少重複的 utility class；判斷該使用 CSS、SCSS 或 Tailwind；或需要把樣式變更侷限在此專案範圍而不是擴散到全域檔案時使用。當需求提到 CSS、SCSS、Tailwind、主題色、token、漸層、元件樣式、響應式優化，或強調不要使用全域樣式時觸發。
+description: 資深 CSS、SCSS 與 Tailwind 實作指引，專用於 TwoDo 這個 Vue 專案。當 Codex 需要調整或重構畫面、元件、表單、驗證流程、行動版版面、主題色、SCSS token、Tailwind utility、全域樣式邊界，或需要把樣式從 CSS/SCSS 移到 Vue template 時使用。特別適用於「不要寫全域樣式」、「把 Tailwind 寫在 template」、「spacing/size 要寫實際 px」、「整理顏色變數」、「檢查重複 Tailwind class」等請求。
 ---
 
 # TwoDo 樣式工程師
 
-## 概述
+## 目前架構
 
-- 以這個 repository 的資深 CSS、SCSS 與 Tailwind 工程師身分工作。
-- 讓樣式變更盡可能維持在局部範圍。預設先考慮頁面、元件或功能區域，再決定是否動到共享或全域樣式。
-- 保留目前 TwoDo 的設計方向：mobile-first、平靜的表面層次、柔和景深、單一明確 accent，以及已經被證明可重用的 `app-*` 基礎樣式。
+- 全域樣式集中在 `src/assets/scss/`。
+- `src/assets/scss/main.scss` 只放 app-wide reset、文件基礎行為，以及真正共用的 primitive。
+- `src/assets/scss/tailwind.scss` 負責 Tailwind layer imports/directives。
+- `src/assets/scss/_color-variables.scss` 負責命名顏色 CSS variables 與主題色對應。
+- `src/assets/scss/_theme-tokens.scss` 只能放真的需要全域共享的語意 token，不能再變成 spacing/font-size primitive 的集中檔。
+- 元件自己的 layout 與視覺樣式，預設直接寫在 Vue template 的 Tailwind class。
+- 除非框架整合需要，不要再往 `tailwind.config.js` 加專案一次性樣式值；優先用 CSS variables 搭配 arbitrary utilities。
 
-## 先決定作用範圍
+## 預設流程
 
-1. 編輯前先檢查目標 Vue 檔、附近的共享元件，以及 `src/assets/css/mobile-base.css`。
-2. 選擇最小且有效的樣式作用範圍：
-   - 版面、間距、flex/grid、尺寸與簡單狀態樣式優先使用 Tailwind utilities。
-   - 單一畫面或單一元件的視覺規則，優先放在 Vue SFC 的 `<style scoped>` 或 `<style scoped lang="scss">`。
-   - 只有當同一種樣式模式已經被重用，或明顯正要成為專案基礎樣式時，才新增或擴充 `src/assets/css/mobile-base.css` 的共享 class。
-   - 只有當 token 穩定、值得跨多個檔案重用時，才擴充 `tailwind.config.js`。
-3. 拒絕不必要的全域擴張。除非使用者明確要求跨整個 app 的樣式變更，否則不要新增全域 reset、tag selector 或大範圍覆寫。
+1. 修改前先讀相關 Vue SFC 與 SCSS 檔案。
+2. 先判斷樣式是全域還是局部：
+   - 全域：reset、body/root 行為、主題變數、共享 CSS variables，或跨無關畫面都會用到的小型 primitive。
+   - 局部：頁面版面、卡片組合、間距、尺寸、字級、按鈕、欄位、狀態，以及單一元件視覺。
+3. 局部樣式優先寫在 template 的 Tailwind utilities。
+4. 顏色與主題值先用 SCSS 變數命名，再在 template 透過 `text-[var(--app-text)]` 這類寫法引用。
+5. 修改後檢查亂碼文字、重複 utility class，以及應改成 px 的 Tailwind scale spacing。
+6. 只要改到 Vue template、Tailwind class、SCSS import 或 build config，就跑 `npm run build`。
 
-## 主題 Token 規則
+## Tailwind 規則
 
-- 優先使用語意化命名，不要直接用原始顏色名稱。
-- 如果只影響單一畫面或單一元件，請把 local token 定義在該區塊的根 wrapper，而不是放進 `:root`。
-- 在局部元件範圍中，使用像 `--register-accent`、`--dashboard-surface`、`--auth-ring` 這類命名模式。
-- 先重用現有 app token，再考慮新增。只有在 token 真的需要共享時，才有意識地提升成共享層級。
-- 修改 `src/assets/css/mobile-base.css` 時，只加入已經被超過一個畫面需要的 token 與基礎樣式。
+- spacing 與 size 要寫實際 px arbitrary utilities：
+  - 使用 `px-[20px]`、`gap-[16px]`、`h-[44px]`、`min-h-[80px]`、`mt-[12px]`。
+  - 不使用 Tailwind scale 縮寫，例如 `px-5`、`gap-4`、`h-11`、`min-h-20`、`p-10`。
+- 字級要寫實際值：
+  - 使用 `text-[15px]`、`leading-[24px]`。
+  - 不使用 `text-sm`、`text-lg` 或 Tailwind config 的自訂字級別名。
+- 顏色優先使用語意 CSS variables：
+  - 使用 `text-[var(--app-text)]`、`bg-[var(--app-surface)]`、`border-[var(--app-border)]`。
+  - 顏色需要共享時，在 `_color-variables.scss` 定義或重新命名。
+- 非 spacing 的結構 utility 可以保留：
+  - `flex`、`grid`、`items-center`、`justify-between`、`relative`、`absolute`、`overflow-hidden`、`font-bold`、`rounded-full`、responsive variants、state variants。
+- 同一個 `class` 不要出現重複或互相衝突的 utility：
+  - 不要 `px-[16px] ... px-[12px]`。
+  - 不要 `text-[var(--a)] ... text-[var(--b)]`，除非其中一個有 `hover:` 這類 variant。
+- 一般元件樣式優先用 template class，不要先寫 `<style scoped>`。
+- 只有 selector、pseudo-element、第三方內部結構、keyframes 或複雜狀態讓 template 太難讀時，才用 `<style scoped lang="scss">`。
 
-在調整跨畫面主題或共享 primitive 前，先閱讀 `references/project-style-rules.md`。
+## SCSS 規則
 
-## Tailwind 指引
+- `_color-variables.scss` 是命名顏色變數的 source of truth。
+- `_theme-tokens.scss` 只放無法合理留在元件中的語意全域 token。
+- 不要重新加入 `--app-space-16`、`--app-type-15` 這類 primitive spacing/type 變數；直接在 template 寫 px。
+- `main.scss` 可以放：
+  - document/body/root setup
+  - 真的全域的 safe-area shell 行為
+  - shared base typography behavior
+  - 第三方套件的全域 normalization
+- `main.scss` 不應放 page-specific class，例如單一頁面的 card、local button、local panel 或 screen-only layout。
 
-- Tailwind 優先用於結構與節奏：版面、間距、對齊、寬高、gap、字級與 responsive variants。
-- 新增 Tailwind 間距、尺寸、圓角、位移或字級時，優先使用實際 px arbitrary values，例如 `mt-[16px]`、`gap-[12px]`、`h-[44px]`、`rounded-[8px]`，不要使用 `mt-4`、`gap-3` 這類 Tailwind scale 縮寫。
-- 避免在多個檔案重複貼上很長的 arbitrary-value utility 字串。當同一套視覺配方出現第二次時，就抽成 local class 或 local CSS variable。
-- 保持 class list 可讀。當 template 因為太多裝飾性 class 而難以閱讀時，把視覺邏輯搬到 scoped CSS。
-- 謹慎且有目的地使用 arbitrary values，特別是漸層、陰影與字距。
-- 不要把 `tailwind.config.js` 變成塞滿一次性顏色或尺寸的地方。
+## Vue Template 規則
 
-## CSS 與 SCSS 指引
+- 優先用明確 class list，讓元件在 template 內就能讀懂。
+- class list 很長但仍然是在描述單一元素時，可以保留在 template。
+- 同一個元件內重複很長的 class list 時，考慮 local computed class string 或小型子元件。
+- 同一套視覺模式跨無關功能重複時，優先考慮共享 Vue component，再考慮全域 CSS。
+- 謹慎保留中文文案。遇到亂碼時，優先用 `git show HEAD:<file>` 找回原文；找不到就用清楚的繁體中文重寫。
 
-- 保持低 specificity。優先使用單一 class hook，而不是很深的 descendant chain。
-- 除非要覆蓋第三方 inline 行為且沒有更實際的方法，否則避免使用 `!important`。
-- 在 SCSS 中輕度巢狀即可，不要讓 selector 深到變脆弱或難維護。
-- 把相關狀態放在一起管理：default、hover、focus-visible、active、disabled、error。
-- 優先使用可組合的 class 名稱與 local token，不要讓同樣的 magic number 在多個 declaration 中重複出現。
+## 常用檢查
 
-## 專案慣例
+樣式遷移後可以使用：
 
-- 把 `src/assets/css/mobile-base.css` 視為共享的 mobile shell 與 app primitive 層，而不是拿來放頁面專屬視覺塗裝的地方。
-- 適合時，保留並重用既有共享 class，例如 `app-card`、`app-chip`、`app-input` 與按鈕基礎樣式。
-- 如果某個畫面需要不同的 accent 氛圍，請把 accent 限縮在該畫面的 wrapper 上，不要重新定義整個 app 的全域主題。
-- 如果需求偏向大幅視覺重設計，而不是純實作層級的樣式調整，也一併使用 `uiux-senior-designer`。
+```powershell
+rg --pcre2 "(?<![\w\-\[])(?:min-|max-)?(?:h|w)-\d+(?:\.5)?|(?<![\w\-\[])(?:m|mx|my|mt|mr|mb|ml|p|px|py|pt|pr|pb|pl|gap|space-x|space-y)-\d+(?:\.5)?" -n src
+rg "app-space-|app-type-|safe-(top|right|bottom|left)" -n src
+rg "�|撌|銝|雿|摰|靽|隤|蝞|璅|暺|冽|撠|霈|蝝" -n src/components src/views src/App.vue
+```
 
-## 決策檢查清單
+檢查靜態重複 class 時，可以用小腳本掃每個 `class="..."`，用空白切開後回報重複 token。
 
-- 這個樣式只會用在一個地方嗎？那就留在該 SFC。
-- 這是一個重複出現的視覺 primitive 嗎？那就考慮移到 `src/assets/css/mobile-base.css`。
-- 這是真正跨多個 view 使用的專案 token 嗎？那就考慮放進 `tailwind.config.js` 或共享 app token。
-- 這個變更會不會意外影響無關的畫面？如果會，就把 scope 拉回來。
-- 能不能用更少的 utility 與更清楚的 token 達到同樣結果？可以的話就選更簡單的做法。
+## 審查清單
+
+- spacing/size 沒有殘留舊 Tailwind scale。
+- 沒有重新加入 primitive spacing/type CSS variables。
+- 顏色變數具備語意命名。
+- `main.scss` 只包含全域或真正共享樣式。
+- 元件專屬樣式留在 Vue template 或 scoped SCSS。
+- class list 沒有重複或衝突 utility。
+- 沒有亂碼文案。
+- `npm run build` 通過。

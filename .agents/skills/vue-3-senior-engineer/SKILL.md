@@ -1,77 +1,73 @@
 ---
 name: vue-3-senior-engineer
-description: 資深 Vue 3 工程實作與審查技能，專注 Vue 單檔元件、Composition API、script setup 巨集、響應式系統與內建元件。Use when writing or refactoring Vue SFCs, 設計 composables、使用 `defineProps` / `defineEmits` / `defineModel`、處理 `ref` / `reactive` / `computed` / `watch` / `watchEffect`，或實作 `Transition` / `Teleport` / `Suspense` / `KeepAlive`。
+description: 資深 Vue 3 工程實作與審查技能，專注 Vue SFC、Composition API、script setup、響應式系統、props/emits/model、composables，以及 Vue template 與 TwoDo 現行 SCSS/Tailwind 樣式架構的協作。當需要撰寫或重構 Vue 元件、處理狀態與事件流、拆分 composables、實作 Transition/Teleport/Suspense/KeepAlive，或審查 Vue SFC 可維護性時使用。
 ---
 
-# 資深 Vue 3 工程師
+# Vue 3 資深工程師
 
-## 目標
+## 核心原則
 
-- 以資深工程師標準實作、重構或審查 Vue 3 程式碼。
-- 先閱讀既有專案模式，再延續同一套架構、命名、型別與測試習慣。
-- 優先確保可讀性、響應式正確性、元件契約清楚、易於維護。
+- 新增或重構元件時，優先使用 Vue 3 Composition API 與 `<script setup>`。
+- 狀態流保持明確：props down、emits up，共享行為交給 stores 或 composables。
+- props、emits、composable returns 與 domain payloads 都要有 TypeScript 型別。
+- template 要可讀；業務邏輯放到 computed 或小型 helper。
+- 在元件內工作時，避免無關重構。
 
-## 執行方式
+## SFC 結構
 
-1. 先確認專案上下文：Vue 版本、TypeScript 或 JavaScript、路由、狀態管理、UI 套件、lint 與測試工具。
-2. 預設使用 Composition API 與 `<script setup>`；只有在既有檔案明顯採用 Options API 且改動成本過高時才延續原模式。
-3. 優先沿用現有模式，不為了抽象而抽象；只有在重複邏輯、耦合過高或測試困難時才抽出 composable。
-4. 交付前檢查 props、events、`v-model`、生命週期、副作用清理、loading/error/empty state 與可及性。
+- 新元件或重構後的 SFC 使用 `<script setup lang="ts">`。
+- 排列順序：imports、props/emits/models、stores/composables、local refs/computed、watchers、handlers。
+- handler 預設使用 `const handleSubmit = () => {}`；只有需要 hoisting 或 overload 時才用 function declaration。
+- template 要清楚呈現 loading、empty、error 與 normal states。
+- 當一段 template 有獨立狀態、行為或重複結構時，拆成聚焦的子元件。
 
-## 撰寫 SFC
+## Props、Emits 與 Models
 
-- 保持 template 宣告式；將複雜條件、衍生資料與格式化邏輯移到 `computed`、函式或 composable。
-- 保持元件職責單一；不要讓畫面元件同時承擔資料抓取、格式轉換、狀態協調與 DOM 控制。
-- 優先使用明確且穩定的命名，讓 props、emits、slots、models 的語意一眼可讀。
-- 需要型別時，優先使用型別化的 props 與 emits 定義，不要把事件 payload 留成模糊的 `any`。
+- 非簡單 payload 的 props 使用 type 或 interface。
+- emits 優先使用 named tuple syntax：
 
-## 樣式與 Tailwind
+```ts
+const emit = defineEmits<{
+  submit: [payload: FormPayload];
+  cancel: [];
+}>();
+```
 
-- 專案使用 Tailwind 時，優先將樣式寫在 `template` 的 class 中，讓結構、狀態與樣式能在同一處閱讀。
-- 新增 Tailwind 間距、尺寸、圓角、位移或字級時，優先使用實際 px arbitrary values，例如 `mt-[16px]`、`gap-[12px]`、`h-[44px]`、`rounded-[8px]`，不要使用 `mt-4`、`gap-3` 這類 Tailwind scale 縮寫。
-- 動態樣式優先使用 Vue 的 `:class` / `:style` 綁定，將複雜條件整理成具名 `computed`，避免在 template 堆疊難讀的三元運算。
-- 只有在 Tailwind 無法清楚表達、需要複雜動畫、偽元素、第三方元件覆寫或重複樣式已形成穩定元件模式時，才抽到 `<style scoped>` 或共用樣式。
-- 避免為單一元件新增全域 CSS；若必須新增 class，命名要對應元件語意並限制影響範圍。
+- `defineModel` 只用在真正受控的 form/input-like component。
+- 不要 mutate props；需要可編輯資料時，從 props 派生 local state。
 
-## 使用 `<script setup>` 巨集
+## Reactivity
 
-- 使用 `defineProps` 明確定義輸入契約；需要保留響應式時，不要直接解構 props。
-- 使用 `defineEmits` 明確定義事件名稱與 payload 結構；避免隱性事件與模糊命名。
-- 僅在對外契約真的等同 `v-model` 時使用 `defineModel`；避免同時維護重複的本地狀態與 model 狀態。
-- 避免把巨集當成偷懶入口；宣告清楚比縮短幾行程式碼更重要。
+- primitive value 與小型 mutable object 使用 `ref`。
+- derived display labels、class state、permissions、filtered lists 使用 `computed`。
+- `watch` 只用於 side effects、外部同步，或 route/store 變化。
+- watcher 要窄且明確；除非資料形狀真的需要，不要用 deep watch。
+- event listeners、subscriptions、intervals 與外部 handles 要在 `onBeforeUnmount` 清理。
 
-## Script 函式風格
+## Template 與樣式協作
 
-- 在 `<script setup>` 中，元件內部 handler、formatter、mapper 與 helper 優先使用命名的箭頭函式宣告，例如 `const handleSubmit = () => {}`，不要使用一般 `function handleSubmit() {}` 宣告。
-- 函式名稱要描述使用情境或行為，例如 `handleComplete`、`formatDueDate`、`mapTaskToCard`，避免匿名 callback 承擔太多邏輯。
-- 只有在需要 function hoisting、overload declaration，或既有 API 明確要求 function declaration 時，才使用一般 `function`。
+- 寫 class 時遵守 TwoDo 樣式架構：
+  - 元件專屬樣式寫在 Vue template 的 Tailwind utilities
+  - spacing 與 size 使用實際 px arbitrary class，例如 `px-[20px]`、`gap-[16px]`、`h-[44px]`
+  - 不要引入 `px-5`、`gap-4`、`h-11`、`text-sm` 這類 Tailwind scale 縮寫
+  - 顏色使用 `text-[var(--app-text)]` 這類語意 CSS variables
+- 動態且重複的 class state 可用 local computed class arrays。
+- 只有 selector、pseudo-elements、第三方內部結構不適合 template class 時，才用 `<style scoped lang="scss">`。
+- Vue refactor 時，不要把 page-specific 樣式加到全域 SCSS。
 
-## 管理響應式
+## Transitions 與 Overlays
 
-- 對原始值或可整體替換的狀態優先使用 `ref`；對需要一起管理的狀態物件再使用 `reactive`。
-- 對純衍生資料優先使用 `computed`；不要用 `watch` 同步本來就能推導出的值。
-- 只在處理副作用、非同步流程、外部整合或橋接 imperative API 時使用 `watch`。
-- 使用 `watch` 時主動決定 `immediate`、`deep`、`flush` 是否必要，不要憑習慣亂開。
-- 只在依賴刻意保持隱性且副作用很小時使用 `watchEffect`；不要讓它接管整個元件流程。
-- 避免因為解構、淺拷貝、直接改 props 或傳遞裸值而丟失響應式。
-- 對非同步副作用處理競態、過期結果與清理時機，避免畫面被舊請求覆蓋。
+- `Transition` 使用明確 class names 或 inline Tailwind transition classes。
+- modal、popover、toast、overlay 這類需要脫離 layout stacking 的 UI 使用 `Teleport`。
+- 修改 overlay 時保留 focus management、keyboard behavior 與 ARIA labels。
+- animated UI 優先維持穩定 DOM 結構，避免造成 layout 不可預期跳動。
 
-## 使用內建元件
+## 審查清單
 
-- 使用 `Transition` 處理狀態切換動畫，但不要把商業邏輯綁進動畫 class。
-- 使用 `Teleport` 實作 modal、popover、toast 或 overlay 時，同步處理 focus、滾動鎖定與層級關係。
-- 僅在非同步元件樹確實需要 fallback UI 時使用 `Suspense`；不要無差別包裹整頁。
-- 只在需要保留昂貴頁面或元件狀態時使用 `KeepAlive`，並明確控制 `include`、`exclude`、`max` 與生命週期影響。
-
-## Code Review 標準
-
-- 質疑多餘的 watcher、重複狀態、prop mutation、隱性雙向綁定、過深巢狀與責任混雜的 composable。
-- 優先修正資料流不清、命名模糊、型別鬆散與副作用分散的問題。
-- 專案已有測試基礎時，修 bug 或重構後同步補上或更新測試。
-- 在不破壞既有設計系統與使用者體驗的前提下，改善錯誤處理、載入狀態與可及性。
-
-## 產出要求
-
-- 簡短說明採用的 Vue 模式與任何必要假設。
-- 指出主要改動點，特別是 props / emits / model / reactive flow 的調整。
-- 說明已完成的驗證，以及尚未驗證的風險或缺口。
+- Props、emits、models 都有型別。
+- Template 沒有塞進過重 inline computation。
+- Derived labels/classes 使用 computed。
+- 必要時包含 loading、empty、disabled、error states。
+- Event listeners/subscriptions 有清理。
+- 元件樣式符合目前 TwoDo Tailwind/SCSS 規則。
+- 修改後 build 或相關測試通過。

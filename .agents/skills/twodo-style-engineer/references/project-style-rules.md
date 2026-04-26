@@ -1,51 +1,54 @@
 # TwoDo 專案樣式規則
 
-## 現有樣式層
+## 樣式分層
 
-- `src/assets/css/mobile-base.css`
-  - 共享的 mobile shell primitive 與目前 app-wide token 所在位置。
-  - 適合放可重用的 `app-*` class。
-  - 不適合放只屬於單一頁面的裝飾性樣式。
-- `tailwind.config.js`
-  - 目前配置很精簡。
-  - 除非某個 token 很明確屬於跨多個畫面的共享層，否則維持精簡。
-- `src/views/HomeView.vue`
-  - 展示 Tailwind 負責版面，搭配共享 `app-*` primitive 的例子。
-- `src/views/user/RegisterView.vue`
-  - 展示驗證畫面如何結合共享 primitive 與局部畫面 utility 的例子。
+- `src/assets/scss/tailwind.scss`
+  - 只放 Tailwind imports/directives。
+- `src/assets/scss/main.scss`
+  - 全域 reset 與 app-wide 基礎行為。
+  - 第三方套件共用 normalization。
+  - 不放 page-only 或 component-only 樣式。
+- `src/assets/scss/_color-variables.scss`
+  - 命名顏色變數與語意主題變數。
+  - 優先使用 `--app-surface`、`--app-text`、`--app-accent` 這類語意命名。
+- `src/assets/scss/_theme-tokens.scss`
+  - 只放真的需要全域作用域的語意 token。
+  - 不要重加 `--app-space-16`、`--app-type-15` 這類 primitive spacing/type token。
+- Vue SFC template
+  - 預設放元件與頁面的 layout、spacing、size、typography 與視覺 utility。
 
-## 建議的樣式處理順序
+## 提升規則
 
-1. 當既有 `app-*` primitive 已經符合需求時，優先重用。
-2. 結構與間距優先使用 Tailwind utilities。
-3. 局部視覺與局部 token 放進元件內的 scoped CSS 或 SCSS。
-4. 只有在重用真的成立後，才提升到 `mobile-base.css`。
-5. 只有在 token 廣泛共享且穩定後，才提升到 `tailwind.config.js`。
+1. 一次性的頁面或元件樣式留在 Vue template。
+2. 單一元素有動態狀態時，用 `:class` array 或 computed class。
+3. 同一元件內重複的模式，考慮 local helper 或小型子元件。
+4. 跨無關功能重複的模式，考慮共享 Vue component。
+5. 只有真正 app-wide 的樣式才提升到全域 SCSS。
 
-## 主題策略
+## Tailwind 值規則
 
-- 在引入新色系之前，先以現有 app palette family 為預設。
-- 當變更只屬於單一路由或單一元件時，把新色 token 定義在局部。
-- 優先使用與用途綁定的語意化 token 名稱：
-  - `--screen-accent`
-  - `--screen-accent-soft`
-  - `--panel-surface`
-  - `--panel-border`
-  - `--focus-ring`
-- 避免把頁面專屬數值加進 `:root`。
+- spacing 與 size 使用實際 px arbitrary utilities：
+  - `px-[20px]`、`gap-[16px]`、`h-[44px]`、`min-h-[80px]`、`top-[24px]`。
+- 不使用 Tailwind spacing scale 縮寫：
+  - 不要 `px-5`、`gap-4`、`h-11`、`min-h-20`、`p-10`。
+- 字級使用實際值：
+  - `text-[15px]`、`leading-[24px]`。
+- 結構 utility 可以保留：
+  - `flex`、`grid`、`relative`、`absolute`、`items-center`、`justify-between`、`rounded-full`。
 
-## 反模式
+## 顏色規則
 
-- 為單一畫面新增新的 `:root` 變數。
-- 為了局部設計需求去新增 `button`、`input`、`a`、`h1` 這類 tag-level 全域樣式。
-- 在多個檔案中複製貼上很長的 Tailwind arbitrary 漸層或陰影。
-- 在同一個畫面混用多個互不相干的 accent 色。
-- 在重用還沒被證明前，就過早建立共享 token。
+- 共享顏色定義在 `_color-variables.scss`。
+- template 直接引用語意變數：
+  - `text-[var(--app-text)]`
+  - `bg-[var(--app-surface)]`
+  - `border-[var(--app-border)]`
+- 除非是明確局部且短期的值，否則避免重複 raw hex。
 
-## 檢查問題
+## 避免事項
 
-- 什麼是能乾淨解決需求的最小作用範圍？
-- 這個變更會不會讓其他畫面出現意料外影響？
-- 是否已經有現成的 `app-*` primitive 可以重用？
-- 這個需求更適合 local CSS variable，而不是全域 token 嗎？
-- template 是否因為太多視覺邏輯都塞在 class 字串裡而變得難以閱讀？
+- 把 page-specific class 加到 `main.scss`。
+- 重新引入舊的 `src/assets/css/*` 檔案。
+- 把一次性設計值加到 `tailwind.config.js`。
+- 在同一個 class list 重複或衝突 utility。
+- 用全域 tag selector 處理元件專屬變更。
