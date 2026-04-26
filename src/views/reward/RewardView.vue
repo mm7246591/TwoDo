@@ -63,7 +63,7 @@ const handleCreateReward = async (
     return;
   }
 
-  showSuccessMessage("獎勵已新增");
+  showSuccessMessage("獎勵已建立");
 };
 
 const handleRedeemReward = async (reward: Reward) => {
@@ -98,7 +98,7 @@ const handleToggleRewardAvailability = async (
     return;
   }
 
-  showSuccessMessage(isActive ? "獎勵已開放兌換" : "獎勵已暫停兌換");
+  showSuccessMessage(isActive ? "獎勵已啟用" : "獎勵已停用");
 };
 
 watch(
@@ -117,61 +117,61 @@ watch(
 
 <template>
   <MobileAppShell>
-    <header class="app-page-header">
-      <div class="app-page-header-row">
+    <header class="grid gap-[20px] px-[20px] pb-[24px] pt-[32px] sm:px-[28px] sm:pt-[40px]">
+      <div class="flex items-start justify-between gap-[12px]">
         <div class="min-w-[0px]">
-          <div class="app-chip">獎勵</div>
-          <h1 class="app-page-title mt-[12px] max-w-[11ch]">兩人的獎勵</h1>
+          <div class="inline-flex items-center gap-[8px] rounded-full border border-[var(--app-chip-border)] bg-[var(--app-chip-bg)] px-[12px] py-[8px] text-[13px] font-[700] leading-[1.2] tracking-[0.045em] text-[var(--app-chip-text)] shadow-[var(--app-shadow-chip)] backdrop-blur-[12px]">獎勵</div>
+          <h1 class="text-[32px] font-[700] leading-[1.04] tracking-[-0.03em] text-[var(--app-text-strong)] mt-[12px] max-w-[11ch]">願望商店</h1>
         </div>
       </div>
 
-      <p class="app-page-summary">用點數換你們說好的小獎勵。</p>
+      <p class="max-w-[34ch] text-[16px] leading-[1.65] text-[var(--app-text-muted)]">建立彼此想要的小獎勵，用點數兌換生活裡的甜。</p>
     </header>
 
-    <section class="app-page-content app-section-stack flex-1">
-      <section v-if="!canUseRewards" class="app-card app-card-section">
-        <p class="app-label">目前狀態</p>
-        <p class="app-status-title mt-[12px]">
-          還不能新增獎勵
+    <section class="px-[20px] pb-[24px] sm:px-[28px] grid gap-[16px] flex-1">
+      <section v-if="!canUseRewards" class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[20px]">
+        <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">目前狀態</p>
+        <p class="text-[20px] font-[700] leading-[1.24] tracking-[-0.02em] text-[var(--app-text-strong)] mt-[12px]">
+          還不能使用獎勵
         </p>
-        <p class="app-card-caption mt-[12px]">
-          完成配對後，就能約定小獎勵。
+        <p class="text-[15px] leading-[1.58] text-[var(--app-text-soft)] mt-[12px]">
+          完成配對後，就能一起建立與兌換獎勵。
         </p>
       </section>
 
       <RewardComposerCard v-else :is-submitting="rewardsStore.isSubmitting" @submit="handleCreateReward" />
 
-      <section class="app-section-grid grid-cols-2 sm:grid-cols-3">
-        <article class="app-card app-card-section-sm">
-          <p class="app-label">可兌換獎勵</p>
-          <p class="app-metric-value mt-[8px]">
+      <section class="grid gap-[16px] grid-cols-2 sm:grid-cols-3">
+        <article class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[16px]">
+          <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">可兌換</p>
+          <p class="text-[28px] font-[700] leading-[1.02] tracking-[-0.03em] text-[var(--app-text-strong)] [font-variant-numeric:tabular-nums] mt-[8px]">
             {{ redeemableRewards.length }}
           </p>
         </article>
 
-        <article class="app-card-muted app-card-section-sm">
-          <p class="app-label">我準備的獎勵</p>
-          <p class="app-metric-value mt-[8px]">
+        <article class="rounded-[var(--app-radius-xl)] border border-[var(--app-card-muted-border)] bg-[image:var(--app-card-muted-bg)] backdrop-blur-[10px] p-[16px]">
+          <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">我建立的獎勵</p>
+          <p class="text-[28px] font-[700] leading-[1.02] tracking-[-0.03em] text-[var(--app-text-strong)] [font-variant-numeric:tabular-nums] mt-[8px]">
             {{ myCreatedRewards.length }}
           </p>
         </article>
 
-        <article class="app-card app-card-section-sm col-span-2 sm:col-span-1">
-          <p class="app-label">已兌換獎勵</p>
-          <p class="app-metric-value mt-[8px]">
+        <article class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[16px] col-span-2 sm:col-span-1">
+          <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">已兌換</p>
+          <p class="text-[28px] font-[700] leading-[1.02] tracking-[-0.03em] text-[var(--app-text-strong)] [font-variant-numeric:tabular-nums] mt-[8px]">
             {{ myRedeemedRewards.length }}
           </p>
         </article>
       </section>
 
-      <section class="app-card app-card-section">
-        <div class="app-card-header-split">
+      <section class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[20px]">
+        <div class="flex flex-col gap-[16px] sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-[0px]">
-            <p class="app-label">獎勵列表</p>
+            <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">獎勵清單</p>
           </div>
         </div>
 
-        <div class="app-card-list mt-[20px]">
+        <div class="grid gap-[16px] mt-[20px]">
           <RewardListCard v-for="reward in rewardsStore.rewards" :key="reward.id" :current-points="currentPoints"
             :current-uid="currentUid" :is-submitting="rewardsStore.isSubmitting" :reward="reward"
             @redeem="handleRedeemReward" @toggle-availability="handleToggleRewardAvailability" />
@@ -180,24 +180,29 @@ watch(
         </div>
       </section>
 
-      <section class="app-card app-card-section">
-        <div class="app-card-header-split">
+      <section class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[20px]">
+        <div class="flex flex-col gap-[16px] sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-[0px]">
-            <p class="app-label">兌換紀錄</p>
+            <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">兌換紀錄</p>
           </div>
 
-          <span class="app-meta-pill app-meta-pill-strong">
-            {{ rewardsStore.redemptions.length }} 筆紀錄
+          <span class="inline-flex min-h-[2rem] items-center gap-[4px] rounded-full border border-[var(--app-border)] bg-[rgba(255,255,255,0.78)] px-[12px] py-[8px] text-[13px] font-[600] leading-[1.2] text-[var(--app-text-muted)] text-[var(--app-text-strong)]">
+            {{ rewardsStore.redemptions.length }} 筆
           </span>
         </div>
 
-        <div class="app-card-list mt-[20px]">
+        <div class="grid gap-[16px] mt-[20px]">
           <RedemptionHistoryCard v-for="redemption in rewardsStore.getRecentRedemptions" :key="redemption.id"
             :current-uid="currentUid" :redemption="redemption" />
 
-          <AppEmptyState v-if="!rewardsStore.redemptions.length" title="還沒有兌換紀錄" description="換過的獎勵會保留紀錄。" />
+          <AppEmptyState v-if="!rewardsStore.redemptions.length" title="目前沒有兌換紀錄" description="兌換獎勵後，紀錄會出現在這裡。" />
         </div>
       </section>
     </section>
   </MobileAppShell>
 </template>
+
+
+
+
+

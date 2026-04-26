@@ -41,7 +41,7 @@ const syncVerificationStatus = async ({ silent = false } = {}) => {
 
     if (session.requiresEmailVerification) {
       if (!silent) {
-        showErrorMessage("還沒有完成驗證，請先點擊信箱中的驗證連結。");
+        showErrorMessage("尚未完成驗證，請先到信箱點擊驗證連結。");
       }
 
       return false;
@@ -144,7 +144,7 @@ const handleBackToLogin = async () => {
 
 <template>
   <main
-    class="relative flex min-h-[max(884px,100dvh)] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_18%_12%,rgba(255,219,210,0.7)_0_7.5rem,transparent_7.75rem),radial-gradient(circle_at_88%_86%,rgba(179,239,216,0.5)_0_8.5rem,transparent_8.75rem),linear-gradient(180deg,var(--auth-surface-bright)_0%,var(--auth-surface-container-low)_100%)] px-[20px] pb-[max(2rem,calc(var(--safe-bottom)+1.25rem))] pt-[max(2rem,calc(var(--safe-top)+1.25rem))] font-['Plus_Jakarta_Sans','Noto_Sans_TC',sans-serif] text-[var(--auth-on-surface)] sm:px-[max(3rem,calc(var(--safe-left)+2rem))] sm:pb-[max(3rem,calc(var(--safe-bottom)+2rem))] sm:pt-[max(3rem,calc(var(--safe-top)+2rem))] sm:[padding-right:max(3rem,calc(var(--safe-right)+2rem))]"
+    class="relative flex min-h-[max(884px,100dvh)] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_18%_12%,rgba(255,219,210,0.7)_0_7.5rem,transparent_7.75rem),radial-gradient(circle_at_88%_86%,rgba(179,239,216,0.5)_0_8.5rem,transparent_8.75rem),linear-gradient(180deg,var(--auth-surface-bright)_0%,var(--auth-surface-container-low)_100%)] px-[20px] pb-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] pt-[max(2rem,calc(env(safe-area-inset-top,0px)+1.25rem))] font-['Plus_Jakarta_Sans','Noto_Sans_TC',sans-serif] text-[var(--auth-on-surface)] sm:px-[max(3rem,calc(env(safe-area-inset-left,0px)+2rem))] sm:pb-[max(3rem,calc(env(safe-area-inset-bottom,0px)+2rem))] sm:pt-[max(3rem,calc(env(safe-area-inset-top,0px)+2rem))] sm:[padding-right:max(3rem,calc(env(safe-area-inset-right,0px)+2rem))]"
   >
     <section
       class="relative z-[1] flex w-full max-w-[28.75rem] flex-col gap-[32px] rounded-[32px] border border-[color:color-mix(in_srgb,var(--auth-primary-fixed)_58%,transparent)] bg-[rgba(255,255,255,0.92)] px-[24px] py-[36px] text-center shadow-[0_20px_56px_rgba(118,69,52,0.12),inset_0_1px_0_rgba(255,255,255,0.82)] sm:p-[56px]"
@@ -164,13 +164,13 @@ const handleBackToLogin = async () => {
 
         <div class="min-w-[0px]">
           <p
-            class="mb-[8px] mt-[0px] text-[14px] font-bold leading-[20px] tracking-[0.01em] text-[var(--auth-primary)]"
+            class="mb-[8px] mt-[0px] text-[14px] font-[700] leading-[20px] tracking-[0.01em] text-[var(--auth-primary)]"
           >
             差最後一步
           </p>
           <h1
             id="verify-email-title"
-            class="m-0 text-[32px] font-extrabold leading-[40px] tracking-[-0.02em] text-[var(--auth-on-surface)]"
+            class="m-[0px] text-[32px] font-[800] leading-[40px] tracking-[-0.02em] text-[var(--auth-on-surface)]"
           >
             請驗證你的信箱
           </h1>
@@ -179,10 +179,10 @@ const handleBackToLogin = async () => {
 
       <div class="flex flex-col gap-[16px]">
         <p
-          class="m-0 text-[16px] font-normal leading-[1.55] text-[var(--auth-on-surface-variant)]"
+          class="m-[0px] text-[16px] font-[400] leading-[1.55] text-[var(--auth-on-surface-variant)]"
         >
           我們已經將驗證信寄到
-          <span class="break-words font-bold text-[var(--auth-on-surface)]">
+          <span class="break-words font-[700] text-[var(--auth-on-surface)]">
             {{ userEmail }}
           </span>
           。請先點擊信件中的驗證連結，再回到這裡繼續。
@@ -197,42 +197,43 @@ const handleBackToLogin = async () => {
             >tips_and_updates</span
           >
           <p
-            class="m-0 text-[14px] font-semibold leading-[1.35rem] text-[var(--auth-on-surface-variant)]"
+            class="m-[0px] text-[14px] font-[600] leading-[1.35rem] text-[var(--auth-on-surface-variant)]"
           >
             如果沒有看到信件，請先檢查垃圾郵件或促銷分類，再重新寄送驗證信。
           </p>
         </div>
 
         <p
-          class="m-0 text-[14px] font-bold leading-[1.35rem] text-[var(--auth-primary)]"
+          class="m-[0px] text-[14px] font-[700] leading-[1.35rem] text-[var(--auth-primary)]"
         >
           {{
             isChecking
-              ? "正在同步驗證狀態..."
-              : "完成驗證後回到這裡，系統會自動繼續。"
+              ? "正在重新檢查..."
+              : "完成驗證後，點這裡重新檢查。"
           }}
         </p>
       </div>
 
       <div class="flex flex-col gap-[12px]">
         <button
-          class="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[var(--auth-surface-container)] px-[20px] text-[14px] font-bold leading-[20px] tracking-[0.01em] text-[var(--auth-primary)] transition-[transform,opacity] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[var(--auth-surface-container)] px-[20px] text-[14px] font-[700] leading-[20px] tracking-[0.01em] text-[var(--auth-primary)] transition-[transform,opacity] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
           :disabled="isActionPending"
           @click="handleResendVerification"
         >
-          {{ isResending ? "寄送中..." : "重新寄送驗證信" }}
+          {{ isResending ? "重新寄送中..." : "重新寄送驗證信" }}
         </button>
 
         <button
-          class="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[color:color-mix(in_srgb,var(--auth-outline-variant)_74%,transparent)] bg-[var(--auth-surface-container-lowest)] px-[20px] text-[14px] font-bold leading-[20px] tracking-[0.01em] text-[var(--auth-on-surface-variant)] shadow-[inset_0_1px_0_rgba(255,255,255,0.78)] transition-[transform,opacity] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[color:color-mix(in_srgb,var(--auth-outline-variant)_74%,transparent)] bg-[var(--auth-surface-container-lowest)] px-[20px] text-[14px] font-[700] leading-[20px] tracking-[0.01em] text-[var(--auth-on-surface-variant)] shadow-[inset_0_1px_0_rgba(255,255,255,0.78)] transition-[transform,opacity] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
           :disabled="isActionPending"
           @click="handleBackToLogin"
         >
-          {{ isLeaving ? "返回中..." : "回到登入頁" }}
+          {{ isLeaving ? "返回中..." : "回到登入" }}
         </button>
       </div>
     </section>
   </main>
 </template>
+

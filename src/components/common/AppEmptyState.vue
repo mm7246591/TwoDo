@@ -6,17 +6,21 @@ withDefaults(defineProps<{
   title?: string;
 }>(), {
   description: "",
-  title: "目前沒有項目",
+  title: "目前沒有資料",
 });
 </script>
 
 <template>
   <div class="rounded-[24px] bg-[rgba(255,255,255,0.58)]">
-    <Empty image="search" image-size="88">
+    <Empty
+      class="px-[12px] py-[22px] [&_.van-empty__description]:text-[15px] [&_.van-empty__description]:font-[700] [&_.van-empty__description]:leading-[1.5] [&_.van-empty__description]:text-[var(--app-text-strong)]"
+      image="search"
+      image-size="88"
+    >
       <template #description>
-        <div class="app-empty-state__copy">
-          <p class="app-empty-state__title">{{ title }}</p>
-          <p v-if="description" class="app-empty-state__description">
+        <div class="grid gap-[4px] text-center">
+          <p class="m-[0px] text-[15px] font-[800] text-[var(--app-text-strong)]">{{ title }}</p>
+          <p v-if="description" class="m-[0px] text-[13px] font-[600] leading-[1.5] text-[var(--app-text-muted)]">
             {{ description }}
           </p>
         </div>
@@ -25,39 +29,3 @@ withDefaults(defineProps<{
   </div>
 </template>
 
-<style scoped>
-:deep(.van-empty) {
-  padding: 22px 12px;
-}
-
-:deep(.van-empty__description) {
-  color: var(--app-text-strong);
-  font-size: var(--app-type-15);
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.app-empty-state__copy {
-  display: grid;
-  gap: 0.25rem;
-  text-align: center;
-}
-
-.app-empty-state__title,
-.app-empty-state__description {
-  margin: 0;
-}
-
-.app-empty-state__title {
-  color: var(--app-text-strong);
-  font-size: var(--app-type-15);
-  font-weight: 800;
-}
-
-.app-empty-state__description {
-  color: var(--app-text-muted);
-  font-size: var(--app-type-13);
-  font-weight: 600;
-  line-height: 1.5;
-}
-</style>

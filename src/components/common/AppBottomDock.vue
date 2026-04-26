@@ -40,7 +40,7 @@ const dockItems = computed<DockItem[]>(() => [
   {
     icon: "storefront",
     key: "shop",
-    label: "商店",
+    label: "獎勵",
     routeName: "reward",
   },
 ]);
@@ -60,10 +60,10 @@ const navigate = async (routeName: DockRouteName) => {
 
 <template>
   <nav
-    class="sticky bottom-0 z-[20] mx-auto mt-auto grid min-h-[84px] w-full grid-cols-4 rounded-t-[28px] border-t border-[rgba(255,255,255,0.86)] bg-white pb-[max(10px,calc(var(--safe-bottom)_+_8px))] pt-[10px] shadow-[0_-18px_42px_rgba(118,69,52,0.12)] backdrop-blur-[18px]"
+    class="sticky bottom-[0px] z-[20] mx-auto mt-auto grid min-h-[84px] w-full grid-cols-4 rounded-t-[28px] border-t border-[rgba(255,255,255,0.86)] bg-white pb-[max(10px,calc(env(safe-area-inset-bottom,0px)_+_8px))] pt-[10px] shadow-[0_-18px_42px_rgba(118,69,52,0.12)] backdrop-blur-[18px]"
     aria-label="主要導覽">
     <button v-for="item in dockItems" :key="item.key" :class="[
-      'relative grid min-h-[72px] min-w-[0px] content-center justify-items-center gap-[3px] border-[0px] bg-transparent px-[2px] pb-[8px] pt-[7px] text-[length:var(--app-type-12)] font-[700] leading-[1.2] transition-colors duration-[180ms] ease-in-out focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_rgba(255,158,133,0.28)]',
+      'relative grid min-h-[72px] min-w-[0px] content-center justify-items-center gap-[3px] border-[0px] bg-transparent px-[2px] pb-[8px] pt-[7px] text-[12px] font-[700] leading-[1.2] transition-colors duration-[180ms] ease-in-out focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_rgba(255,158,133,0.28)]',
       getIsActive(item)
         ? 'text-[var(--app-coral)]'
         : 'text-[var(--app-text-soft)] hover:text-[var(--app-coral)]',
@@ -85,3 +85,6 @@ const navigate = async (routeName: DockRouteName) => {
     </button>
   </nav>
 </template>
+
+
+

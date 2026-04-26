@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { RouterLink, useRoute } from "vue-router";
+import { computed, ref } from "vue";
+import { RouterLink } from "vue-router";
 import AppEmptyState from "@/components/common/AppEmptyState.vue";
-import TaskComposerCard from "@/components/task/TaskComposerCard.vue";
 import TaskListCard from "@/components/task/TaskListCard.vue";
 import MobileAppShell from "@/components/common/MobileAppShell.vue";
 import { useTasksDashboard } from "./composables/useTasksDashboard";
+import type { Task } from "@/views/task/types/interface";
 
-const route = useRoute();
+type TaskTab = "active" | "confirm" | "done";
 
 const {
   assigneeLabel,
@@ -15,192 +15,164 @@ const {
   canUseTasks,
   confirmedTasks,
   currentUid,
-  defaultAssignedTo,
   handleCancelTask,
   handleCompleteTask,
   handleConfirmTask,
-  handleCreateTask,
   isSubmitting,
   myAssignedTasks,
   waitingConfirmTasks,
   waitingOtherTasks,
 } = useTasksDashboard();
 
-const isCreateRoute = computed(() => route.name === "task-create");
+const activeTab = ref<TaskTab>("active");
+
+const activeTasks = computed(() => {
+  const taskMap = new Map<string, Task>();
+
+  [...myAssignedTasks.value, ...waitingOtherTasks.value].forEach((task) => {
+    taskMap.set(task.id, task);
+  });
+
+  return [...taskMap.values()];
+});
+
+const visibleTasks = computed(() => {
+  if (activeTab.value === "confirm") {
+    return waitingConfirmTasks.value;
+  }
+
+  if (activeTab.value === "done") {
+    return confirmedTasks.value;
+  }
+
+  return activeTasks.value;
+});
+
+const taskTabs = computed(() => [
+  {
+    count: activeTasks.value.length,
+    key: "active" as const,
+    label: "進行中",
+  },
+  {
+    count: waitingConfirmTasks.value.length,
+    key: "confirm" as const,
+    label: "待確認",
+  },
+  {
+    count: confirmedTasks.value.length,
+    key: "done" as const,
+    label: "已完成",
+  },
+]);
+
+const finishedCount = computed(() => confirmedTasks.value.length);
+const totalTrackedCount = computed(
+  () =>
+    activeTasks.value.length +
+    waitingConfirmTasks.value.length +
+    confirmedTasks.value.length +
+    cancelledTasks.value.length,
+);
+const progressPercent = computed(() => {
+  if (!totalTrackedCount.value) {
+    return 0;
+  }
+
+  return Math.round((finishedCount.value / totalTrackedCount.value) * 100);
+});
+const progressStyle = computed(() => ({
+  width: `${progressPercent.value}%`,
+}));
+const emptyTitle = computed(() => {
+  if (activeTab.value === "confirm") {
+    return "目前沒有等待確認的任務";
+  }
+
+  if (activeTab.value === "done") {
+    return "目前沒有完成紀錄";
+  }
+
+  return "目前沒有進行中的任務";
+});
 </script>
 
 <template>
   <MobileAppShell>
-    <template v-if="isCreateRoute">
-      <section class="app-page-content flex-1 tasks-create-page">
-        <section v-if="!canUseTasks" class="app-card app-card-section">
-          <p class="app-label">尚未配對</p>
-          <p class="app-status-title mt-[12px]">先和另一半連線</p>
-          <p class="app-card-caption mt-[12px]">
-            配對後就能建立任務、分配點數，讓彼此一起完成生活裡的小挑戰。
-          </p>
-        </section>
-
-        <TaskComposerCard v-else :assignee-label="assigneeLabel" :current-uid="currentUid"
-          :default-assigned-to="defaultAssignedTo" :is-submitting="isSubmitting" @submit="handleCreateTask" />
-      </section>
-    </template>
-
-    <template v-else>
-      <header class="app-page-header tasks-page-header">
-        <div class="app-page-header-row">
-          <div class="min-w-[0px]">
-            <div class="app-chip">任務</div>
-            <h1 class="app-page-title mt-[12px] max-w-[11ch]">一起完成小冒險</h1>
-          </div>
-          <RouterLink class="app-primary-button app-button-compact tasks-create-link" :to="{ name: 'create-task' }"
-            aria-label="建立任務">
-            <span class="material-symbols-outlined fill text-[20px]" aria-hidden="true">
-              add
-            </span>
-            建立
-          </RouterLink>
-        </div>
-
-        <p class="app-page-summary">
-          安排彼此的小任務，把日常變成可以一起收集的成就。
-        </p>
+    <section class="grid content-start gap-[24px] px-[20px] pt-[28px] pb-[calc(40px+5.75rem)] sm:px-[28px]">
+      <header class="flex items-center justify-between gap-[16px]">
+        <h1 class="m-[0px] text-[32px] font-[800] leading-[1.18] tracking-[0px] text-[var(--app-text-strong)]">任務清單</h1>
       </header>
 
-      <section class="app-page-content app-section-stack flex-1 tasks-page-content">
-        <section v-if="!canUseTasks" class="app-card app-card-section">
-          <p class="app-label">尚未配對</p>
-          <p class="app-status-title mt-[12px]">先和另一半連線</p>
-          <p class="app-card-caption mt-[12px]">
-            配對後就能建立任務、分配點數，讓彼此一起完成生活裡的小挑戰。
-          </p>
-        </section>
-
-        <section class="app-metric-grid">
-          <article class="app-card app-card-section-sm">
-            <p class="app-label">待完成</p>
-            <p class="app-metric-value mt-[8px]">{{ myAssignedTasks.length }}</p>
-          </article>
-
-          <article class="app-card-muted app-card-section-sm">
-            <p class="app-label">待確認</p>
-            <p class="app-metric-value mt-[8px]">
-              {{ waitingConfirmTasks.length }}
-            </p>
-          </article>
-        </section>
-
-        <section class="app-card app-card-section">
-          <div class="app-card-header-split">
-            <div class="min-w-[0px]">
-              <p class="app-card-title">我的任務</p>
-            </div>
-          </div>
-
-          <div class="app-card-list mt-[20px]">
-            <TaskListCard v-for="task in myAssignedTasks" :key="task.id" :current-uid="currentUid"
-              :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
-              @complete="handleCompleteTask" @confirm="handleConfirmTask" />
-
-            <AppEmptyState v-if="!myAssignedTasks.length" title="目前沒有待完成任務" />
-          </div>
-        </section>
-
-        <section class="app-card app-card-section">
-          <div class="app-card-header-split">
-            <div class="min-w-[0px]">
-              <p class="app-card-title">等待你確認</p>
-            </div>
-          </div>
-
-          <div class="app-card-list mt-[20px]">
-            <TaskListCard v-for="task in waitingConfirmTasks" :key="task.id" :current-uid="currentUid"
-              :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
-              @complete="handleCompleteTask" @confirm="handleConfirmTask" />
-
-            <AppEmptyState v-if="!waitingConfirmTasks.length" title="目前沒有等待確認的任務" />
-          </div>
-        </section>
-
-        <section class="app-card app-card-section">
-          <div class="app-card-header-split">
-            <div class="min-w-[0px]">
-              <p class="app-card-title">等待對方完成</p>
-            </div>
-          </div>
-
-          <div class="app-card-list mt-[20px]">
-            <TaskListCard v-for="task in waitingOtherTasks" :key="task.id" :current-uid="currentUid"
-              :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
-              @complete="handleCompleteTask" @confirm="handleConfirmTask" />
-
-            <AppEmptyState v-if="!waitingOtherTasks.length" title="目前沒有等待對方的任務" />
-          </div>
-        </section>
-
-        <section class="app-metric-grid">
-          <article class="app-card app-card-section-sm">
-            <p class="app-label">已完成</p>
-            <p class="app-metric-value mt-[8px]">{{ confirmedTasks.length }}</p>
-          </article>
-
-          <article class="app-card-muted app-card-section-sm">
-            <p class="app-label">已取消</p>
-            <p class="app-metric-value mt-[8px]">{{ cancelledTasks.length }}</p>
-          </article>
-        </section>
-
-        <section class="app-card app-card-section">
-          <div class="app-card-header-split">
-            <p class="app-card-title">完成紀錄</p>
-          </div>
-
-          <div class="app-card-list mt-[20px]">
-            <TaskListCard v-for="task in confirmedTasks" :key="task.id" :current-uid="currentUid"
-              :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
-              @complete="handleCompleteTask" @confirm="handleConfirmTask" />
-
-            <AppEmptyState v-if="!confirmedTasks.length" title="目前沒有完成紀錄" />
-          </div>
-        </section>
-
-        <section class="app-card app-card-section">
-          <div class="app-card-header-split">
-            <p class="app-card-title">取消紀錄</p>
-          </div>
-
-          <div class="app-card-list mt-[20px]">
-            <TaskListCard v-for="task in cancelledTasks" :key="task.id" :current-uid="currentUid"
-              :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
-              @complete="handleCompleteTask" @confirm="handleConfirmTask" />
-
-            <AppEmptyState v-if="!cancelledTasks.length" title="目前沒有取消紀錄" />
-          </div>
-        </section>
+      <section v-if="!canUseTasks" class="flex items-start gap-[20px] rounded-[2rem] bg-[var(--app-surface-strong)] p-[24px] shadow-[var(--app-shadow-card)] max-[420px]:flex-col max-[420px]:items-stretch">
+        <span class="material-symbols-outlined inline-grid h-[48px] w-[48px] flex-none place-items-center rounded-full bg-[var(--app-accent-soft)] text-[var(--app-accent)]" aria-hidden="true">favorite</span>
+        <div>
+          <h2 class="m-[0px] text-[20px] font-[800] leading-[1.28] text-[var(--app-text-strong)]">共同生活需要兩個人一起開始</h2>
+          <p class="m-[0px] mt-[12px] text-[13px] font-[600] leading-[1.5] text-[var(--app-text-muted)]">完成配對後，就能同步任務、確認進度與累積點數。</p>
+        </div>
+        <RouterLink
+          class="inline-flex min-h-[40px] flex-none items-center justify-center rounded-full bg-[var(--app-accent)] px-[16px] text-[13px] font-[800] text-white no-underline max-[420px]:w-full"
+          :to="{ name: 'pairing' }"
+        >
+          前往配對
+        </RouterLink>
       </section>
-    </template>
+
+      <template v-else>
+        <div class="grid grid-cols-3 gap-[8px] rounded-2xl bg-[var(--auth-surface-container-low)] p-[6px]" role="tablist" aria-label="任務狀態">
+          <button
+            v-for="tab in taskTabs"
+            :key="tab.key"
+            class="inline-flex min-h-[44px] min-w-[0px] items-center justify-center gap-[4px] rounded-xl border-0 bg-transparent text-[13px] font-[800] leading-[1.2] text-[var(--app-text-muted)] transition-[background-color,color,box-shadow] duration-[180ms]"
+            :class="{ 'bg-[var(--auth-primary-container)] text-white shadow-[0_8px_18px_rgba(148,72,53,0.12)]': activeTab === tab.key }"
+            type="button"
+            role="tab"
+            :aria-selected="activeTab === tab.key"
+            @click="activeTab = tab.key"
+          >
+            <span>{{ tab.label }}</span>
+            <span class="text-[12px] opacity-[0.82]">{{ tab.count }}</span>
+          </button>
+        </div>
+
+        <section class="grid gap-[16px]" aria-live="polite">
+          <TaskListCard
+            v-for="task in visibleTasks"
+            :key="task.id"
+            :current-uid="currentUid"
+            :is-submitting="isSubmitting"
+            :partner-name="assigneeLabel"
+            :task="task"
+            @cancel="handleCancelTask"
+            @complete="handleCompleteTask"
+            @confirm="handleConfirmTask"
+          />
+
+          <AppEmptyState v-if="!visibleTasks.length" :title="emptyTitle" description="新增一個任務，讓今天更有節奏。" />
+
+          <RouterLink
+            class="flex min-h-[112px] flex-col items-center justify-center gap-[8px] rounded-[1.5rem] border-2 border-dashed border-[rgba(148,72,53,0.2)] bg-[rgba(255,255,255,0.5)] text-[15px] font-[800] text-[rgba(148,72,53,0.66)] no-underline transition-[border-color,color,transform] duration-[180ms] hover:border-[rgba(148,72,53,0.34)] hover:text-[var(--app-accent)] active:scale-[0.98] [&_.material-symbols-outlined]:text-[2rem]"
+            :to="{ name: 'create-task' }"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">add_circle</span>
+            <span>新增共同任務</span>
+          </RouterLink>
+        </section>
+
+        <section class="flex items-center gap-[20px] rounded-[2rem] bg-[var(--auth-surface-container-high)] p-[24px] max-[420px]:flex-col max-[420px]:items-stretch" aria-label="本週進度">
+          <div class="min-w-[0px] flex-auto">
+            <h2 class="m-[0px] text-[20px] font-[800] leading-[1.28] text-[var(--app-text-strong)]">本週進度</h2>
+            <div class="mt-[12px] h-[16px] overflow-hidden rounded-full bg-[rgba(255,255,255,0.92)]">
+              <div class="h-full rounded-[inherit] bg-[var(--auth-secondary-fixed-dim)] transition-[width] duration-[240ms]" :style="progressStyle" />
+            </div>
+            <p class="m-[0px] mt-[12px] text-[13px] font-[600] leading-[1.5] text-[var(--app-text-muted)]">我們已經完成了 {{ finishedCount }} 個任務！加油！</p>
+          </div>
+          <div class="grid h-[80px] w-[80px] flex-none content-center place-items-center rounded-2xl bg-[var(--auth-primary-container)] text-white max-[420px]:h-[64px] max-[420px]:w-full max-[420px]:auto-cols-max max-[420px]:grid-flow-col max-[420px]:gap-[8px]">
+            <strong class="text-[24px] leading-none">{{ progressPercent }}%</strong>
+            <span class="text-[0.625rem] font-[800]">已達成</span>
+          </div>
+        </section>
+      </template>
+    </section>
   </MobileAppShell>
 </template>
-
-<style scoped>
-.tasks-page-header {
-  padding-bottom: 1.25rem;
-}
-
-.tasks-create-link {
-  flex: 0 0 auto;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.tasks-page-content {
-  gap: 1.5rem;
-}
-
-.tasks-create-page {
-  display: grid;
-  align-content: start;
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-}
-</style>

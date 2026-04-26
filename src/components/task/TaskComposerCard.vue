@@ -139,73 +139,122 @@ function handleSubmit() {
 </script>
 
 <template>
-  <section class="task-composer" aria-labelledby="task-composer-title">
-    <div class="task-composer__intro">
-      <p class="task-composer__eyebrow">Create Task</p>
-      <h2 id="task-composer-title" class="task-composer__title">新冒險</h2>
-      <p class="task-composer__subtitle">今天想計畫些什麼？</p>
+  <section class="grid gap-[24px] text-[#211a18]" aria-labelledby="task-composer-title">
+    <div class="grid gap-[4px] px-[4px]">
+      <h2 id="task-composer-title" class="m-[0px] text-[32px] font-[800] leading-[1.18] text-[#211a18]">
+        新冒險
+      </h2>
+      <p class="m-[0px] text-[16px] leading-normal text-[#54433e]">今天想計畫些什麼？</p>
     </div>
 
-    <form class="task-composer__card" @submit.prevent="handleSubmit">
-      <label class="task-composer__field">
-        <span class="task-composer__label">冒險名稱</span>
-        <input v-model="form.title" class="task-composer__input" type="text" placeholder="例如：週日的農夫市集"
-          autocomplete="off" />
+    <form
+      class="grid gap-[24px] rounded-3xl border border-white/85 bg-white/95 bg-gradient-to-b from-white/95 to-[#fffdfb]/95 p-[24px] shadow-[0_8px_32px_rgba(148,72,53,0.08)] sm:p-[32px]"
+      @submit.prevent="handleSubmit"
+    >
+      <label class="grid gap-[8px]">
+        <span class="m-[0px] pl-[8px] text-[15px] font-[700] leading-snug text-[#54433e]">冒險名稱</span>
+        <input
+          v-model="form.title"
+          class="w-full rounded-[0.9rem] border-0 bg-[#ede0db] px-[12px] py-[16px] text-[16px] leading-normal text-[#211a18] outline-none transition-[background-color,box-shadow] duration-200 placeholder:text-[#87726d] focus:bg-white focus:shadow-[0_0_0_2px_#ff9e85,0_4px_16px_rgba(255,158,133,0.3)]"
+          type="text"
+          placeholder="例如：週日的農夫市集"
+          autocomplete="off"
+        />
       </label>
 
-      <label class="task-composer__field">
-        <span class="task-composer__label">詳細內容（選填）</span>
-        <textarea v-model="form.description" class="task-composer__input task-composer__textarea"
-          placeholder="有什麼特別需要注意的事項嗎..." rows="3" />
+      <label class="grid gap-[8px]">
+        <span class="m-[0px] pl-[8px] text-[15px] font-[700] leading-snug text-[#54433e]">詳細內容（選填）</span>
+        <textarea
+          v-model="form.description"
+          class="min-h-[112px] w-full resize-none rounded-[0.9rem] border-0 bg-[#ede0db] px-[12px] py-[16px] text-[16px] leading-normal text-[#211a18] outline-none transition-[background-color,box-shadow] duration-200 placeholder:text-[#87726d] focus:bg-white focus:shadow-[0_0_0_2px_#ff9e85,0_4px_16px_rgba(255,158,133,0.3)]"
+          placeholder="可以補充地點、時間或完成標準..."
+          rows="3"
+        />
       </label>
 
-      <div class="task-composer__field">
-        <span class="task-composer__label">這件事誰來做？</span>
-        <div class="task-composer__chips" role="group" aria-label="任務指派對象">
-          <button class="task-composer__chip" :class="{ 'is-selected': getSelectedAssignee === 'me' }" type="button"
-            :disabled="!currentUid" @click="selectAssignee('me')">
+      <div class="grid gap-[8px]">
+        <span class="m-[0px] pl-[8px] text-[15px] font-[700] leading-snug text-[#54433e]">這件事誰來做？</span>
+        <div class="grid grid-cols-3 gap-[12px]" role="group" aria-label="任務指派對象">
+          <button
+            class="min-w-[0px] rounded-full border-0 px-[10px] py-[12px] text-[15px] font-[800] transition-[background-color,color,transform,box-shadow] duration-200 active:enabled:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            :class="getSelectedAssignee === 'me' ? 'bg-[#b3efd8] text-[#356e5c] shadow-[0_8px_18px_rgba(47,104,87,0.12)]' : 'bg-[#ede0db] text-[#54433e]'"
+            type="button"
+            :disabled="!currentUid"
+            @click="selectAssignee('me')"
+          >
             我
           </button>
-          <button class="task-composer__chip" :class="{ 'is-selected': getSelectedAssignee === 'partner' }"
-            type="button" :disabled="!defaultAssignedTo" @click="selectAssignee('partner')">
+          <button
+            class="min-w-[0px] rounded-full border-0 px-[10px] py-[12px] text-[15px] font-[800] transition-[background-color,color,transform,box-shadow] duration-200 active:enabled:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            :class="getSelectedAssignee === 'partner' ? 'bg-[#b3efd8] text-[#356e5c] shadow-[0_8px_18px_rgba(47,104,87,0.12)]' : 'bg-[#ede0db] text-[#54433e]'"
+            type="button"
+            :disabled="!defaultAssignedTo"
+            @click="selectAssignee('partner')"
+          >
             {{ getPartnerLabel }}
           </button>
-          <button class="task-composer__chip" :class="{ 'is-selected': getSelectedAssignee === 'couple' }" type="button"
-            @click="selectAssignee('couple')">
-            我們
+          <button
+            class="min-w-[0px] rounded-full border-0 px-[10px] py-[12px] text-[15px] font-[800] transition-[background-color,color,transform,box-shadow] duration-200 active:enabled:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            :class="getSelectedAssignee === 'couple' ? 'bg-[#b3efd8] text-[#356e5c] shadow-[0_8px_18px_rgba(47,104,87,0.12)]' : 'bg-[#ede0db] text-[#54433e]'"
+            type="button"
+            @click="selectAssignee('couple')"
+          >
+            一起
           </button>
         </div>
       </div>
 
-      <section class="task-composer__reward" aria-labelledby="reward-title">
-        <div class="task-composer__reward-head">
-          <span id="reward-title" class="task-composer__reward-label">
-            <span class="material-symbols-outlined fill" aria-hidden="true">
+      <section class="grid gap-[12px] rounded-2xl bg-[#f9ebe7] p-[20px]" aria-labelledby="reward-title">
+        <div class="flex items-center justify-between gap-[12px]">
+          <span id="reward-title" class="m-[0px] inline-flex items-center gap-[8px] text-[15px] font-[800] text-[#211a18]">
+            <span class="material-symbols-outlined fill text-xl text-[#944835]" aria-hidden="true">
               stars
             </span>
             獎勵點數
           </span>
-          <strong class="task-composer__points">+{{ form.points }}</strong>
+          <strong class="m-[0px] text-[24px] font-[800] leading-tight text-[#944835] [font-variant-numeric:tabular-nums]">
+            +{{ form.points }}
+          </strong>
         </div>
-        <input v-model.number="form.points" class="task-composer__range" type="range" min="0" max="1000" step="50" />
-        <div class="task-composer__range-scale" aria-hidden="true">
+        <input
+          v-model.number="form.points"
+          class="mt-[6px] w-full appearance-none bg-transparent [&::-moz-range-thumb]:h-[24px] [&::-moz-range-thumb]:w-[24px] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[#944835] [&::-moz-range-thumb]:shadow-[0_2px_8px_rgba(148,72,53,0.3)] [&::-moz-range-track]:h-[8px] [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-[#ede0db] [&::-webkit-slider-runnable-track]:h-[8px] [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-[#ede0db] [&::-webkit-slider-thumb]:-mt-2 [&::-webkit-slider-thumb]:h-[24px] [&::-webkit-slider-thumb]:w-[24px] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#944835] [&::-webkit-slider-thumb]:shadow-[0_2px_8px_rgba(148,72,53,0.3)]"
+          type="range"
+          min="0"
+          max="1000"
+          step="50"
+        />
+        <div class="m-[0px] flex items-center justify-between gap-[12px] text-[12px] font-[700] text-[#87726d]" aria-hidden="true">
           <span>0</span>
           <span>1000</span>
         </div>
       </section>
 
-      <div class="task-composer__due-date">
-        <button class="task-composer__date-button" type="button" @click="openDueDatePicker">
-          <span class="material-symbols-outlined" aria-hidden="true">event</span>
+      <div class="flex items-center justify-between gap-[12px]">
+        <button
+          class="inline-flex flex-1 items-center justify-start gap-[8px] rounded-full border-0 bg-[#fff1ec] px-[16px] py-[12px] text-[15px] font-[800] text-[#54433e]"
+          type="button"
+          @click="openDueDatePicker"
+        >
+          <span class="material-symbols-outlined text-xl" aria-hidden="true">event</span>
           <span>{{ getDueDateLabel }}</span>
         </button>
-        <button v-if="form.dueDate" class="task-composer__date-clear" type="button" aria-label="清除日期"
-          @click="clearDueDate">
-          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        <button
+          v-if="form.dueDate"
+          class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-full border-0 bg-[#ede0db] text-[#54433e]"
+          type="button"
+          aria-label="清除日期"
+          @click="clearDueDate"
+        >
+          <span class="material-symbols-outlined text-xl" aria-hidden="true">close</span>
         </button>
       </div>
 
-      <button class="task-composer__submit" type="submit" :disabled="!canSubmit">
+      <button
+        class="inline-flex w-full items-center justify-center gap-[8px] rounded-[1.25rem] border-0 bg-[#944835] px-[16px] py-[1.15rem] text-[15px] font-[800] text-white shadow-[0_8px_24px_rgba(148,72,53,0.4)] transition-[transform,box-shadow,opacity] duration-200 hover:enabled:shadow-[0_12px_28px_rgba(148,72,53,0.5)] active:enabled:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none"
+        type="submit"
+        :disabled="!canSubmit"
+      >
         <span class="material-symbols-outlined fill" aria-hidden="true">
           favorite
         </span>
@@ -214,302 +263,18 @@ function handleSubmit() {
     </form>
 
     <Popup v-model:show="showDueDatePicker" position="bottom" round safe-area-inset-bottom teleport="body">
-      <DatePicker v-model="datePickerValue" title="截止日期" cancel-button-text="取消" confirm-button-text="確認"
-        :min-date="minDueDate" :max-date="new Date(2035, 11, 31)" @cancel="showDueDatePicker = false"
-        @confirm="handleConfirmDueDate" />
+      <DatePicker
+        v-model="datePickerValue"
+        title="選擇日期"
+        cancel-button-text="取消"
+        confirm-button-text="確認"
+        :min-date="minDueDate"
+        :max-date="new Date(2035, 11, 31)"
+        @cancel="showDueDatePicker = false"
+        @confirm="handleConfirmDueDate"
+      />
     </Popup>
   </section>
 </template>
 
-<style scoped>
-.task-composer {
-  --create-background: #fff8f6;
-  --create-surface: #ffffff;
-  --create-surface-low: #fff1ec;
-  --create-surface-container: #f9ebe7;
-  --create-surface-variant: #ede0db;
-  --create-outline: #87726d;
-  --create-outline-variant: #dac1bb;
-  --create-primary: #944835;
-  --create-primary-container: #ff9e85;
-  --create-secondary-container: #b3efd8;
-  --create-on-secondary-container: #356e5c;
-  --create-on-surface: #211a18;
-  --create-on-surface-variant: #54433e;
-  display: grid;
-  gap: 1.5rem;
-  color: var(--create-on-surface);
-}
 
-.task-composer__intro {
-  display: grid;
-  gap: 0.25rem;
-  padding: 0 0.25rem;
-}
-
-.task-composer__eyebrow,
-.task-composer__title,
-.task-composer__subtitle,
-.task-composer__label,
-.task-composer__points,
-.task-composer__reward-label,
-.task-composer__range-scale {
-  margin: 0;
-}
-
-.task-composer__eyebrow {
-  color: var(--create-primary);
-  font-size: var(--app-type-12);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.task-composer__title {
-  color: var(--create-on-surface);
-  font-size: var(--app-type-32);
-  font-weight: 800;
-  line-height: 1.18;
-}
-
-.task-composer__subtitle {
-  color: var(--create-on-surface-variant);
-  font-size: var(--app-type-16);
-  line-height: 1.5;
-}
-
-.task-composer__card {
-  display: grid;
-  gap: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.86);
-  border-radius: 1.5rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 253, 251, 0.94)),
-    var(--create-surface);
-  padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(148, 72, 53, 0.08);
-}
-
-.task-composer__field {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.task-composer__label {
-  padding-left: 0.5rem;
-  color: var(--create-on-surface-variant);
-  font-size: var(--app-type-15);
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.task-composer__input {
-  width: 100%;
-  border: 0;
-  border-radius: 0.9rem;
-  background: var(--create-surface-variant);
-  padding: 1rem 0.75rem;
-  color: var(--create-on-surface);
-  font-size: var(--app-type-16);
-  line-height: 1.5;
-  outline: none;
-  transition: background-color 220ms ease, box-shadow 220ms ease;
-}
-
-.task-composer__input::placeholder {
-  color: var(--create-outline);
-}
-
-.task-composer__input:focus {
-  background: var(--create-surface);
-  box-shadow:
-    0 0 0 2px var(--create-primary-container),
-    0 4px 16px rgba(255, 158, 133, 0.3);
-}
-
-.task-composer__textarea {
-  min-height: 7rem;
-  resize: none;
-}
-
-.task-composer__chips {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.task-composer__chip {
-  min-width: 0;
-  border: 0;
-  border-radius: 999px;
-  background: var(--create-surface-variant);
-  padding: 0.75rem 0.6rem;
-  color: var(--create-on-surface-variant);
-  font-size: var(--app-type-15);
-  font-weight: 800;
-  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
-}
-
-.task-composer__chip:not(:disabled):active,
-.task-composer__submit:not(:disabled):active {
-  transform: scale(0.98);
-}
-
-.task-composer__chip.is-selected {
-  background: var(--create-secondary-container);
-  color: var(--create-on-secondary-container);
-  box-shadow: 0 8px 18px rgba(47, 104, 87, 0.12);
-}
-
-.task-composer__chip:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.task-composer__reward {
-  display: grid;
-  gap: 0.75rem;
-  border-radius: 1rem;
-  background: var(--create-surface-container);
-  padding: 1.25rem;
-}
-
-.task-composer__reward-head,
-.task-composer__range-scale,
-.task-composer__due-date {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.task-composer__reward-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--create-on-surface);
-  font-size: var(--app-type-15);
-  font-weight: 800;
-}
-
-.task-composer__reward-label .material-symbols-outlined {
-  color: var(--create-primary);
-  font-size: 1.25rem;
-}
-
-.task-composer__points {
-  color: var(--create-primary);
-  font-size: var(--app-type-24);
-  font-weight: 800;
-  line-height: 1.15;
-  font-variant-numeric: tabular-nums;
-}
-
-.task-composer__range {
-  width: 100%;
-  margin: 0.35rem 0 0;
-  appearance: none;
-  background: transparent;
-}
-
-.task-composer__range::-webkit-slider-runnable-track {
-  height: 0.5rem;
-  border-radius: 999px;
-  background: var(--create-surface-variant);
-}
-
-.task-composer__range::-webkit-slider-thumb {
-  width: 1.5rem;
-  height: 1.5rem;
-  margin-top: -0.5rem;
-  appearance: none;
-  border-radius: 999px;
-  background: var(--create-primary);
-  box-shadow: 0 2px 8px rgba(148, 72, 53, 0.3);
-}
-
-.task-composer__range::-moz-range-track {
-  height: 0.5rem;
-  border-radius: 999px;
-  background: var(--create-surface-variant);
-}
-
-.task-composer__range::-moz-range-thumb {
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 0;
-  border-radius: 999px;
-  background: var(--create-primary);
-  box-shadow: 0 2px 8px rgba(148, 72, 53, 0.3);
-}
-
-.task-composer__range-scale {
-  color: var(--create-outline);
-  font-size: var(--app-type-12);
-  font-weight: 700;
-}
-
-.task-composer__date-button,
-.task-composer__date-clear {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  color: var(--create-on-surface-variant);
-}
-
-.task-composer__date-button {
-  flex: 1;
-  justify-content: flex-start;
-  gap: 0.5rem;
-  border-radius: 999px;
-  background: var(--create-surface-low);
-  padding: 0.75rem 1rem;
-  font-size: var(--app-type-15);
-  font-weight: 800;
-}
-
-.task-composer__date-clear {
-  width: 2.75rem;
-  border-radius: 999px;
-  background: var(--create-surface-variant);
-}
-
-.task-composer__date-button .material-symbols-outlined,
-.task-composer__date-clear .material-symbols-outlined {
-  font-size: 1.25rem;
-}
-
-.task-composer__submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  border: 0;
-  border-radius: 1.25rem;
-  background: var(--create-primary);
-  padding: 1.15rem 1rem;
-  color: #ffffff;
-  font-size: var(--app-type-15);
-  font-weight: 800;
-  box-shadow: 0 8px 24px rgba(148, 72, 53, 0.4);
-  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
-}
-
-.task-composer__submit:hover:not(:disabled) {
-  box-shadow: 0 12px 28px rgba(148, 72, 53, 0.5);
-}
-
-.task-composer__submit:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-  box-shadow: none;
-}
-
-@media (min-width: 640px) {
-  .task-composer__card {
-    padding: 2rem;
-  }
-}
-</style>

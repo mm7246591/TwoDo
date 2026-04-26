@@ -45,44 +45,44 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <section class="app-card app-card-section">
-    <form class="app-form-stack" @submit.prevent="handleSubmit">
-      <label class="app-field-stack block">
-        <span class="app-field-label">獎勵名稱</span>
+  <section class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[20px]">
+    <form class="grid gap-[16px]" @submit.prevent="handleSubmit">
+      <label class="grid gap-[8px] block">
+        <span class="text-[15px] font-[600] text-[var(--app-text-muted)]">獎勵名稱</span>
         <input
           v-model="form.title"
-          class="app-input"
+          class="w-full rounded-[1.35rem] border border-[var(--app-input-border)] bg-[var(--app-input-bg)] px-[16px] py-[0.95rem] text-[var(--app-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition-[border-color,box-shadow,background-color,transform] duration-[180ms] placeholder:text-[var(--app-input-placeholder)] focus:border-[var(--app-input-focus-border)] focus:bg-[var(--app-input-focus-bg)] focus:shadow-[0_0_0_4px_var(--app-input-focus-ring),0_10px_28px_var(--app-input-focus-shadow)] focus:outline-none"
           type="text"
-          placeholder="例如：按摩一次"
+          placeholder="輸入獎勵名稱"
         />
       </label>
 
-      <label class="app-field-stack block">
-        <span class="app-field-label">備註</span>
+      <label class="grid gap-[8px] block">
+        <span class="text-[15px] font-[600] text-[var(--app-text-muted)]">說明</span>
         <textarea
           v-model="form.description"
-          class="app-input min-h-[96px] resize-none py-[16px]"
-          placeholder="補充內容或小約定"
+          class="w-full min-h-[96px] resize-none rounded-[1.35rem] border border-[var(--app-input-border)] bg-[var(--app-input-bg)] px-[16px] py-[16px] text-[var(--app-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition-[border-color,box-shadow,background-color,transform] duration-[180ms] placeholder:text-[var(--app-input-placeholder)] focus:border-[var(--app-input-focus-border)] focus:bg-[var(--app-input-focus-bg)] focus:shadow-[0_0_0_4px_var(--app-input-focus-ring),0_10px_28px_var(--app-input-focus-shadow)] focus:outline-none"
+          placeholder="補充獎勵說明"
         />
       </label>
 
-      <div class="app-form-grid-2">
-        <label class="app-field-stack block">
-          <span class="app-field-label">所需點數</span>
+      <div class="grid gap-[16px] sm:grid-cols-2">
+        <label class="grid gap-[8px] block">
+          <span class="text-[15px] font-[600] text-[var(--app-text-muted)]">需要點數</span>
           <input
             v-model="form.cost"
-            class="app-input"
+            class="w-full rounded-[1.35rem] border border-[var(--app-input-border)] bg-[var(--app-input-bg)] px-[16px] py-[0.95rem] text-[var(--app-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition-[border-color,box-shadow,background-color,transform] duration-[180ms] placeholder:text-[var(--app-input-placeholder)] focus:border-[var(--app-input-focus-border)] focus:bg-[var(--app-input-focus-bg)] focus:shadow-[0_0_0_4px_var(--app-input-focus-ring),0_10px_28px_var(--app-input-focus-shadow)] focus:outline-none"
             type="number"
             min="1"
             step="1"
           />
         </label>
 
-        <label class="app-field-stack block">
-          <span class="app-field-label">開放兌換</span>
-          <div class="app-input flex items-center justify-between gap-[12px]">
-            <span :class="isRewardActive ? 'app-text-strong' : 'app-text-soft'">
-              {{ isRewardActive ? "立即開放" : "先不開放" }}
+        <label class="grid gap-[8px] block">
+          <span class="text-[15px] font-[600] text-[var(--app-text-muted)]">上架狀態</span>
+          <div class="flex w-full items-center justify-between gap-[12px] rounded-[1.35rem] border border-[var(--app-input-border)] bg-[var(--app-input-bg)] px-[16px] py-[0.95rem] text-[var(--app-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition-[border-color,box-shadow,background-color,transform] duration-[180ms] placeholder:text-[var(--app-input-placeholder)] focus:border-[var(--app-input-focus-border)] focus:bg-[var(--app-input-focus-bg)] focus:shadow-[0_0_0_4px_var(--app-input-focus-ring),0_10px_28px_var(--app-input-focus-shadow)] focus:outline-none">
+            <span :class="isRewardActive ? 'text-[var(--app-text-strong)]' : 'text-[var(--app-text-soft)]'">
+              {{ isRewardActive ? "開放兌換" : "暫停兌換" }}
             </span>
             <Switch
               v-model="isRewardActive"
@@ -95,7 +95,7 @@ const handleSubmit = () => {
       </div>
 
       <button
-        class="app-primary-button mt-[24px] w-full"
+        class="inline-flex items-center justify-center gap-[8px] rounded-full border-0 bg-[linear-gradient(135deg,var(--app-accent)_0%,var(--app-accent-strong)_100%)] px-[16px] py-[12px] text-[15px] font-[700] text-[var(--app-text-on-accent)] shadow-[var(--app-button-primary-shadow)] transition-[transform,box-shadow,background-color,border-color,color] duration-[180ms] hover:enabled:-translate-y-[1px] hover:enabled:shadow-[var(--app-button-primary-shadow-hover)] focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--app-input-focus-ring),var(--app-shadow-chip)] disabled:cursor-not-allowed disabled:shadow-none disabled:opacity-55 mt-[24px] w-full"
         type="submit"
         :disabled="props.isSubmitting"
       >
@@ -104,3 +104,7 @@ const handleSubmit = () => {
     </form>
   </section>
 </template>
+
+
+
+

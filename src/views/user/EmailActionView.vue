@@ -13,7 +13,7 @@ const authStore = useAuthStore();
 const route = useRoute();
 
 const status = ref<ActionStatus>("processing");
-const feedbackMessage = ref("正在確認你的信箱驗證狀態...");
+const feedbackMessage = ref("正在驗證你的電子信箱...");
 
 const isProcessing = computed(() => status.value === "processing");
 const isSuccessful = computed(() => status.value === "success");
@@ -58,11 +58,11 @@ const handleEmailVerification = async (actionCode: string) => {
     emitEmailVerificationSignal();
     showSuccessMessage("信箱驗證完成");
     status.value = "success";
-    feedbackMessage.value = "信箱已完成驗證。請回到原畫面繼續使用 App。";
+    feedbackMessage.value = "信箱已完成驗證，請回到 App 繼續使用。";
   } catch {
     status.value = "error";
     feedbackMessage.value =
-      "這個驗證連結可能已過期、已被使用，或不是有效的驗證網址。請重新登入後再寄送一次驗證信。";
+      "這個驗證連結可能已過期或無效，請重新登入後再寄送一次驗證信。";
   }
 };
 
@@ -76,7 +76,7 @@ onMounted(async () => {
   if (mode !== "verifyEmail" || !actionCode) {
     status.value = "error";
     feedbackMessage.value =
-      "驗證連結缺少必要的驗證資訊，請回到 App 重新寄送驗證信。";
+      "驗證資訊不完整，請回到 App 重新開啟驗證連結。";
     return;
   }
 
@@ -90,7 +90,7 @@ onBeforeUnmount(() => {
 
 <template>
   <main
-    class="relative flex min-h-[max(884px,100dvh)] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_16%_14%,rgba(255,219,210,0.72)_0_8rem,transparent_8.25rem),radial-gradient(circle_at_84%_82%,rgba(179,239,216,0.54)_0_8rem,transparent_8.25rem),linear-gradient(180deg,var(--auth-surface-bright)_0%,var(--auth-surface-container-low)_100%)] px-[20px] pb-[max(2rem,calc(var(--safe-bottom)+1.25rem))] pt-[max(2rem,calc(var(--safe-top)+1.25rem))] font-['Plus_Jakarta_Sans','Noto_Sans_TC',sans-serif] text-[var(--auth-on-surface)] sm:px-[max(3rem,calc(var(--safe-left)+2rem))] sm:pb-[max(3rem,calc(var(--safe-bottom)+2rem))] sm:pt-[max(3rem,calc(var(--safe-top)+2rem))] sm:[padding-right:max(3rem,calc(var(--safe-right)+2rem))]"
+    class="relative flex min-h-[max(884px,100dvh)] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_16%_14%,rgba(255,219,210,0.72)_0_8rem,transparent_8.25rem),radial-gradient(circle_at_84%_82%,rgba(179,239,216,0.54)_0_8rem,transparent_8.25rem),linear-gradient(180deg,var(--auth-surface-bright)_0%,var(--auth-surface-container-low)_100%)] px-[20px] pb-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] pt-[max(2rem,calc(env(safe-area-inset-top,0px)+1.25rem))] font-['Plus_Jakarta_Sans','Noto_Sans_TC',sans-serif] text-[var(--auth-on-surface)] sm:px-[max(3rem,calc(env(safe-area-inset-left,0px)+2rem))] sm:pb-[max(3rem,calc(env(safe-area-inset-bottom,0px)+2rem))] sm:pt-[max(3rem,calc(env(safe-area-inset-top,0px)+2rem))] sm:[padding-right:max(3rem,calc(env(safe-area-inset-right,0px)+2rem))]"
   >
     <section
       class="relative z-[1] flex w-full max-w-[28.75rem] flex-col gap-[32px] rounded-[32px] border border-[color:color-mix(in_srgb,var(--auth-primary-fixed)_58%,transparent)] bg-[rgba(255,255,255,0.94)] px-[24px] py-[36px] text-center shadow-[0_20px_56px_rgba(118,69,52,0.12),inset_0_1px_0_rgba(255,255,255,0.82)] sm:p-[56px]"
@@ -116,13 +116,13 @@ onBeforeUnmount(() => {
 
         <div class="min-w-[0px]">
           <p
-            class="mb-[8px] mt-[0px] text-[14px] font-bold leading-[20px] tracking-[0.01em] text-[var(--auth-primary)]"
+            class="mb-[8px] mt-[0px] text-[14px] font-[700] leading-[20px] tracking-[0.01em] text-[var(--auth-primary)]"
           >
             {{ cardEyebrow }}
           </p>
           <h1
             id="email-action-title"
-            class="m-0 text-[32px] font-extrabold leading-[40px] tracking-[-0.02em] text-[var(--auth-on-surface)]"
+            class="m-[0px] text-[32px] font-[800] leading-[40px] tracking-[-0.02em] text-[var(--auth-on-surface)]"
           >
             {{ cardTitle }}
           </h1>
@@ -131,7 +131,7 @@ onBeforeUnmount(() => {
 
       <div class="flex flex-col gap-[16px]">
         <p
-          class="m-0 text-[16px] font-normal leading-[1.55] text-[var(--auth-on-surface-variant)]"
+          class="m-[0px] text-[16px] font-[400] leading-[1.55] text-[var(--auth-on-surface-variant)]"
         >
           {{ feedbackMessage }}
         </p>
@@ -149,3 +149,4 @@ onBeforeUnmount(() => {
     </section>
   </main>
 </template>
+

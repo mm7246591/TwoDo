@@ -97,7 +97,7 @@ const useHomeDashboard = () => {
 
   const getTaskOwnerBadge = (task: Task) => {
     if (isCoupleTask(task)) {
-      return "我們";
+      return "兩個人";
     }
 
     if (task.assignedTo === currentUid.value) {
@@ -108,7 +108,7 @@ const useHomeDashboard = () => {
       return "你";
     }
 
-    return "我們";
+    return "兩個人";
   };
 
   const focusTaskItems = computed<HomeTaskItem[]>(() =>
@@ -131,7 +131,7 @@ const useHomeDashboard = () => {
       canConfirm: true,
       description: task.completedAt
         ? `完成於 ${formatDateTime(task.completedAt)}`
-        : "等你確認",
+        : "等待你的確認",
       id: task.id,
       title: task.title,
     })),
@@ -157,7 +157,7 @@ const useHomeDashboard = () => {
       return;
     }
 
-    showSuccessMessage("已標記完成");
+    showSuccessMessage("任務已標記完成");
   };
 
   const handleConfirmTask = async (taskId: string) => {
@@ -173,7 +173,7 @@ const useHomeDashboard = () => {
       return;
     }
 
-    showSuccessMessage("已確認並加點數");
+    showSuccessMessage("任務完成已確認");
   };
 
   const handleRemindTask = (taskId: string) => {
@@ -181,7 +181,7 @@ const useHomeDashboard = () => {
       return;
     }
 
-    showSuccessMessage("會先保留在待確認清單");
+    showSuccessMessage("已提醒夥伴確認任務");
   };
 
   watch(

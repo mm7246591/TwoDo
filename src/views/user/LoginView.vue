@@ -183,19 +183,19 @@ const handleForgotPasswordPreview = () => {
             aria-hidden="true"
             >favorite</span
           >
-          <span class="text-[24px] font-semibold leading-[32px] tracking-tight"
+          <span class="text-[24px] font-[600] leading-[32px] tracking-tight"
             >TwoDo</span
           >
         </RouterLink>
 
         <h1
           id="login-title"
-          class="m-0 text-[32px] font-bold leading-[40px] tracking-[-0.01em] text-[var(--auth-on-surface)]"
+          class="m-[0px] text-[32px] font-[700] leading-[40px] tracking-[-0.01em] text-[var(--auth-on-surface)]"
         >
           歡迎回來
         </h1>
         <p
-          class="m-0 text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface-variant)]"
+          class="m-[0px] text-[16px] font-[400] leading-[24px] text-[var(--auth-on-surface-variant)]"
         >
           回到你們的日常節奏。
         </p>
@@ -233,7 +233,7 @@ const handleForgotPasswordPreview = () => {
             />
           </svg>
           <span
-            class="text-[14px] font-semibold leading-[20px] tracking-[0.01em]"
+            class="text-[14px] font-[600] leading-[20px] tracking-[0.01em]"
           >
             {{ isGoogleSubmitting ? "連線中..." : "使用 Google 帳號繼續" }}
           </span>
@@ -242,7 +242,7 @@ const handleForgotPasswordPreview = () => {
         <div class="flex items-center gap-[12px]">
           <div class="h-px flex-1 bg-[rgb(218_193_187_/_0.5)]" />
           <span
-            class="text-[12px] font-medium uppercase leading-[16px] tracking-wider text-[var(--auth-on-surface-variant)]"
+            class="text-[12px] font-[500] uppercase leading-[16px] tracking-wider text-[var(--auth-on-surface-variant)]"
             >或</span
           >
           <div class="h-px flex-1 bg-[rgb(218_193_187_/_0.5)]" />
@@ -256,12 +256,12 @@ const handleForgotPasswordPreview = () => {
       >
         <label class="flex flex-col gap-[8px]">
           <span
-            class="pl-[4px] text-[12px] font-medium leading-[16px] text-[var(--auth-on-surface-variant)]"
+            class="pl-[4px] text-[12px] font-[500] leading-[16px] text-[var(--auth-on-surface-variant)]"
             >電子郵件</span
           >
           <input
             v-model="email"
-            class="h-[56px] rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
+            class="h-[56px] rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-[400] leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
             :class="{
               'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
                 shouldShowEmailError,
@@ -286,7 +286,7 @@ const handleForgotPasswordPreview = () => {
             <p
               v-if="shouldShowEmailError"
               id="login-email-error"
-              class="m-0 px-[4px] text-[12px] font-medium leading-[16px] text-[var(--auth-error)]"
+              class="m-[0px] px-[4px] text-[12px] font-[500] leading-[16px] text-[var(--auth-error)]"
             >
               {{ emailErrorMessage }}
             </p>
@@ -295,12 +295,12 @@ const handleForgotPasswordPreview = () => {
 
         <label class="flex flex-col gap-[8px]">
           <span
-            class="text-[12px] font-medium leading-[16px] text-[var(--auth-on-surface-variant)]"
+            class="text-[12px] font-[500] leading-[16px] text-[var(--auth-on-surface-variant)]"
             >密碼</span
           >
           <input
             v-model="password"
-            class="h-[56px] rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-normal leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
+            class="h-[56px] rounded-xl border border-transparent bg-[var(--auth-surface-container)] px-[24px] text-[16px] font-[400] leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[rgb(84_67_62_/_0.5)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
             :class="{
               'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
                 shouldShowPasswordError,
@@ -325,13 +325,13 @@ const handleForgotPasswordPreview = () => {
             <p
               v-if="shouldShowPasswordError"
               id="login-password-error"
-              class="m-0 px-[4px] text-[12px] font-medium leading-[16px] text-[var(--auth-error)]"
+              class="m-[0px] px-[4px] text-[12px] font-[500] leading-[16px] text-[var(--auth-error)]"
             >
               {{ passwordErrorMessage }}
             </p>
           </Transition>
           <button
-            class="flex min-h-[0px] items-center justify-end border-[0px] bg-transparent p-[0px] text-[12px] font-medium leading-[16px] text-[var(--auth-primary)] transition-colors"
+            class="flex min-h-[0px] items-center justify-end border-[0px] bg-transparent p-[0px] text-[12px] font-[500] leading-[16px] text-[var(--auth-primary)] transition-colors"
             type="button"
             @click="handleForgotPasswordPreview"
           >
@@ -340,7 +340,7 @@ const handleForgotPasswordPreview = () => {
         </label>
 
         <button
-          class="mt-[8px] flex h-[56px] w-full items-center justify-center rounded-xl bg-[var(--auth-primary)] text-[14px] font-semibold leading-[20px] tracking-[0.01em] text-[var(--auth-on-primary)] shadow-[0_8px_24px_-6px_rgba(148,72,53,0.3)] transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          class="mt-[8px] flex h-[56px] w-full items-center justify-center rounded-xl bg-[var(--auth-primary)] text-[14px] font-[600] leading-[20px] tracking-[0.01em] text-[var(--auth-on-primary)] shadow-[0_8px_24px_-6px_rgba(148,72,53,0.3)] transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
           :disabled="isAuthActionPending"
         >
@@ -350,7 +350,7 @@ const handleForgotPasswordPreview = () => {
 
       <div class="pt-[4px]">
         <span
-          class="flex justify-center items-center text-[14px] font-semibold leading-[20px] tracking-[0.01em] no-underline"
+          class="flex justify-center items-center text-[14px] font-[600] leading-[20px] tracking-[0.01em] no-underline"
         >
           還沒有帳號？<RouterLink
             :to="{ name: 'register' }"

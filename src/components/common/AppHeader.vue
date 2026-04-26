@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNotificationsStore } from "@/pinia/notifications";
@@ -43,43 +43,30 @@ watch(
 
 <template>
   <header
-    class="sticky top-[0px] z-[30] flex items-center justify-between gap-[var(--app-space-16)] border-b border-[rgba(255,255,255,0.68)] bg-[rgba(255,253,251,0.82)] px-[var(--app-space-20)] py-[var(--app-space-12)] shadow-[0_14px_34px_rgba(148,72,53,0.08)] backdrop-blur-[18px] sm:px-[var(--app-space-28)]"
-  >
-    <div class="inline-flex min-w-[0px] items-center gap-[var(--app-space-12)]">
+    class="sticky top-[0px] z-[30] flex items-center justify-between gap-[16px] border-b border-[rgba(255,255,255,0.68)] bg-[rgba(255,253,251,0.82)] px-[20px] py-[12px] shadow-[0_14px_34px_rgba(148,72,53,0.08)] backdrop-blur-[18px] sm:px-[28px]">
+    <div class="inline-flex min-w-[0px] items-center gap-[12px]">
       <span
-        class="inline-flex h-[40px] w-[40px] flex-none items-center justify-center overflow-hidden rounded-full bg-[var(--app-coral)] text-[length:var(--app-type-15)] font-[800] text-white"
-        aria-hidden="true"
-      >
-        <img
-          v-if="photoUrl"
-          class="h-full w-full object-cover"
-          :src="photoUrl"
-          :alt="`${userName} avatar`"
-        />
+        class="inline-flex h-[40px] w-[40px] flex-none items-center justify-center overflow-hidden rounded-full bg-[var(--app-coral)] text-[15px] font-[800] text-white"
+        aria-hidden="true">
+        <img v-if="photoUrl" class="h-full w-full object-cover" :src="photoUrl" :alt="`${userName} avatar`" />
         <span v-else>{{ getInitial(userName) }}</span>
-      </span>
-      <span
-        class="overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--app-type-24)] font-[900] leading-none tracking-[0px] text-[var(--app-coral)]"
-      >
-        TwoDo
       </span>
     </div>
 
     <button
       class="relative inline-flex h-[40px] min-h-[40px] w-[40px] min-w-[40px] flex-none items-center justify-center rounded-full border border-[rgba(255,255,255,0.74)] bg-[var(--app-surface-muted)] text-[var(--app-coral)] transition-[background-color,transform] duration-[180ms] ease-in-out hover:-translate-y-[1px] focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--app-input-focus-ring)]"
-      type="button"
-      aria-label="Open notifications"
-      @click="handleNotifications"
-    >
+      type="button" aria-label="Open notifications" @click="handleNotifications">
       <span class="material-symbols-outlined text-[24px]" aria-hidden="true">
         notifications
       </span>
-      <span
-        v-if="unreadCount"
-        class="absolute right-[-2px] top-[-2px] h-[16px] min-w-[16px] rounded-full bg-[var(--app-danger)] px-[4px] text-center text-[10px] font-[800] leading-[16px] text-white"
-      >
+      <span v-if="unreadCount"
+        class="absolute right-[-2px] top-[-2px] h-[16px] min-w-[16px] rounded-full bg-[var(--app-danger)] px-[4px] text-center text-[10px] font-[800] leading-[16px] text-white">
         {{ unreadCount }}
       </span>
     </button>
   </header>
 </template>
+
+
+
+

@@ -60,12 +60,12 @@ const handleRemind = (taskId: string) => {
 </script>
 
 <template>
-  <section class="grid gap-[var(--app-space-16)]">
+  <section class="grid gap-[16px]">
     <div
-      class="flex min-h-[40px] items-center justify-between gap-[var(--app-space-12)]"
+      class="flex min-h-[40px] items-center justify-between gap-[12px]"
     >
       <h2
-        class="m-[0px] text-[length:var(--app-type-24)] font-[800] leading-[1.3] tracking-[0px] text-[var(--app-text-strong)]"
+        class="m-[0px] text-[24px] font-[800] leading-[1.3] tracking-[0px] text-[var(--app-text-strong)]"
       >
         {{ title }}
       </h2>
@@ -88,14 +88,14 @@ const handleRemind = (taskId: string) => {
       </span>
     </div>
 
-    <div class="grid gap-[var(--app-space-12)]">
+    <div class="grid gap-[12px]">
       <article
         v-for="item in items"
         :key="item.id"
-        class="flex flex-wrap items-center justify-between gap-[var(--app-space-12)] rounded-[16px] border border-[rgba(255,255,255,0.72)] bg-[var(--app-surface-strong)] p-[var(--app-space-12)] shadow-[0_10px_26px_rgba(148,72,53,0.05)] transition-[box-shadow,transform] duration-[180ms] ease-in-out hover:-translate-y-[1px] hover:shadow-[0_14px_34px_rgba(148,72,53,0.09)]"
+        class="flex flex-wrap items-center justify-between gap-[12px] rounded-[16px] border border-[rgba(255,255,255,0.72)] bg-[var(--app-surface-strong)] p-[12px] shadow-[0_10px_26px_rgba(148,72,53,0.05)] transition-[box-shadow,transform] duration-[180ms] ease-in-out hover:-translate-y-[1px] hover:shadow-[0_14px_34px_rgba(148,72,53,0.09)]"
       >
         <div
-          class="flex min-w-[0px] flex-[1_1_160px] items-center gap-[var(--app-space-12)]"
+          class="flex min-w-[0px] flex-[1_1_160px] items-center gap-[12px]"
         >
           <button
             class="inline-flex h-[28px] min-h-[28px] w-[28px] min-w-[28px] items-center justify-center rounded-full border-[2px] border-[var(--app-border-strong)] bg-transparent p-[0px] text-transparent transition-[border-color,color,transform] duration-[180ms] ease-in-out hover:scale-[1.04] hover:border-[var(--app-accent-strong)] hover:text-[var(--app-accent-strong)] focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--app-input-focus-ring)] disabled:scale-100 disabled:opacity-45"
@@ -104,7 +104,7 @@ const handleRemind = (taskId: string) => {
             :aria-label="
               item.canComplete
                 ? `標記 ${item.title} 完成`
-                : `${item.title} 尚不能由你完成`
+                : `${item.title} 目前不能標記完成`
             "
             @click="handleComplete(item.id)"
           >
@@ -113,12 +113,12 @@ const handleRemind = (taskId: string) => {
 
           <div class="min-w-[0px]">
             <p
-              class="m-[0px] overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--app-type-16)] font-[800] leading-[1.35] text-[var(--app-text-strong)]"
+              class="m-[0px] overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-[800] leading-[1.35] text-[var(--app-text-strong)]"
             >
               {{ item.title }}
             </p>
             <p
-              class="m-[0px] mt-[var(--app-space-4)] overflow-hidden text-[length:var(--app-type-13)] leading-[1.5] text-[var(--app-text-muted)] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+              class="m-[0px] mt-[4px] overflow-hidden text-[13px] leading-[1.5] text-[var(--app-text-muted)] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
             >
               {{ item.description }}
             </p>
@@ -127,7 +127,7 @@ const handleRemind = (taskId: string) => {
 
         <div
           :class="[
-            'inline-flex flex-none items-center justify-center whitespace-nowrap rounded-full px-[12px] py-[6px] text-[length:var(--app-type-12)] font-[800] leading-[1.2]',
+            'inline-flex flex-none items-center justify-center whitespace-nowrap rounded-full px-[12px] py-[6px] text-[12px] font-[800] leading-[1.2]',
             badgeClassMap[item.badgeTone],
           ]"
         >
@@ -136,7 +136,7 @@ const handleRemind = (taskId: string) => {
 
         <div
           v-if="item.canConfirm"
-          class="grid w-full grid-cols-2 gap-[var(--app-space-8)] pt-[var(--app-space-4)]"
+          class="grid w-full grid-cols-2 gap-[8px] pt-[4px]"
         >
           <button
             class="min-h-[40px] rounded-[12px] border-[0px] bg-[var(--app-support)] px-[12px] py-[9px] text-[14px] font-[800] text-[var(--app-success-text)] transition-[background-color,opacity,transform] duration-[180ms] ease-in-out hover:-translate-y-[1px] focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--app-input-focus-ring)] disabled:translate-y-[0px] disabled:opacity-55"
@@ -169,24 +169,24 @@ const handleRemind = (taskId: string) => {
       >
         <div class="mt-[24px] grid gap-[8px]">
           <p
-            class="m-[0px] text-[length:var(--app-type-18)] font-[800] leading-[1.45] text-[var(--app-text-strong)]"
+            class="m-[0px] text-[18px] font-[800] leading-[1.45] text-[var(--app-text-strong)]"
           >
-            {{ emptyState?.title || "現在很輕鬆" }}
+            {{ emptyState?.title || "目前沒有焦點任務" }}
           </p>
           <p
-            class="m-[0px] max-w-[280px] text-[length:var(--app-type-15)] font-[500] leading-[1.65] text-[var(--app-text-muted)]"
+            class="m-[0px] max-w-[280px] text-[15px] font-[500] leading-[1.65] text-[var(--app-text-muted)]"
           >
-            {{ emptyState?.description || "要不要為夥伴建立一個小驚喜？" }}
+            {{ emptyState?.description || "新增一個任務，讓今天更有節奏。" }}
           </p>
         </div>
 
         <button
           v-if="action"
-          class="mt-[28px] min-h-[40px] rounded-full border-[0px] bg-[var(--app-coral)] px-[40px] py-[12px] text-[length:var(--app-type-15)] font-[800] text-[var(--app-accent-strong)] transition-[opacity,transform] duration-[180ms] ease-in-out hover:-translate-y-[1px] hover:opacity-90 focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--app-input-focus-ring)] active:scale-[0.98]"
+          class="mt-[28px] min-h-[40px] rounded-full border-[0px] bg-[var(--app-coral)] px-[40px] py-[12px] text-[15px] font-[800] text-[var(--app-accent-strong)] transition-[opacity,transform] duration-[180ms] ease-in-out hover:-translate-y-[1px] hover:opacity-90 focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--app-input-focus-ring)] active:scale-[0.98]"
           type="button"
           @click="handleEmptyAction(action)"
         >
-          去建立清單
+          新增任務
         </button>
       </div>
 
@@ -206,7 +206,7 @@ const handleRemind = (taskId: string) => {
         </div>
 
         <p
-          class="m-[0px] mt-[20px] max-w-[280px] text-[length:var(--app-type-15)] font-[500] leading-[1.7] text-[var(--app-text-muted)]"
+          class="m-[0px] mt-[20px] max-w-[280px] text-[15px] font-[500] leading-[1.7] text-[var(--app-text-muted)]"
         >
           {{
             emptyState?.description ||
@@ -222,9 +222,15 @@ const handleRemind = (taskId: string) => {
         :key="metric.label"
         class="rounded-[1.4rem] border border-white/65 bg-white/70 p-[16px] backdrop-blur-[12px]"
       >
-        <p class="app-label">{{ metric.label }}</p>
-        <p class="app-card-title mt-[8px]">{{ metric.value }}</p>
+        <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">{{ metric.label }}</p>
+        <p class="text-[18px] font-[700] leading-[1.3] tracking-[-0.01em] text-[var(--app-text-strong)] mt-[8px]">{{ metric.value }}</p>
       </article>
     </div>
   </section>
 </template>
+
+
+
+
+
+

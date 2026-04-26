@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 const emit = defineEmits<{
   redeem: [];
 }>();
@@ -31,16 +31,16 @@ const handleRedeem = () => {
     />
 
     <div
-      class="relative z-[1] flex flex-col gap-[var(--app-space-20)] p-[var(--app-space-24)] min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between"
+      class="relative z-[1] flex flex-col gap-[20px] p-[24px] min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between"
     >
-      <div class="grid gap-[var(--app-space-8)]">
+      <div class="grid gap-[8px]">
         <p
-          class="m-[0px] text-[length:var(--app-type-12)] font-[800] leading-[1.25] tracking-[0.08em] text-[var(--app-text-soft)]"
+          class="m-[0px] text-[12px] font-[800] leading-[1.25] tracking-[0.08em] text-[var(--app-text-soft)]"
         >
-          我的點數
+          目前點數
         </p>
         <div
-          class="inline-flex min-w-[0px] items-center gap-[var(--app-space-8)]"
+          class="inline-flex min-w-[0px] items-center gap-[8px]"
         >
           <span
             class="text-[40px] font-[800] leading-none tracking-[0px] text-[var(--app-accent-strong)] [font-variant-numeric:tabular-nums]"
@@ -56,11 +56,11 @@ const handleRedeem = () => {
       </div>
 
       <div
-        class="flex items-center justify-between gap-[var(--app-space-16)] min-[420px]:flex-none"
+        class="flex items-center justify-between gap-[16px] min-[420px]:flex-none"
       >
         <div class="flex" :aria-label="userName">
           <span
-            class="inline-flex h-[40px] w-[40px] items-center justify-center overflow-hidden rounded-full bg-[var(--app-accent-soft)] text-[length:var(--app-type-15)] font-[800] text-[var(--app-accent-strong)]"
+            class="inline-flex h-[40px] w-[40px] items-center justify-center overflow-hidden rounded-full bg-[var(--app-accent-soft)] text-[15px] font-[800] text-[var(--app-accent-strong)]"
           >
             <img
               v-if="userPhotoUrl"
@@ -73,7 +73,7 @@ const handleRedeem = () => {
         </div>
 
         <button
-          class="min-h-[40px] rounded-full border-[0px] bg-[var(--app-coral)] px-[16px] py-[10px] text-[length:var(--app-type-15)] font-[800] text-[var(--app-accent-strong)] transition-[opacity,transform] duration-[180ms] ease-in-out hover:-translate-y-[1px] hover:opacity-90 focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--app-input-focus-ring)]"
+          class="min-h-[40px] rounded-full border-[0px] bg-[var(--app-coral)] px-[16px] py-[10px] text-[15px] font-[800] text-[var(--app-accent-strong)] transition-[opacity,transform] duration-[180ms] ease-in-out hover:-translate-y-[1px] hover:opacity-90 focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--app-input-focus-ring)]"
           type="button"
           @click="handleRedeem"
         >
@@ -83,3 +83,8 @@ const handleRedeem = () => {
     </div>
   </section>
 </template>
+
+
+
+
+

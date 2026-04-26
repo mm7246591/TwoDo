@@ -26,53 +26,54 @@ const {
   waitingOtherTasks,
 } = useTasksDashboard();
 
-const isCreateRoute = computed(() => route.name === "task-create");
+const isCreateRoute = computed(() => route.name === "create-task");
 </script>
 
 <template>
   <MobileAppShell>
     <template v-if="isCreateRoute">
-      <header class="task-create-topbar">
-        <div class="task-create-avatar" aria-hidden="true">
-          <span class="material-symbols-outlined fill">person</span>
-        </div>
-        <h1 class="task-create-title">建立任務</h1>
-        <RouterLink class="task-create-settings" :to="{ name: 'settings' }" aria-label="前往設定">
-          <span class="material-symbols-outlined fill" aria-hidden="true">settings</span>
-        </RouterLink>
-      </header>
-
-      <section class="app-page-content flex-1 tasks-create-page">
-        <section v-if="!canUseTasks" class="task-pairing-card" aria-labelledby="task-pairing-title">
-          <div class="task-pairing-visual" aria-hidden="true">
-            <div class="task-pairing-map">
-              <span class="task-pairing-bolt"></span>
-              <span class="task-pairing-bubble task-pairing-bubble--heart">
+      <section class="grid flex-1 content-center px-[20px] pb-[32px] pt-[28px] sm:px-[28px]">
+        <section v-if="!canUseTasks"
+          class="grid gap-[28px] rounded-[2rem] bg-white p-[24px] text-center shadow-[0_24px_52px_rgba(148,72,53,0.08)]"
+          aria-labelledby="task-pairing-title">
+          <div class="rounded-[1.6rem] bg-[#f7f1ee] p-[12px]" aria-hidden="true">
+            <div
+              class="relative grid min-h-[21rem] place-items-end overflow-hidden rounded-[1.45rem] bg-[radial-gradient(circle_at_50%_48%,rgba(65,142,164,0.72),transparent_34%),radial-gradient(circle_at_30%_35%,rgba(255,255,255,0.08),transparent_18%),linear-gradient(135deg,#061927_0%,#0d3448_54%,#05131f_100%)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] max-[380px]:min-h-[17rem]">
+              <span
+                class="absolute right-[15%] top-[17%] h-[5.5rem] w-[9.5rem] rotate-[-16deg] bg-[linear-gradient(135deg,#ffd764,#ffb344)] [clip-path:polygon(0_13%,39%_0,49%_24%,100%_0,50%_100%,42%_63%,10%_80%)] [filter:drop-shadow(0_12px_16px_rgba(0,0,0,0.2))] max-[380px]:h-[4.6rem] max-[380px]:w-[7.5rem]"></span>
+              <span
+                class="absolute right-[5%] top-[5%] inline-flex h-[4.6rem] w-[4.6rem] items-center justify-center rounded-full bg-[#f3f6f8] text-[#ff9e85] shadow-[0_10px_18px_rgba(4,15,24,0.24)] [&_.material-symbols-outlined]:text-[2rem]">
                 <span class="material-symbols-outlined fill">favorite</span>
               </span>
-              <span class="task-pairing-bubble task-pairing-bubble--home">
+              <span
+                class="absolute bottom-[5%] left-[5%] inline-flex h-[4.6rem] w-[4.6rem] items-center justify-center rounded-full bg-[#f3f6f8] text-[#2f6857] shadow-[0_10px_18px_rgba(4,15,24,0.24)] [&_.material-symbols-outlined]:text-[2rem]">
                 <span class="material-symbols-outlined fill">home</span>
               </span>
-              <div class="task-pairing-visual-copy">
+              <div
+                class="relative z-[1] mb-[3.9rem] grid gap-[0.15rem] text-[15px] font-[900] tracking-[0.2em] text-[#ffd764] [&_strong]:text-[18px] [&_strong]:tracking-[0.07em] [&_strong]:text-[#ffe176]">
                 <span>PARTNERSHIP</span>
                 <strong>SAFE WORK</strong>
               </div>
             </div>
           </div>
 
-          <div class="task-pairing-copy">
-            <h2 id="task-pairing-title">共同生活需要兩個人一起開始</h2>
-            <p>配對夥伴後，就能開始為彼此指派任務、累積點數囉！</p>
+          <div
+            class="grid justify-items-center gap-[16px] [&_h2]:m-[0px] [&_h2]:max-w-[17rem] [&_h2]:text-[20px] [&_h2]:font-[700] [&_h2]:leading-[1.55] [&_h2]:text-[#211a18] [&_p]:m-[0px] [&_p]:max-w-[19rem] [&_p]:text-[18px] [&_p]:font-[500] [&_p]:leading-[1.55] [&_p]:text-[#3f302c]">
+            <h2 id="task-pairing-title">配對後一起開始任務</h2>
+            <p>完成配對後，就能同步任務、確認進度與累積點數。</p>
           </div>
 
-          <RouterLink class="task-pairing-action" :to="{ name: 'pairing' }">
+          <RouterLink
+            class="inline-flex min-h-[4.35rem] items-center justify-center gap-[0.55rem] rounded-full bg-[#ff9e85] text-[20px] font-[900] text-[#783321] no-underline shadow-[0_18px_34px_rgba(255,158,133,0.28)] transition-[transform,box-shadow] duration-[180ms] active:scale-[0.98] [&_.material-symbols-outlined]:text-[1.7rem]"
+            :to="{ name: 'pairing' }">
             <span class="material-symbols-outlined fill" aria-hidden="true">person_add</span>
-            去邀請夥伴
+            前往配對
           </RouterLink>
 
-          <p class="task-pairing-status">
+          <p
+            class="inline-flex items-center justify-center justify-self-center gap-[0.65rem] rounded-full bg-[#fff4f1] px-[24px] py-[12px] text-[15px] font-[700] text-[#5f8a7f] [&_span]:h-[0.65rem] [&_span]:w-[0.65rem] [&_span]:rounded-full [&_span]:bg-[#2f6857]">
             <span aria-hidden="true"></span>
-            等待你的另一半加入
+            邀請對方加入後開始
           </p>
         </section>
 
@@ -82,71 +83,84 @@ const isCreateRoute = computed(() => route.name === "task-create");
     </template>
 
     <template v-else>
-      <header class="app-page-header tasks-page-header">
-        <div class="app-page-header-row">
+      <header class="grid gap-[20px] px-[20px] pb-[20px] pt-[32px] sm:px-[28px] sm:pt-[40px]">
+        <div class="flex items-start justify-between gap-[12px]">
           <div class="min-w-[0px]">
-            <h1 class="app-page-title mt-[12px]">一起完成小冒險</h1>
+            <h1 class="text-[32px] font-[700] leading-[1.04] tracking-[-0.03em] text-[var(--app-text-strong)] mt-[12px]">
+              一起完成小冒險</h1>
           </div>
         </div>
 
-        <p class="app-page-summary">
+        <p class="max-w-[34ch] text-[16px] leading-[1.65] text-[var(--app-text-muted)]">
           安排彼此的小任務，把日常變成可以一起收集的成就。
         </p>
       </header>
 
-      <section class="app-page-content app-section-stack flex-1 tasks-page-content">
-        <section v-if="!canUseTasks" class="task-pairing-card task-pairing-card--compact"
+      <section class="px-[20px] pb-[24px] sm:px-[28px] grid flex-1 gap-[24px]">
+        <section v-if="!canUseTasks"
+          class="grid min-h-[24rem] content-center gap-[28px] rounded-[2rem] bg-white p-[24px] text-center shadow-[0_24px_52px_rgba(148,72,53,0.08)]"
           aria-labelledby="task-list-pairing-title">
-          <div class="task-pairing-copy">
-            <h2 id="task-list-pairing-title">共同生活需要兩個人一起開始</h2>
-            <p>配對夥伴後，就能開始為彼此指派任務、累積點數囉！</p>
+          <div
+            class="grid justify-items-center gap-[16px] [&_h2]:m-[0px] [&_h2]:max-w-[17rem] [&_h2]:text-[20px] [&_h2]:font-[700] [&_h2]:leading-[1.55] [&_h2]:text-[#211a18] [&_p]:m-[0px] [&_p]:max-w-[19rem] [&_p]:text-[18px] [&_p]:font-[500] [&_p]:leading-[1.55] [&_p]:text-[#3f302c]">
+            <h2 id="task-list-pairing-title">配對後一起開始任務</h2>
+            <p>完成配對後，就能同步任務、確認進度與累積點數。</p>
           </div>
 
-          <RouterLink class="task-pairing-action" :to="{ name: 'pairing' }">
+          <RouterLink
+            class="inline-flex min-h-[4.35rem] items-center justify-center gap-[0.55rem] rounded-full bg-[#ff9e85] text-[20px] font-[900] text-[#783321] no-underline shadow-[0_18px_34px_rgba(255,158,133,0.28)] transition-[transform,box-shadow] duration-[180ms] active:scale-[0.98] [&_.material-symbols-outlined]:text-[1.7rem]"
+            :to="{ name: 'pairing' }">
             <span class="material-symbols-outlined fill" aria-hidden="true">person_add</span>
-            去邀請夥伴
+            前往配對
           </RouterLink>
         </section>
 
         <template v-else>
-          <section class="app-metric-grid">
-            <article class="app-card app-card-section-sm">
-              <p class="app-label">待完成</p>
-              <p class="app-metric-value mt-[8px]">{{ myAssignedTasks.length }}</p>
+          <section class="grid grid-cols-2 gap-[16px]">
+            <article
+              class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[16px]">
+              <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">待完成</p>
+              <p
+                class="text-[28px] font-[700] leading-[1.02] tracking-[-0.03em] text-[var(--app-text-strong)] [font-variant-numeric:tabular-nums] mt-[8px]">
+                {{ myAssignedTasks.length }}</p>
             </article>
 
-            <article class="app-card-muted app-card-section-sm">
-              <p class="app-label">待確認</p>
-              <p class="app-metric-value mt-[8px]">
+            <article
+              class="rounded-[var(--app-radius-xl)] border border-[var(--app-card-muted-border)] bg-[image:var(--app-card-muted-bg)] backdrop-blur-[10px] p-[16px]">
+              <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">待確認</p>
+              <p
+                class="text-[28px] font-[700] leading-[1.02] tracking-[-0.03em] text-[var(--app-text-strong)] [font-variant-numeric:tabular-nums] mt-[8px]">
                 {{ waitingConfirmTasks.length }}
               </p>
             </article>
           </section>
 
-          <section class="app-card app-card-section">
-            <div class="app-card-header-split">
+          <section
+            class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[20px]">
+            <div class="flex flex-col gap-[16px] sm:flex-row sm:items-start sm:justify-between">
               <div class="min-w-[0px]">
-                <p class="app-card-title">我的任務</p>
+                <p class="text-[18px] font-[700] leading-[1.3] tracking-[-0.01em] text-[var(--app-text-strong)]">我的任務</p>
               </div>
             </div>
 
-            <div class="app-card-list mt-[20px]">
+            <div class="grid gap-[16px] mt-[20px]">
               <TaskListCard v-for="task in myAssignedTasks" :key="task.id" :current-uid="currentUid"
                 :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
                 @complete="handleCompleteTask" @confirm="handleConfirmTask" />
 
-              <AppEmptyState v-if="!myAssignedTasks.length" title="目前沒有待完成任務" />
+              <AppEmptyState v-if="!myAssignedTasks.length" title="目前沒有我的任務" />
             </div>
           </section>
 
-          <section class="app-card app-card-section">
-            <div class="app-card-header-split">
+          <section
+            class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[20px]">
+            <div class="flex flex-col gap-[16px] sm:flex-row sm:items-start sm:justify-between">
               <div class="min-w-[0px]">
-                <p class="app-card-title">等待你確認</p>
+                <p class="text-[18px] font-[700] leading-[1.3] tracking-[-0.01em] text-[var(--app-text-strong)]">等待你確認
+                </p>
               </div>
             </div>
 
-            <div class="app-card-list mt-[20px]">
+            <div class="grid gap-[16px] mt-[20px]">
               <TaskListCard v-for="task in waitingConfirmTasks" :key="task.id" :current-uid="currentUid"
                 :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
                 @complete="handleCompleteTask" @confirm="handleConfirmTask" />
@@ -155,40 +169,49 @@ const isCreateRoute = computed(() => route.name === "task-create");
             </div>
           </section>
 
-          <section class="app-card app-card-section">
-            <div class="app-card-header-split">
+          <section
+            class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[20px]">
+            <div class="flex flex-col gap-[16px] sm:flex-row sm:items-start sm:justify-between">
               <div class="min-w-[0px]">
-                <p class="app-card-title">等待對方完成</p>
+                <p class="text-[18px] font-[700] leading-[1.3] tracking-[-0.01em] text-[var(--app-text-strong)]">等待對方完成
+                </p>
               </div>
             </div>
 
-            <div class="app-card-list mt-[20px]">
+            <div class="grid gap-[16px] mt-[20px]">
               <TaskListCard v-for="task in waitingOtherTasks" :key="task.id" :current-uid="currentUid"
                 :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
                 @complete="handleCompleteTask" @confirm="handleConfirmTask" />
 
-              <AppEmptyState v-if="!waitingOtherTasks.length" title="目前沒有等待對方的任務" />
+              <AppEmptyState v-if="!waitingOtherTasks.length" title="目前沒有等待對方完成的任務" />
             </div>
           </section>
 
-          <section class="app-metric-grid">
-            <article class="app-card app-card-section-sm">
-              <p class="app-label">已完成</p>
-              <p class="app-metric-value mt-[8px]">{{ confirmedTasks.length }}</p>
+          <section class="grid grid-cols-2 gap-[16px]">
+            <article
+              class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[16px]">
+              <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">已完成</p>
+              <p
+                class="text-[28px] font-[700] leading-[1.02] tracking-[-0.03em] text-[var(--app-text-strong)] [font-variant-numeric:tabular-nums] mt-[8px]">
+                {{ confirmedTasks.length }}</p>
             </article>
 
-            <article class="app-card-muted app-card-section-sm">
-              <p class="app-label">已取消</p>
-              <p class="app-metric-value mt-[8px]">{{ cancelledTasks.length }}</p>
+            <article
+              class="rounded-[var(--app-radius-xl)] border border-[var(--app-card-muted-border)] bg-[image:var(--app-card-muted-bg)] backdrop-blur-[10px] p-[16px]">
+              <p class="text-[13px] font-[700] leading-[1.28] tracking-[0.03em] text-[var(--app-text-soft)]">已取消</p>
+              <p
+                class="text-[28px] font-[700] leading-[1.02] tracking-[-0.03em] text-[var(--app-text-strong)] [font-variant-numeric:tabular-nums] mt-[8px]">
+                {{ cancelledTasks.length }}</p>
             </article>
           </section>
 
-          <section class="app-card app-card-section">
-            <div class="app-card-header-split">
-              <p class="app-card-title">完成紀錄</p>
+          <section
+            class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[20px]">
+            <div class="flex flex-col gap-[16px] sm:flex-row sm:items-start sm:justify-between">
+              <p class="text-[18px] font-[700] leading-[1.3] tracking-[-0.01em] text-[var(--app-text-strong)]">完成紀錄</p>
             </div>
 
-            <div class="app-card-list mt-[20px]">
+            <div class="grid gap-[16px] mt-[20px]">
               <TaskListCard v-for="task in confirmedTasks" :key="task.id" :current-uid="currentUid"
                 :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
                 @complete="handleCompleteTask" @confirm="handleConfirmTask" />
@@ -197,12 +220,13 @@ const isCreateRoute = computed(() => route.name === "task-create");
             </div>
           </section>
 
-          <section class="app-card app-card-section">
-            <div class="app-card-header-split">
-              <p class="app-card-title">取消紀錄</p>
+          <section
+            class="rounded-[var(--app-radius-xl)] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[var(--app-shadow-card)] backdrop-blur-[14px] p-[20px]">
+            <div class="flex flex-col gap-[16px] sm:flex-row sm:items-start sm:justify-between">
+              <p class="text-[18px] font-[700] leading-[1.3] tracking-[-0.01em] text-[var(--app-text-strong)]">取消紀錄</p>
             </div>
 
-            <div class="app-card-list mt-[20px]">
+            <div class="grid gap-[16px] mt-[20px]">
               <TaskListCard v-for="task in cancelledTasks" :key="task.id" :current-uid="currentUid"
                 :is-submitting="isSubmitting" :partner-name="assigneeLabel" :task="task" @cancel="handleCancelTask"
                 @complete="handleCompleteTask" @confirm="handleConfirmTask" />
@@ -215,267 +239,3 @@ const isCreateRoute = computed(() => route.name === "task-create");
     </template>
   </MobileAppShell>
 </template>
-
-<style scoped>
-.task-create-topbar {
-  display: grid;
-  grid-template-columns: 3.5rem minmax(0, 1fr) 3.5rem;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem 1.75rem 0.75rem;
-}
-
-.task-create-avatar,
-.task-create-settings {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.25rem;
-  height: 3.25rem;
-  border-radius: 999px;
-}
-
-.task-create-avatar {
-  background: #213743;
-  color: #ff9e85;
-  box-shadow: 0 10px 26px rgba(33, 55, 67, 0.18);
-}
-
-.task-create-avatar .material-symbols-outlined {
-  font-size: 1.9rem;
-}
-
-.task-create-settings {
-  justify-self: end;
-  color: #ff9e85;
-  text-decoration: none;
-}
-
-.task-create-settings .material-symbols-outlined {
-  font-size: 2.7rem;
-}
-
-.task-create-title {
-  margin: 0;
-  color: #ff9e85;
-  font-size: var(--app-type-28);
-  font-weight: 900;
-  line-height: 1.15;
-}
-
-.tasks-page-header {
-  padding-bottom: 1.25rem;
-}
-
-.tasks-page-content {
-  gap: 1.5rem;
-}
-
-.tasks-create-page {
-  display: grid;
-  align-content: center;
-  padding-top: 1.75rem;
-  padding-bottom: 2rem;
-}
-
-.task-pairing-card {
-  display: grid;
-  gap: 1.75rem;
-  border-radius: 2rem;
-  background: #ffffff;
-  padding: 1.5rem;
-  text-align: center;
-  box-shadow: 0 24px 52px rgba(148, 72, 53, 0.08);
-}
-
-.task-pairing-card--compact {
-  align-content: center;
-  min-height: 24rem;
-}
-
-.task-pairing-visual {
-  border-radius: 1.6rem;
-  background: #f7f1ee;
-  padding: 0.75rem;
-}
-
-.task-pairing-map {
-  position: relative;
-  display: grid;
-  min-height: 21rem;
-  overflow: hidden;
-  place-items: end center;
-  border-radius: 1.45rem;
-  background:
-    radial-gradient(circle at 50% 48%, rgba(65, 142, 164, 0.72), transparent 34%),
-    radial-gradient(circle at 30% 35%, rgba(255, 255, 255, 0.08), transparent 18%),
-    linear-gradient(135deg, #061927 0%, #0d3448 54%, #05131f 100%);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-
-.task-pairing-map::before {
-  position: absolute;
-  inset: 12% 8% 22%;
-  content: "";
-  opacity: 0.18;
-  background:
-    radial-gradient(ellipse at 18% 34%, #d8f7ff 0 10%, transparent 10.5%),
-    radial-gradient(ellipse at 35% 28%, #d8f7ff 0 7%, transparent 7.5%),
-    radial-gradient(ellipse at 50% 55%, #d8f7ff 0 11%, transparent 11.5%),
-    radial-gradient(ellipse at 72% 38%, #d8f7ff 0 17%, transparent 17.5%),
-    radial-gradient(ellipse at 80% 62%, #d8f7ff 0 9%, transparent 9.5%);
-  filter: blur(0.5px);
-}
-
-.task-pairing-bolt {
-  position: absolute;
-  top: 17%;
-  right: 15%;
-  width: 9.5rem;
-  height: 5.5rem;
-  background: linear-gradient(135deg, #ffd764, #ffb344);
-  clip-path: polygon(0 13%, 39% 0, 49% 24%, 100% 0, 50% 100%, 42% 63%, 10% 80%);
-  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.2));
-  transform: rotate(-16deg);
-}
-
-.task-pairing-bubble {
-  position: absolute;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 4.6rem;
-  height: 4.6rem;
-  border-radius: 999px;
-  background: #f3f6f8;
-  box-shadow: 0 10px 18px rgba(4, 15, 24, 0.24);
-}
-
-.task-pairing-bubble--heart {
-  top: 5%;
-  right: 5%;
-  color: #ff9e85;
-}
-
-.task-pairing-bubble--home {
-  bottom: 5%;
-  left: 5%;
-  color: #2f6857;
-}
-
-.task-pairing-bubble .material-symbols-outlined {
-  font-size: 2rem;
-}
-
-.task-pairing-visual-copy {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  gap: 0.15rem;
-  margin-bottom: 3.9rem;
-  color: #ffd764;
-  font-size: var(--app-type-15);
-  font-weight: 900;
-  letter-spacing: 0.2em;
-}
-
-.task-pairing-visual-copy strong {
-  color: #ffe176;
-  font-size: var(--app-type-18);
-  letter-spacing: 0.07em;
-}
-
-.task-pairing-copy {
-  display: grid;
-  gap: 1rem;
-  justify-items: center;
-}
-
-.task-pairing-copy h2,
-.task-pairing-copy p,
-.task-pairing-status {
-  margin: 0;
-}
-
-.task-pairing-copy h2 {
-  max-width: 17rem;
-  color: #211a18;
-  font-size: var(--app-type-20);
-  font-weight: 700;
-  line-height: 1.55;
-}
-
-.task-pairing-copy p {
-  max-width: 19rem;
-  color: #3f302c;
-  font-size: var(--app-type-18);
-  font-weight: 500;
-  line-height: 1.55;
-}
-
-.task-pairing-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  min-height: 4.35rem;
-  border-radius: 999px;
-  background: #ff9e85;
-  color: #783321;
-  font-size: var(--app-type-20);
-  font-weight: 900;
-  text-decoration: none;
-  box-shadow: 0 18px 34px rgba(255, 158, 133, 0.28);
-  transition: transform 180ms ease, box-shadow 180ms ease;
-}
-
-.task-pairing-action:active {
-  transform: scale(0.98);
-}
-
-.task-pairing-action .material-symbols-outlined {
-  font-size: 1.7rem;
-}
-
-.task-pairing-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  justify-self: center;
-  gap: 0.65rem;
-  border-radius: 999px;
-  background: #fff4f1;
-  padding: 0.75rem 1.5rem;
-  color: #5f8a7f;
-  font-size: var(--app-type-15);
-  font-weight: 700;
-}
-
-.task-pairing-status span {
-  width: 0.65rem;
-  height: 0.65rem;
-  border-radius: 999px;
-  background: #2f6857;
-}
-
-@media (max-width: 380px) {
-  .task-create-topbar {
-    grid-template-columns: 3rem minmax(0, 1fr) 3rem;
-    padding-right: 1.25rem;
-    padding-left: 1.25rem;
-  }
-
-  .task-create-title {
-    font-size: var(--app-type-24);
-  }
-
-  .task-pairing-map {
-    min-height: 17rem;
-  }
-
-  .task-pairing-bolt {
-    width: 7.5rem;
-    height: 4.6rem;
-  }
-}
-</style>

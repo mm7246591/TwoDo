@@ -65,7 +65,7 @@ const router = createRouter({
       },
     },
     {
-      path: "/task/create-task",
+      path: "/task/create",
       name: "create-task",
       component: () => import("@/views/task/CreateTask.vue"),
       meta: {
