@@ -88,7 +88,7 @@ const handleAfterRead: UploaderAfterRead = (item) => {
         aria-label="更換頭像"
       >
         <span class="material-symbols-outlined fill text-[20px]" aria-hidden="true">
-          {{ isUploading ? "hourglass_empty" : "upload" }}
+          upload
         </span>
       </button>
     </Uploader>

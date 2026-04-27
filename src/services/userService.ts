@@ -83,7 +83,7 @@ const ensureUserProfile = async (authUser: FirebaseUser) => {
       uid: authUser.uid,
       email: authUser.email ?? existingProfile.email ?? '',
       displayName: existingProfile.displayName?.trim() || fallbackDisplayName,
-      photoURL: authUser.photoURL ?? existingProfile.photoURL ?? '',
+      photoURL: existingProfile.photoURL ?? authUser.photoURL ?? '',
       inviteCode,
       coupleId: existingProfile.coupleId ?? null,
       partnerUid: existingProfile.partnerUid ?? null,
