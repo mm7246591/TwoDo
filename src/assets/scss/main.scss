@@ -1,5 +1,5 @@
-﻿@use 'color-variables';
-@use 'theme-tokens';
+﻿@use '../theme/color-variables';
+@use '../theme/theme-tokens';
 
 html,
 body,
@@ -109,4 +109,3 @@ textarea {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
-
