@@ -1,6 +1,5 @@
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import { showDialog } from "vant";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useAuthStore } from "@/pinia/auth";
 import { useCoupleStore } from "@/pinia/couple";
@@ -11,6 +10,9 @@ import {
   showSuccessMessage,
 } from "@/services/uiFeedback";
 
+/**
+ * 組裝設定頁需要的顯示資料、互動處理與點數說明彈窗顯示狀態。
+ */
 export const useSettingView = () => {
   const router = useRouter();
   const authStore = useAuthStore();
@@ -20,6 +22,7 @@ export const useSettingView = () => {
 
   const displayNameInput = ref("");
   const isDarkModeEnabled = ref(false);
+  const isPointsGuideDialogOpen = ref(false);
   const isProfileEditorOpen = ref(false);
   const profileState = ref({
     isSubmitting: false,
@@ -101,17 +104,8 @@ export const useSettingView = () => {
     await router.push({ name: "notification" });
   };
 
-  const showPointsGuide = async () => {
-    await showDialog({
-      title: "點數機制說明",
-      message:
-        "完成任務可以獲得任務設定的點數。\n\n" +
-        "個人任務：任務完成後，由建立任務的人確認，確認後點數會加到被指派者身上。\n\n" +
-        "共同任務：雙方都標記完成後會進入待確認；雙方都確認後，兩個人都會獲得該任務點數。\n\n" +
-        "兌換獎勵：只能兌換對方建立且已啟用的獎勵，兌換時會扣除獎勵設定的點數。點數不足時不能兌換。\n\n" +
-        "所有加點與扣點都會寫入點數紀錄，方便之後查看來源。",
-      confirmButtonText: "知道了",
-    });
+  const showPointsGuide = () => {
+    isPointsGuideDialogOpen.value = true;
   };
 
   const toggleProfileEditor = () => {
@@ -224,6 +218,7 @@ export const useSettingView = () => {
     hasProfile,
     isCoupleSubmitting,
     isDarkModeEnabled,
+    isPointsGuideDialogOpen,
     isProfileEditorOpen,
     isSavingProfile,
     isSigningOut,
