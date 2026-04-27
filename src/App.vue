@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, watch } from "vue";
 import type { MessagePayload } from "firebase/messaging";
 import { useRouter } from "vue-router";
+import AppGlobalLoading from "@/components/common/AppGlobalLoading.vue";
 import { useUserStore } from "@/pinia/user";
 import { hideAppToast, showAppToast, useAppToastState } from "@/services/appToast";
 import {
@@ -211,5 +212,5 @@ watch(
   </Transition>
 
   <RouterView />
+  <AppGlobalLoading />
 </template>
-

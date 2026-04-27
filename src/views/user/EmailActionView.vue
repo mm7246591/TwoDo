@@ -5,6 +5,7 @@ import { useRoute } from "vue-router";
 import { useAuthStore } from "@/pinia/auth";
 import { emitEmailVerificationSignal } from "@/services/emailVerificationSignal";
 import { firebaseAuth } from "@/services/firebase/auth";
+import { withGlobalLoading } from "@/services/globalLoading";
 import { showSuccessMessage } from "@/services/uiFeedback";
 
 type ActionStatus = "processing" | "success" | "error";
@@ -53,7 +54,7 @@ const iconName = computed(() => {
 
 const handleEmailVerification = async (actionCode: string) => {
   try {
-    await applyActionCode(firebaseAuth, actionCode);
+    await withGlobalLoading(() => applyActionCode(firebaseAuth, actionCode));
     await authStore.refreshCurrentUser();
     emitEmailVerificationSignal();
     showSuccessMessage("信箱驗證完成");
@@ -149,4 +150,3 @@ onBeforeUnmount(() => {
     </section>
   </main>
 </template>
-

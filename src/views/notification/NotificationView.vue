@@ -11,6 +11,7 @@ import {
   enablePushNotifications,
   getPushNotificationStatus,
 } from "@/services/pushNotificationService";
+import { withGlobalLoading } from "@/services/globalLoading";
 import { showSuccessMessage } from "@/services/uiFeedback";
 import type { NotificationItem } from "@/views/notification/types/interface";
 
@@ -78,7 +79,9 @@ const syncPushStatus = async () => {
   pushState.value.errorMessage = "";
 
   try {
-    const status = await getPushNotificationStatus(storedTokens);
+    const status = await withGlobalLoading(() =>
+      getPushNotificationStatus(storedTokens),
+    );
 
     pushState.value.isSupported = status.isSupported;
     pushState.value.isCurrentDeviceEnabled = status.isCurrentDeviceEnabled;
@@ -104,7 +107,7 @@ const handleEnablePush = async () => {
   pushState.value.errorMessage = "";
 
   try {
-    await enablePushNotifications(uid);
+    await withGlobalLoading(() => enablePushNotifications(uid));
     await syncPushStatus();
   } catch (error) {
     pushState.value.errorMessage =
@@ -128,7 +131,7 @@ const handleDisablePush = async () => {
   pushState.value.errorMessage = "";
 
   try {
-    await disablePushNotifications(uid);
+    await withGlobalLoading(() => disablePushNotifications(uid));
     await syncPushStatus();
   } catch (error) {
     pushState.value.errorMessage =
@@ -357,4 +360,3 @@ watch(
     </section>
   </MobileAppShell>
 </template>
-

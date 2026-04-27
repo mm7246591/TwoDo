@@ -1,4 +1,5 @@
 import { getUserProfile } from '@/services/userService'
+import { withGlobalLoading } from '@/services/globalLoading'
 import type { UserProfile } from '@/views/setting/types/interface'
 
 type PostAuthRouteName = 'home' | 'pairing'
@@ -17,7 +18,7 @@ const resolvePostAuthRouteName = async (
   try {
     const profile = currentProfile?.uid === uid
       ? currentProfile
-      : await getUserProfile(uid)
+      : await withGlobalLoading(() => getUserProfile(uid))
 
     if (!profile || profile.partnerUid || profile.hasSeenPairingOnboarding) {
       return 'home'
