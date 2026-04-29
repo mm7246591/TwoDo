@@ -13,13 +13,14 @@
 - 如果沒有要求，務必不要寫出防禦性代碼。
 - Spec-first 原則：修改或新增 `.vue` 前，需先確認是否包含 `<spec lang="md">`；若有，先依現有 spec 了解元件狀況並優先更新 spec，確認需求與介面後再實作；若無，先撰寫並確認具體 spec，經討論定稿後再依 spec 開發。
 - 撰寫 Spec 時，遵守 SDD 規格書撰寫規則。
-
 - 一律將型別與程式碼共置，使用 TypeScript 確保型別安全；定義型別時優先使用 interface 而非 type
-- 務必使用 interface 定義型別；type 僅能用於純常數或無法以 interface 表達的 union，嚴禁透過 `as` 強制指定型別
+- 務必使用 interface 定義型別；type 僅能用於純常數或無法以 interface 表達的 union，嚴禁透過 `as` 強制指定型別，將型別寫在 views/對應元件的資料夾下/types/interface
 - 不要寫測試
 - 除非遇到無法解決的複合樣式，否則一律使用 TailwindCSS 類別而非手寫 CSS；
+- 第三方套件非必要不要寫在全域樣式中，寫在局部scoped style;
 - 顏色的色碼必須參考`src/assets/theme/color-variables.scss`, `src/assets/theme/theme-tokens`
 - 一律優先使用具名匯出（named exports），避免預設匯出（default export）
+- 函式一律優先使用箭頭函式
 - 文件同步規則：任何改動（包含函式簽章、回傳型別、欄位名稱或行為）都必須同步更新相對應的文件與註解，包含（但不限於）TSDoc、介面/型別註解、使用範例、.vue 的 `<spec lang="md">`。提交前請自我檢查，確保「程式碼、型別、文件」三者一致；不得出現註解與實作不一致的情況。
 - 避免在 `<spec lang="md">` 內書寫含尖括號的型別語法（例如泛型或 Record 樣式），以免被 Vite/編譯器誤判為未閉合的 HTML 標籤並報錯。除非需求明確要求，否則在 spec 中以純文字描述資料結構（例如「selectedMap：key 為 property_type_id，value 為 option_id 或 null」），不要出現 `<` 或 `>`。
 - composable 不要寫入生命週期
