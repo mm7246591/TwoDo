@@ -126,6 +126,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    ...(import.meta.env.DEV
+      ? [
+          {
+            path: "/__taskform-debug",
+            name: "taskform-debug",
+            component: () => import("@/views/task/TaskFormDebugView.vue"),
+          },
+        ]
+      : []),
   ],
 });
 

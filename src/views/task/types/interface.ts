@@ -7,6 +7,28 @@ type TaskStatus =
 
 type TaskAssignmentType = 'user' | 'couple'
 
+type TaskAssigneeOption = "me" | "partner" | "couple";
+
+interface TaskAssigneePickerOption {
+  disabled?: boolean;
+  text: string;
+  value: TaskAssigneeOption;
+}
+
+/** 任務截止時間簡化選單的單欄資料。 */
+interface TaskDueDatePickerColumn {
+  defaultIndex: number;
+  values: string[];
+}
+
+/** 任務截止時間簡化選單目前選取的月日時間。 */
+interface TaskDueDatePickerSelection {
+  day: number;
+  hour: number;
+  minute: number;
+  month: number;
+}
+
 interface Task {
   id: string
   coupleId: string
@@ -36,4 +58,13 @@ interface TaskComposerForm {
   title: string;
 }
 
-export type { Task, TaskAssignmentType, TaskStatus, TaskComposerForm }
+export type {
+  Task,
+  TaskAssigneeOption,
+  TaskAssigneePickerOption,
+  TaskAssignmentType,
+  TaskStatus,
+  TaskComposerForm,
+  TaskDueDatePickerColumn,
+  TaskDueDatePickerSelection,
+}
