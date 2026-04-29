@@ -1,23 +1,24 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, watch } from "vue";
-import type { MessagePayload } from "firebase/messaging";
 import { useRouter } from "vue-router";
-import AppGlobalLoading from "@/components/common/AppGlobalLoading.vue";
+import { hideAppToast, useAppToastState } from "@/services/appToast";
+import { handleForegroundPushMessage } from "@/composables/usePushNotifications";
 import { useUserStore } from "@/pinia/user";
-import { hideAppToast, showAppToast, useAppToastState } from "@/services/appToast";
 import {
-  showForegroundPushNotification,
   subscribeToForegroundPushMessages,
   syncCurrentDevicePushToken,
 } from "@/services/pushNotificationService";
+import AppGlobalLoading from "@/components/common/AppGlobalLoading.vue";
 
-const userStore = useUserStore();
 const router = useRouter();
 const appToast = useAppToastState();
+const userStore = useUserStore();
 
 let stopForegroundPushSync: (() => void) | null = null;
 
-const appToastRole = computed(() => (appToast.value?.link ? "button" : "status"));
+const appToastRole = computed(() =>
+  appToast.value?.link ? "button" : "status",
+);
 const appToastTabindex = computed(() => (appToast.value?.link ? 0 : undefined));
 const appToastClass = computed(() => [
   "pointer-events-auto flex min-h-[80px] w-[min(100%,27rem)] items-center gap-[0.95rem] rounded-[1.5rem] border border-[color-mix(in_srgb,var(--auth-primary-fixed)_72%,transparent)] bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(255,248,246,0.94)),var(--auth-surface-container-lowest)] py-[0.9rem] pr-[0.9rem] pl-[16px] text-[var(--auth-on-surface)] shadow-[0_18px_48px_rgba(118,69,52,0.16),inset_0_1px_0_rgba(255,255,255,0.82)] [-webkit-tap-highlight-color:transparent] focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_rgba(255,158,133,0.28),0_18px_48px_rgba(118,69,52,0.16),inset_0_1px_0_rgba(255,255,255,0.82)]",
@@ -41,64 +42,6 @@ const appToastBadgeClass = computed(() => [
   appToast.value?.variant === "error" ? "text-[var(--auth-error)]" : "",
   appToast.value?.variant === "loading" ? "hidden" : "",
 ]);
-
-const getPayloadTitle = (payload: MessagePayload) =>
-  payload.notification?.title?.trim() || payload.data?.title?.trim() || "TwoDo 通知";
-
-const getPayloadMessage = (payload: MessagePayload) =>
-  payload.notification?.body?.trim() || payload.data?.message?.trim() || "";
-
-const getPayloadLink = (payload: MessagePayload) =>
-  payload.data?.link?.trim() || "/notifications";
-
-const getPayloadType = (payload: MessagePayload) =>
-  payload.data?.type?.trim() || "";
-
-const getPayloadIcon = (payload: MessagePayload) => {
-  const type = getPayloadType(payload);
-
-  if (type === "task_completed_pending_confirm") {
-    return "task_alt";
-  }
-
-  if (type === "reward_redeemed") {
-    return "redeem";
-  }
-
-  return "notifications";
-};
-
-const shouldShowInAppToast = () =>
-  typeof document !== "undefined" &&
-  document.visibilityState === "visible" &&
-  typeof document.hasFocus === "function" &&
-  document.hasFocus();
-
-const showInAppForegroundToast = (payload: MessagePayload) => {
-  const message = getPayloadMessage(payload);
-
-  if (!message) {
-    showForegroundPushNotification(payload);
-    return;
-  }
-
-  showAppToast({
-    icon: getPayloadIcon(payload),
-    link: getPayloadLink(payload),
-    message,
-    title: getPayloadTitle(payload),
-    variant: "notification",
-  });
-};
-
-const handleForegroundPushMessage = (payload: MessagePayload) => {
-  if (shouldShowInAppToast()) {
-    showInAppForegroundToast(payload);
-    return;
-  }
-
-  showForegroundPushNotification(payload);
-};
 
 const openAppToastLink = async () => {
   const link = appToast.value?.link;
@@ -185,15 +128,23 @@ watch(
             {{ appToast.icon }}
           </span>
           <span :class="appToastBadgeClass">
-            <span class="material-symbols-outlined text-[0.78rem] [font-variation-settings:'FILL'_1,'wght'_500,'GRAD'_0,'opsz'_20]">favorite</span>
+            <span
+              class="material-symbols-outlined text-[0.78rem] [font-variation-settings:'FILL'_1,'wght'_500,'GRAD'_0,'opsz'_20]"
+              >favorite</span
+            >
           </span>
         </div>
 
         <div class="min-w-[0px] flex-auto">
-          <p v-if="appToast.title" class="m-[0px] mb-[0.15rem] overflow-hidden text-ellipsis whitespace-nowrap text-[0.72rem] font-[700] leading-4 tracking-[0.04em] text-[var(--auth-primary)]">
+          <p
+            v-if="appToast.title"
+            class="m-[0px] mb-[0.15rem] overflow-hidden text-ellipsis whitespace-nowrap text-[0.72rem] font-[700] leading-4 tracking-[0.04em] text-[var(--auth-primary)]"
+          >
             {{ appToast.title }}
           </p>
-          <p class="m-[0px] overflow-hidden text-[0.92rem] font-[600] leading-[1.32rem] tracking-[0.005em] text-[var(--auth-on-surface-variant)] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+          <p
+            class="m-[0px] overflow-hidden text-[0.92rem] font-[600] leading-[1.32rem] tracking-[0.005em] text-[var(--auth-on-surface-variant)] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+          >
             {{ appToast.message }}
           </p>
         </div>
