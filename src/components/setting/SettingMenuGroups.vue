@@ -9,8 +9,8 @@ defineProps<{
 }>();
 
 defineEmits<{
-  openProfileEditor: [];
-  openPartnerSettings: [];
+  openPartnerDetails: [];
+  openProfileDetails: [];
   openNotifications: [];
   openPointsGuide: [];
   updateDarkMode: [value: boolean];
@@ -23,7 +23,7 @@ defineEmits<{
       <button
         class="group flex min-h-[72px] w-full items-center justify-between gap-[16px] bg-transparent p-[24px] text-left transition-colors duration-[180ms] hover:bg-[var(--app-surface-muted)] active:bg-[var(--auth-surface-variant)]"
         type="button"
-        @click="$emit('openProfileEditor')"
+        @click="$emit('openProfileDetails')"
       >
         <span class="flex min-w-[0px] items-center gap-[12px]">
           <span
@@ -46,7 +46,7 @@ defineEmits<{
         class="group flex min-h-[72px] w-full items-center justify-between gap-[16px] bg-transparent p-[24px] text-left transition-colors duration-[180ms] hover:bg-[var(--app-surface-muted)] active:bg-[var(--auth-surface-variant)] disabled:cursor-not-allowed disabled:opacity-55"
         type="button"
         :disabled="isCoupleSubmitting"
-        @click="$emit('openPartnerSettings')"
+        @click="$emit('openPartnerDetails')"
       >
         <span class="flex min-w-[0px] items-center gap-[12px]">
           <span
@@ -132,3 +132,26 @@ defineEmits<{
     </div>
   </section>
 </template>
+
+<spec lang="md">
+## 1. 說明
+- 顯示設定頁選單群組，提供資料總覽、通知偏好、點數說明與深色模式入口。
+
+## 2. 功能需求
+- 1) 使用者點擊個人資料時，向上要求開啟個人資料介面。
+- 2) 使用者點擊夥伴設定時，向上要求開啟夥伴設定介面。
+- 3) 使用者點擊通知偏好或點數機制說明時，向上送出對應入口事件。
+- 4) 使用者切換深色模式時，向上同步布林值。
+
+## 3. 對接口
+- props：is-couple-submitting：配對相關操作是否執行中。
+- props：is-dark-mode-enabled：深色模式是否啟用。
+- props：partner-button-text：夥伴設定列顯示文字。
+- props：unread-notifications-text：未讀通知顯示文字。
+- emit：open-profile-details：開啟個人資料介面。
+- emit：open-partner-details：開啟夥伴設定介面。
+- emit：open-notifications：進入通知偏好。
+- emit：open-points-guide：開啟點數說明。
+- emit：update-dark-mode(值)：同步深色模式狀態。
+- defineModel：無。
+</spec>

@@ -102,6 +102,27 @@ const router = createRouter({
       component: () => import("@/views/setting/SettingView.vue"),
       meta: {
         hideAppChrome: true,
+        pageTransition: "slide",
+        requiresAuth: true,
+      },
+    },
+    {
+      path: "/setting/profile",
+      name: "setting-profile",
+      component: () => import("@/views/setting/SettingDetailsView.vue"),
+      meta: {
+        hideAppChrome: true,
+        pageTransition: "slide",
+        requiresAuth: true,
+      },
+    },
+    {
+      path: "/setting/partner",
+      name: "setting-partner",
+      component: () => import("@/views/setting/SettingDetailsView.vue"),
+      meta: {
+        hideAppChrome: true,
+        pageTransition: "slide",
         requiresAuth: true,
       },
     },

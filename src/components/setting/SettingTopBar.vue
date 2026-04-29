@@ -1,4 +1,10 @@
 <script setup lang="ts">
+withDefaults(defineProps<{
+  title?: string;
+}>(), {
+  title: "設定",
+});
+
 defineEmits<{
   back: [];
 }>();
@@ -20,9 +26,23 @@ defineEmits<{
     </button>
 
     <h1 class="text-[24px] font-[700] leading-[32px] tracking-[0] text-[var(--app-text-strong)]">
-      設定
+      {{ title }}
     </h1>
 
     <span class="h-[44px] w-[44px]" aria-hidden="true" />
   </header>
 </template>
+
+<spec lang="md">
+## 1. 說明
+- 顯示設定相關頁面的頂部列，提供返回操作與頁面標題。
+
+## 2. 功能需求
+- 1) 使用者點擊返回按鈕時，向上送出返回事件。
+- 2) 元件顯示傳入標題；未傳入時顯示「設定」。
+
+## 3. 對接口
+- props：title：頂部列標題。
+- emit：back：要求返回上一頁。
+- defineModel：無。
+</spec>

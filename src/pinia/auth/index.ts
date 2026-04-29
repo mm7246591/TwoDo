@@ -1,6 +1,7 @@
 import { computed, ref, toRefs } from 'vue'
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   onAuthStateChanged,
   sendEmailVerification,
   signInWithEmailAndPassword,
@@ -310,6 +311,30 @@ const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  /**
+   * 刪除目前登入中的 Firebase Auth 帳號。
+   */
+  const deleteCurrentAccount = async () => {
+    state.value.isSubmitting = true
+    clearError()
+
+    try {
+      const user = firebaseAuth.currentUser
+
+      if (!user) {
+        throw new Error('請重新登入後再刪除帳號。')
+      }
+
+      await deleteUser(user)
+      await waitForAuthStateProcessing()
+    } catch (error) {
+      state.value.errorMessage = normalizeAuthError(error)
+      throw error
+    } finally {
+      state.value.isSubmitting = false
+    }
+  }
+
   return {
     ...toRefs(state.value),
     authSession,
@@ -318,6 +343,7 @@ const useAuthStore = defineStore('auth', () => {
     getRequiresEmailVerification,
     getUserEmail,
     getUserUid,
+    deleteCurrentAccount,
     init,
     signIn,
     signInWithGoogle,

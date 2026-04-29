@@ -9,9 +9,18 @@ import {
   confirmDangerAction,
   showSuccessMessage,
 } from "@/services/uiFeedback";
+import { getUserProfile } from "@/services/userService";
+import type { UserProfile } from "@/views/setting/types/interface";
+
+type SettingDetailsTarget = "profile" | "partner";
+
+interface SettingInfoField {
+  label: string;
+  value: string;
+}
 
 /**
- * 組裝設定頁需要的顯示資料、互動處理與點數說明彈窗顯示狀態。
+ * 組裝設定頁需要的顯示資料、個人資料與夥伴設定介面、互動處理與點數說明彈窗顯示狀態。
  */
 export const useSettingView = () => {
   const router = useRouter();
@@ -21,9 +30,13 @@ export const useSettingView = () => {
   const userStore = useUserStore();
 
   const displayNameInput = ref("");
+  const activeDetailsTarget = ref<SettingDetailsTarget | null>(null);
+  const detailsTransitionDirection = ref<"forward" | "backward">("forward");
   const isDarkModeEnabled = ref(false);
+  const isEditingDisplayName = ref(false);
+  const isPartnerProfileLoading = ref(false);
   const isPointsGuideDialogOpen = ref(false);
-  const isProfileEditorOpen = ref(false);
+  const partnerProfile = ref<UserProfile | null>(null);
   const profileState = ref({
     isSubmitting: false,
   });
@@ -36,9 +49,12 @@ export const useSettingView = () => {
     () => userStore.profile?.displayName || "TwoDo User",
   );
   const photoUrl = computed(() => userStore.profile?.photoURL);
-  const partnerStatusText = computed(() =>
-    hasPairedPartner.value ? "已與夥伴配對" : "尚未配對",
-  );
+  const partnerStatusText = computed(() => {
+    if (!hasPairedPartner.value) return "尚未配對";
+    return partnerProfile.value?.displayName
+      ? `已與 ${partnerProfile.value.displayName} 配對`
+      : "已與夥伴配對";
+  });
   const connectionDays = computed(() => {
     const rawStartDate =
       coupleStore.currentCouple?.createdAt ?? userStore.profile?.createdAt;
@@ -72,7 +88,37 @@ export const useSettingView = () => {
     () => userStore.isUpdatingProfile || profileState.value.isSubmitting,
   );
   const partnerButtonText = computed(() =>
-    coupleStore.isSubmitting ? "解除配對中..." : "夥伴設定",
+    coupleStore.isSubmitting ? "處理中..." : "夥伴設定",
+  );
+  const detailsPanelTitle = computed(() =>
+    activeDetailsTarget.value === "partner" ? "夥伴設定" : "個人資料",
+  );
+  const isPartnerDetailsMode = computed(
+    () => activeDetailsTarget.value === "partner",
+  );
+  const detailsDisplayName = computed(() => {
+    if (isPartnerDetailsMode.value) {
+      return partnerProfile.value?.displayName || "尚未取得夥伴暱稱";
+    }
+
+    return displayName.value;
+  });
+  const partnerPrimaryActionText = computed(() =>
+    hasPairedPartner.value ? "解除配對" : "前往配對",
+  );
+  const canShowDeleteAccount = computed(
+    () => activeDetailsTarget.value === "profile",
+  );
+  const isDeletingAccount = computed(() => authStore.isSubmitting);
+  const detailsTransitionEnterFromClass = computed(() =>
+    detailsTransitionDirection.value === "forward"
+      ? "translate-x-[32px] opacity-0"
+      : "translate-x-[-32px] opacity-0",
+  );
+  const detailsTransitionLeaveToClass = computed(() =>
+    detailsTransitionDirection.value === "forward"
+      ? "translate-x-[-32px] opacity-0"
+      : "translate-x-[32px] opacity-0",
   );
   const canSaveDisplayName = computed(() => {
     if (!userStore.profile || isSavingProfile.value) {
@@ -86,6 +132,60 @@ export const useSettingView = () => {
       trimmedDisplayName !== userStore.profile.displayName
     );
   });
+  const activeDetailsFields = computed<SettingInfoField[]>(() => {
+    if (isPartnerDetailsMode.value) {
+      return buildUserProfileFields(partnerProfile.value);
+    }
+
+    return buildUserProfileFields(userStore.profile);
+  });
+  const detailsEmptyText = computed(() =>
+    isPartnerDetailsMode.value
+      ? "目前沒有夥伴資料可顯示。"
+      : "目前沒有個人資料可顯示。",
+  );
+
+  const formatNullableText = (value?: string | null) => value?.trim() || "未設定";
+
+  const buildUserProfileFields = (profile: UserProfile | null): SettingInfoField[] => {
+    if (!profile) {
+      return [];
+    }
+
+    return [
+      {
+        label: "Email",
+        value: formatNullableText(profile.email),
+      },
+      {
+        label: "邀請碼",
+        value: formatNullableText(profile.inviteCode),
+      },
+    ];
+  };
+
+  watch(
+    () => userStore.profile?.partnerUid ?? "",
+    async (partnerUid) => {
+      partnerProfile.value = null;
+
+      if (!partnerUid) {
+        isPartnerProfileLoading.value = false;
+        return;
+      }
+
+      isPartnerProfileLoading.value = true;
+
+      try {
+        partnerProfile.value = await getUserProfile(partnerUid);
+      } catch {
+        partnerProfile.value = null;
+      } finally {
+        isPartnerProfileLoading.value = false;
+      }
+    },
+    { immediate: true },
+  );
 
   useErrorToast(() => authStore.errorMessage);
   useErrorToast(() => coupleStore.errorMessage);
@@ -104,12 +204,37 @@ export const useSettingView = () => {
     await router.push({ name: "notification" });
   };
 
+  const goToPartnerDetails = async () => {
+    await router.push({ name: "setting-partner" });
+  };
+
+  const goToProfileDetails = async () => {
+    await router.push({ name: "setting-profile" });
+  };
+
   const showPointsGuide = () => {
     isPointsGuideDialogOpen.value = true;
   };
 
-  const toggleProfileEditor = () => {
-    isProfileEditorOpen.value = !isProfileEditorOpen.value;
+  const openProfileDetails = () => {
+    detailsTransitionDirection.value = "backward";
+    activeDetailsTarget.value = "profile";
+    isEditingDisplayName.value = false;
+  };
+
+  const openPartnerDetails = () => {
+    detailsTransitionDirection.value = "forward";
+    activeDetailsTarget.value = "partner";
+    isEditingDisplayName.value = false;
+  };
+
+  const openDisplayNameEdit = () => {
+    isEditingDisplayName.value = true;
+  };
+
+  const cancelDisplayNameEdit = () => {
+    displayNameInput.value = userStore.profile?.displayName ?? "";
+    isEditingDisplayName.value = false;
   };
 
   const handleAvatarUpload = async (file: File) => {
@@ -133,7 +258,7 @@ export const useSettingView = () => {
 
     try {
       await userStore.saveDisplayName(displayNameInput.value);
-      isProfileEditorOpen.value = false;
+      isEditingDisplayName.value = false;
       showSuccessMessage("暱稱已更新");
     } catch {
     } finally {
@@ -170,6 +295,23 @@ export const useSettingView = () => {
     await router.push({ name: "pairing" });
   };
 
+  const handleDeleteAccount = async () => {
+    const shouldContinue = await confirmDangerAction(
+      "刪除帳號後將無法使用此登入帳號進入 TwoDo。確定要刪除帳號嗎？",
+      "刪除帳號",
+    );
+
+    if (!shouldContinue) {
+      return;
+    }
+
+    try {
+      await authStore.deleteCurrentAccount();
+      showSuccessMessage("帳號已刪除");
+      await router.push({ name: "login" });
+    } catch { }
+  };
+
   const handleSignOut = async () => {
     try {
       await authStore.signOutUser();
@@ -178,39 +320,27 @@ export const useSettingView = () => {
     } catch { }
   };
 
-  watch(
-    () => userStore.profile?.displayName ?? "",
-    (nextDisplayName) => {
-      displayNameInput.value = nextDisplayName;
-    },
-    { immediate: true },
-  );
-
-  watch(
-    () => ({
-      coupleId: userStore.profile?.coupleId ?? "",
-      uid: userStore.profile?.uid ?? "",
-    }),
-    ({ coupleId, uid }) => {
-      if (!coupleId || !uid) {
-        notificationsStore.reset();
-        return;
-      }
-
-      void notificationsStore.syncNotifications(uid, coupleId);
-    },
-    { immediate: true },
-  );
-
   return {
+    activeDetailsFields,
+    activeDetailsTarget,
+    cancelDisplayNameEdit,
+    canShowDeleteAccount,
     canSaveDisplayName,
     connectionDays,
     connectionLabel,
+    detailsDisplayName,
+    detailsEmptyText,
+    detailsPanelTitle,
+    detailsTransitionEnterFromClass,
+    detailsTransitionLeaveToClass,
     displayName,
     displayNameInput,
     goBack,
     goToNotifications,
+    goToPartnerDetails,
+    goToProfileDetails,
     handleAvatarUpload,
+    handleDeleteAccount,
     handlePartnerSettings,
     handleSaveDisplayName,
     handleSignOut,
@@ -218,17 +348,24 @@ export const useSettingView = () => {
     hasProfile,
     isCoupleSubmitting,
     isDarkModeEnabled,
+    isEditingDisplayName,
+    isDeletingAccount,
+    isPartnerDetailsMode,
+    isPartnerProfileLoading,
+    partnerProfile,
     isPointsGuideDialogOpen,
-    isProfileEditorOpen,
     isSavingProfile,
     isSigningOut,
     isUploadingAvatar,
+    openDisplayNameEdit,
+    openPartnerDetails,
+    openProfileDetails,
     partnerButtonText,
+    partnerPrimaryActionText,
     partnerStatusText,
     photoUrl,
     points,
     showPointsGuide,
-    toggleProfileEditor,
     unreadNotificationsText,
   };
 };
