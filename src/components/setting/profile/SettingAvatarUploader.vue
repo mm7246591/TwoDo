@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import {
-  Uploader,
-  type UploaderFileListItem,
-} from "vant";
+import { Uploader, type UploaderFileListItem } from "vant";
 import type {
   UploaderAfterRead,
   UploaderBeforeRead,
 } from "vant/es/uploader/types";
-import { showErrorMessage } from "@/services/uiFeedback";
+import { showErrorMessage } from "@/composables/useMessage";
 
 const AVATAR_MAX_SIZE = 5 * 1024 * 1024;
 const AVATAR_ACCEPT = "image/png,image/jpeg";
@@ -35,8 +32,9 @@ const avatarInitial = computed(
  * @param item - 單一或多檔模式的上傳項目。
  * @returns 可交給父層上傳的 File，沒有檔案時回傳 undefined。
  */
-const getUploaderFile = (item: UploaderFileListItem | UploaderFileListItem[]) =>
-  Array.isArray(item) ? item[0]?.file : item.file;
+const getUploaderFile = (
+  item: UploaderFileListItem | UploaderFileListItem[],
+) => (Array.isArray(item) ? item[0]?.file : item.file);
 
 /**
  * 驗證頭像檔案格式是否為支援的圖片類型。
@@ -108,7 +106,10 @@ const handleAfterRead: UploaderAfterRead = (item) => {
         :disabled="isUploading"
         aria-label="更換頭像"
       >
-        <span class="material-symbols-outlined fill text-[20px]" aria-hidden="true">
+        <span
+          class="material-symbols-outlined fill text-[20px]"
+          aria-hidden="true"
+        >
           upload
         </span>
       </button>

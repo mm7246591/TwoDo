@@ -3,6 +3,7 @@ import { computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNotificationsStore } from "@/pinia/notifications";
 import { useUserStore } from "@/pinia/user";
+import { setNextSettingForwardTransition } from "@/composables/useRouteTransition";
 
 const route = useRoute();
 const router = useRouter();
@@ -16,6 +17,9 @@ const unreadCount = computed(() => notificationsStore.getUnreadCount);
 const getInitial = (value: string) =>
   value.trim().slice(0, 1).toUpperCase() || "T";
 
+/**
+ * 導向通知頁，避免目前已在通知頁時重複導頁。
+ */
 const handleNotifications = async () => {
   if (route.name === "notification") {
     return;
@@ -24,11 +28,15 @@ const handleNotifications = async () => {
   await router.push({ name: "notification" });
 };
 
+/**
+ * 從頭像入口導向設定頁，並在切換前指定設定頁推進轉場。
+ */
 const handleSettings = async () => {
   if (route.name === "setting") {
     return;
   }
 
+  setNextSettingForwardTransition();
   await router.push({ name: "setting" });
 };
 
@@ -75,6 +83,22 @@ watch(
   </header>
 </template>
 
+<spec lang="md">
+## 1. 說明
 
+- 顯示登入後頁面的頂部列，提供頭像設定入口與通知入口。
 
+## 2. 功能需求
+
+- 1. 使用者點擊頭像時，導向設定頁。
+- 2. 頭像導向設定頁前，標記下一次路由切換使用淡入淡出並由右往左的轉場。
+- 3. 使用者點擊通知按鈕時，導向通知頁；已有未讀通知時顯示數量。
+- 4. 使用者已在目前目標頁面時，不重複導頁。
+
+## 3. 對接口
+
+- props：無。
+- emit：無。
+- defineModel：無。
+</spec>
 

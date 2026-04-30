@@ -4,7 +4,7 @@ import {
   canCompleteTask,
   canConfirmTask,
   isCoupleTask,
-} from "@/services/taskWorkflow";
+} from "@/views/task/utils/taskWorkflow";
 import type { Task } from "@/views/task/types/interface";
 
 const props = defineProps<{

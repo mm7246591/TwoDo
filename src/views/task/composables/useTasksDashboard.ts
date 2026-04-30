@@ -6,9 +6,9 @@ import {
   canCompleteTask,
   canConfirmTask,
   isWaitingForOtherParticipant,
-} from "@/services/taskWorkflow";
+} from "@/views/task/utils/taskWorkflow";
 import { getUserProfile } from "@/services/userService";
-import { showSuccessMessage } from "@/services/uiFeedback";
+import { showSuccessMessage } from "@/composables/useMessage";
 import type { CreateTaskInput } from "@/pinia/tasks/types/interface";
 import type { Task } from "@/views/task/types/interface";
 
@@ -171,4 +171,3 @@ const useTasksDashboard = () => {
 };
 
 export { useTasksDashboard };
-

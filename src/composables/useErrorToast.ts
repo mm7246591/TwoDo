@@ -3,7 +3,7 @@ import {
   watch,
   type MaybeRefOrGetter,
 } from 'vue'
-import { showErrorMessage } from '@/services/uiFeedback'
+import { showErrorMessage } from '@/composables/useMessage'
 
 const useErrorToast = (messageSource: MaybeRefOrGetter<string>) => {
   let lastShownMessage = ''

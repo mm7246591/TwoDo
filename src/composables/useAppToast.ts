@@ -1,8 +1,11 @@
+/**
+ * 管理全域應用內 toast 狀態與顯示/關閉操作。
+ */
 import { readonly, ref } from "vue";
 
 type AppToastVariant = "error" | "info" | "loading" | "notification" | "success";
 
-type ShowAppToastOptions = {
+interface ShowAppToastOptions {
   dismissible?: boolean;
   duration?: number;
   icon?: string;
@@ -10,9 +13,9 @@ type ShowAppToastOptions = {
   message: string;
   title?: string;
   variant?: AppToastVariant;
-};
+}
 
-type AppToast = {
+interface AppToast {
   dismissible: boolean;
   icon: string;
   id: number;
@@ -20,7 +23,7 @@ type AppToast = {
   message: string;
   title: string;
   variant: AppToastVariant;
-};
+}
 
 const DEFAULT_ICONS: Record<AppToastVariant, string> = {
   error: "error",
@@ -54,11 +57,19 @@ const clearToastTimer = () => {
   toastTimer = null;
 };
 
+/**
+ * 關閉目前顯示的 toast，並清除自動關閉計時器。
+ */
 const hideAppToast = () => {
   clearToastTimer();
   appToast.value = null;
 };
 
+/**
+ * 顯示全域 toast，空訊息不會建立顯示狀態。
+ *
+ * @param options - toast 顯示內容、型態與自動關閉設定。
+ */
 const showAppToast = (options: ShowAppToastOptions) => {
   const message = options.message.trim();
 
@@ -89,6 +100,11 @@ const showAppToast = (options: ShowAppToastOptions) => {
   }
 };
 
+/**
+ * 取得唯讀 toast 狀態，供根元件渲染全域提示。
+ *
+ * @returns 唯讀的目前 toast 狀態。
+ */
 const useAppToastState = () => readonly(appToast);
 
 export type { AppToast, AppToastVariant, ShowAppToastOptions };

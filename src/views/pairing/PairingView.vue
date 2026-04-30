@@ -1,104 +1,111 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import MobileAppShell from '@/components/common/MobileAppShell.vue'
-import { useErrorToast } from '@/composables/useErrorToast'
-import { useCoupleStore } from '@/pinia/couple'
-import { useUserStore } from '@/pinia/user'
-import { showErrorMessage, showSuccessMessage } from '@/services/uiFeedback'
+import { computed, ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import MobileAppShell from "@/components/common/MobileAppShell.vue";
+import { useErrorToast } from "@/composables/useErrorToast";
+import { useCoupleStore } from "@/pinia/couple";
+import { useUserStore } from "@/pinia/user";
+import { showErrorMessage, showSuccessMessage } from "@/composables/useMessage";
 
-const userStore = useUserStore()
-const coupleStore = useCoupleStore()
-const router = useRouter()
+const userStore = useUserStore();
+const coupleStore = useCoupleStore();
+const router = useRouter();
 
-const inviteCodeInput = ref('')
-const isCopying = ref(false)
-const isFirstPairingEntry = ref(false)
+const inviteCodeInput = ref("");
+const isCopying = ref(false);
+const isFirstPairingEntry = ref(false);
 
-useErrorToast(() => coupleStore.errorMessage)
+useErrorToast(() => coupleStore.errorMessage);
 
-const myInviteCode = computed(() => userStore.profile?.inviteCode ?? '')
-const hasInviteCode = computed(() => myInviteCode.value.length > 0)
-const hasPartner = computed(() => Boolean(userStore.profile?.partnerUid))
+const myInviteCode = computed(() => userStore.profile?.inviteCode ?? "");
+const hasInviteCode = computed(() => myInviteCode.value.length > 0);
+const hasPartner = computed(() => Boolean(userStore.profile?.partnerUid));
 
 const canJoinInvite = computed(
-  () => Boolean(userStore.profile?.uid) && inviteCodeInput.value.trim().length >= 6 && !coupleStore.isSubmitting,
-)
+  () =>
+    Boolean(userStore.profile?.uid) &&
+    inviteCodeInput.value.trim().length >= 6 &&
+    !coupleStore.isSubmitting,
+);
 
 const statusMessage = computed(() => {
   if (coupleStore.isSubmitting) {
-    return '處理中...'
+    return "處理中...";
   }
 
   if (hasPartner.value) {
-    return '你已經完成配對，可以回到首頁繼續使用'
+    return "你已經完成配對，可以回到首頁繼續使用";
   }
 
-  return '輸入對方的邀請碼，或把你的邀請碼分享給對方'
-})
+  return "輸入對方的邀請碼，或把你的邀請碼分享給對方";
+});
 
 const shouldShowStatusMessage = computed(
-  () => coupleStore.isSubmitting || hasPartner.value || isFirstPairingEntry.value,
-)
-const shouldShowSkipToHome = computed(() => isFirstPairingEntry.value)
-const shouldShowInviteForm = computed(() => !hasPartner.value)
+  () =>
+    coupleStore.isSubmitting || hasPartner.value || isFirstPairingEntry.value,
+);
+const shouldShowSkipToHome = computed(() => isFirstPairingEntry.value);
+const shouldShowInviteForm = computed(() => !hasPartner.value);
 
 const handleInviteCodeInput = (event: Event) => {
-  const target = event.target as HTMLInputElement | null
+  const target = event.target as HTMLInputElement | null;
 
   if (!target) {
-    return
+    return;
   }
 
-  inviteCodeInput.value = target.value.toUpperCase()
-}
+  inviteCodeInput.value = target.value.toUpperCase();
+};
 
 const handleCopyInviteCode = async () => {
   if (!hasInviteCode.value || isCopying.value) {
-    return
+    return;
   }
 
-  isCopying.value = true
+  isCopying.value = true;
 
   try {
-    await navigator.clipboard.writeText(myInviteCode.value)
-    showSuccessMessage('邀請碼已複製')
+    await navigator.clipboard.writeText(myInviteCode.value);
+    showSuccessMessage("邀請碼已複製");
   } catch {
-    showErrorMessage('複製失敗，請再試一次')
+    showErrorMessage("複製失敗，請再試一次");
   } finally {
-    isCopying.value = false
+    isCopying.value = false;
   }
-}
+};
 
 watch(
   () => userStore.profile?.hasSeenPairingOnboarding,
   (hasSeenPairingOnboarding) => {
     if (hasSeenPairingOnboarding === false) {
-      isFirstPairingEntry.value = true
-      void userStore.markPairingOnboardingAsSeen()
+      isFirstPairingEntry.value = true;
+      void userStore.markPairingOnboardingAsSeen();
     }
   },
   { immediate: true },
-)
+);
 
 const handleJoinInvite = async () => {
   if (!userStore.profile?.uid || !canJoinInvite.value) {
-    return
+    return;
   }
 
   try {
-    await coupleStore.joinByInviteCode(userStore.profile.uid, inviteCodeInput.value)
-    inviteCodeInput.value = ''
-    showSuccessMessage('配對成功')
-    await router.push({ name: 'home' })
+    await coupleStore.joinByInviteCode(
+      userStore.profile.uid,
+      inviteCodeInput.value,
+    );
+    inviteCodeInput.value = "";
+    showSuccessMessage("配對成功");
+    await router.push({ name: "home" });
   } catch {
     // The store error is shown through useErrorToast.
   }
-}
+};
 
 const handleSkipToHome = async () => {
-  await router.push({ name: 'home' })
-}
+  await router.push({ name: "home" });
+};
 </script>
 
 <template>
@@ -129,7 +136,9 @@ const handleSkipToHome = async () => {
             </p>
           </header>
 
-          <section class="group relative mb-[24px] overflow-hidden rounded-2xl bg-[var(--auth-surface-container)] p-[24px]">
+          <section
+            class="group relative mb-[24px] overflow-hidden rounded-2xl bg-[var(--auth-surface-container)] p-[24px]"
+          >
             <div
               class="absolute right-[0px] top-[0px] -mr-[64px] -mt-[64px] h-[128px] w-[128px] rounded-full bg-[color:color-mix(in_srgb,var(--auth-primary-fixed)_30%,transparent)] blur-2xl transition-transform group-hover:scale-110"
               aria-hidden="true"
@@ -139,11 +148,13 @@ const handleSkipToHome = async () => {
             >
               你的邀請碼
             </p>
-            <div class="relative z-10 flex items-center justify-between gap-[24px]">
+            <div
+              class="relative z-10 flex items-center justify-between gap-[24px]"
+            >
               <div
                 class="font-['Plus_Jakarta_Sans'] text-[24px] font-[700] leading-[32px] tracking-[0.2em] text-[var(--auth-on-surface)]"
               >
-                {{ myInviteCode || '--------' }}
+                {{ myInviteCode || "--------" }}
               </div>
               <button
                 aria-label="複製邀請碼"
@@ -152,12 +163,19 @@ const handleSkipToHome = async () => {
                 :disabled="!hasInviteCode || isCopying"
                 @click="handleCopyInviteCode"
               >
-                <span class="material-symbols-outlined text-[20px]" aria-hidden="true">content_copy</span>
+                <span
+                  class="material-symbols-outlined text-[20px]"
+                  aria-hidden="true"
+                  >content_copy</span
+                >
               </button>
             </div>
           </section>
 
-          <div v-if="shouldShowInviteForm" class="my-[24px] flex items-center gap-[24px]">
+          <div
+            v-if="shouldShowInviteForm"
+            class="my-[24px] flex items-center gap-[24px]"
+          >
             <div class="h-px flex-1 bg-[var(--auth-outline-variant)]" />
             <span
               class="font-['Plus_Jakarta_Sans'] text-[12px] font-[500] uppercase leading-[16px] tracking-widest text-[var(--auth-outline)]"
@@ -192,8 +210,12 @@ const handleSkipToHome = async () => {
             :disabled="!canJoinInvite"
             @click="handleJoinInvite"
           >
-            <span class="material-symbols-outlined text-[20px]" aria-hidden="true">link</span>
-            {{ coupleStore.isSubmitting ? '配對中...' : '立即連線' }}
+            <span
+              class="material-symbols-outlined text-[20px]"
+              aria-hidden="true"
+              >link</span
+            >
+            {{ coupleStore.isSubmitting ? "配對中..." : "立即連線" }}
           </button>
 
           <p
@@ -210,12 +232,12 @@ const handleSkipToHome = async () => {
           type="button"
           @click="handleSkipToHome"
         >
-          {{ hasPartner ? '進入首頁' : '稍後再配對，先進入首頁' }}
-          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">arrow_forward</span>
+          {{ hasPartner ? "進入首頁" : "稍後再配對，先進入首頁" }}
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true"
+            >arrow_forward</span
+          >
         </button>
       </section>
     </section>
   </MobileAppShell>
 </template>
-
-

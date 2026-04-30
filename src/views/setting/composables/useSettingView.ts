@@ -8,7 +8,11 @@ import { useUserStore } from "@/pinia/user";
 import {
   confirmDangerAction,
   showSuccessMessage,
-} from "@/services/uiFeedback";
+} from "@/composables/useMessage";
+import {
+  setNextSettingBackwardTransition,
+  setNextSettingForwardTransition,
+} from "@/composables/useRouteTransition";
 import { getUserProfile } from "@/services/userService";
 import type { UserProfile } from "@/views/setting/types/interface";
 
@@ -191,7 +195,12 @@ export const useSettingView = () => {
   useErrorToast(() => coupleStore.errorMessage);
   useErrorToast(() => userStore.errorMessage);
 
+  /**
+   * 返回上一個設定相關介面，並在切換前指定返回方向轉場。
+   */
   const goBack = async () => {
+    setNextSettingBackwardTransition();
+
     if (window.history.length > 1) {
       router.back();
       return;
@@ -204,11 +213,19 @@ export const useSettingView = () => {
     await router.push({ name: "notification" });
   };
 
+  /**
+   * 導向夥伴設定獨立頁，並在切換前指定設定頁推進轉場。
+   */
   const goToPartnerDetails = async () => {
+    setNextSettingForwardTransition();
     await router.push({ name: "setting-partner" });
   };
 
+  /**
+   * 導向個人資料獨立頁，並在切換前指定設定頁推進轉場。
+   */
   const goToProfileDetails = async () => {
+    setNextSettingForwardTransition();
     await router.push({ name: "setting-profile" });
   };
 

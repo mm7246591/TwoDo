@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, watch } from "vue";
 import { useRouter } from "vue-router";
-import { hideAppToast, useAppToastState } from "@/services/appToast";
+import { hideAppToast, useAppToastState } from "@/composables/useAppToast";
 import { handleForegroundPushMessage } from "@/composables/usePushNotifications";
 import { useUserStore } from "@/pinia/user";
 import {
   subscribeToForegroundPushMessages,
   syncCurrentDevicePushToken,
 } from "@/services/pushNotificationService";
+import { useRouteTransitionName } from "@/composables/useRouteTransition";
 import AppGlobalLoading from "@/components/common/AppGlobalLoading.vue";
 
 const router = useRouter();
 const appToast = useAppToastState();
+/** 根路由頁面切換時要套用的 Transition name。 */
+const routeTransitionName = useRouteTransitionName();
 const userStore = useUserStore();
 
 let stopForegroundPushSync: (() => void) | null = null;
@@ -162,6 +165,86 @@ watch(
     </div>
   </Transition>
 
-  <RouterView />
+  <RouterView v-slot="{ Component, route }">
+    <Transition :name="routeTransitionName" mode="out-in">
+      <component :is="Component" :key="route.fullPath" />
+    </Transition>
+  </RouterView>
   <AppGlobalLoading />
 </template>
+
+<style scoped>
+.route-fade-enter-active,
+.route-fade-leave-active,
+.route-fade-up-enter-active,
+.route-fade-up-leave-active,
+.route-slide-left-enter-active,
+.route-slide-left-leave-active,
+.route-slide-right-enter-active,
+.route-slide-right-leave-active {
+  transition:
+    opacity 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.route-fade-enter-from,
+.route-fade-leave-to {
+  opacity: 0;
+}
+
+.route-fade-up-enter-from {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+.route-fade-up-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+.route-slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(36px);
+}
+
+.route-slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-24px);
+}
+
+.route-slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-36px);
+}
+
+.route-slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(24px);
+}
+</style>
+
+<spec lang="md">
+## 1. 說明
+
+- App 根元件負責全域 toast、推播同步、根路由顯示與頁面轉場。
+
+## 2. 功能需求
+
+- 1. 路由切換時，根層 RouterView 依目前轉場名稱播放頁面進出動畫。
+- 2. 底部導覽切換主要頁面時，頁面淡入淡出並由下往上進入。
+- 3. 進入設定與設定內頁時，頁面淡入淡出並由右往左進入。
+- 4. 設定頁返回上一介面時，頁面淡入淡出並由左往右進入。
+- 5. toast 顯示、點擊連結與關閉行為維持原有互動。
+
+## 3. 對接口
+
+- props：無。
+- emit：無。
+- defineModel：無。
+
+## 4. 實作方式
+
+- 使用 useRouteTransition composable 提供目前根路由轉場名稱。
+- 使用 RouterView slot 取得目前 route 與 Component，並以 fullPath 作為切換 key。
+- 根路由動畫使用 scoped CSS transition class，避免影響子元件局部轉場。
+</spec>

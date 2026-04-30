@@ -4,8 +4,8 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useAuthStore } from "@/pinia/auth";
 import { useUserStore } from "@/pinia/user";
-import { resolvePostAuthRouteName } from "@/services/authNavigation";
-import { showSuccessMessage } from "@/services/uiFeedback";
+import { resolvePostAuthRouteName } from "@/router/authNavigation";
+import { showSuccessMessage } from "@/composables/useMessage";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
@@ -232,9 +232,7 @@ const handleForgotPasswordPreview = () => {
               fill="#EA4335"
             />
           </svg>
-          <span
-            class="text-[14px] font-[600] leading-[20px] tracking-[0.01em]"
-          >
+          <span class="text-[14px] font-[600] leading-[20px] tracking-[0.01em]">
             {{ isGoogleSubmitting ? "連線中..." : "使用 Google 帳號繼續" }}
           </span>
         </button>

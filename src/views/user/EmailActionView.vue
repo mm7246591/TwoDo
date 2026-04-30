@@ -3,10 +3,10 @@ import { applyActionCode } from "firebase/auth";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/pinia/auth";
-import { emitEmailVerificationSignal } from "@/services/emailVerificationSignal";
+import { emitEmailVerificationSignal } from "@/composables/useEmailVerificationSignal";
 import { firebaseAuth } from "@/services/firebase/auth";
-import { withGlobalLoading } from "@/services/globalLoading";
-import { showSuccessMessage } from "@/services/uiFeedback";
+import { withGlobalLoading } from "@/composables/useGlobalLoading";
+import { showSuccessMessage } from "@/composables/useMessage";
 
 type ActionStatus = "processing" | "success" | "error";
 
@@ -76,8 +76,7 @@ onMounted(async () => {
 
   if (mode !== "verifyEmail" || !actionCode) {
     status.value = "error";
-    feedbackMessage.value =
-      "驗證資訊不完整，請回到 App 重新開啟驗證連結。";
+    feedbackMessage.value = "驗證資訊不完整，請回到 App 重新開啟驗證連結。";
     return;
   }
 

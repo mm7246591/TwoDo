@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { setNextDockRouteTransition } from "@/composables/useRouteTransition";
 
 type DockRouteName = "home" | "pairing" | "reward" | "task-list";
 
@@ -49,11 +50,17 @@ const getIsActive = (item: DockItem) =>
   item.activeRouteNames?.includes(String(route.name)) ??
   route.name === item.routeName;
 
+/**
+ * 導向底部導覽頁面，並在切換前指定底部導覽專用轉場。
+ *
+ * @param routeName - 目標底部導覽路由名稱。
+ */
 const navigate = async (routeName: DockRouteName) => {
   if (route.name === routeName) {
     return;
   }
 
+  setNextDockRouteTransition();
   await router.push({ name: routeName });
 };
 </script>
@@ -86,5 +93,21 @@ const navigate = async (routeName: DockRouteName) => {
   </nav>
 </template>
 
+<spec lang="md">
+## 1. 說明
 
+- 顯示主要底部導覽列，讓使用者在首頁、任務、配對與獎勵頁之間切換。
 
+## 2. 功能需求
+
+- 1. 使用者點擊未啟用的底部 icon 時，導向對應主要頁面。
+- 2. 使用者點擊目前頁面的底部 icon 時，不重複導頁。
+- 3. 底部 icon 導頁前，標記下一次路由切換使用淡入淡出並由下往上的轉場。
+- 4. 目前頁面對應的 icon 顯示啟用狀態與 aria-current。
+
+## 3. 對接口
+
+- props：無。
+- emit：無。
+- defineModel：無。
+</spec>

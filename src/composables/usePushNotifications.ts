@@ -1,5 +1,5 @@
 import type { MessagePayload } from "firebase/messaging";
-import { showAppToast } from "@/services/appToast";
+import { showAppToast } from "@/composables/useAppToast";
 import { showForegroundPushNotification } from "@/services/pushNotificationService";
 
 const getPayloadTitle = (payload: MessagePayload) =>

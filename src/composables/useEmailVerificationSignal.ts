@@ -1,7 +1,12 @@
+/**
+ * 管理 email 驗證完成後跨分頁通知與本頁訂閱。
+ */
 const EMAIL_VERIFICATION_CHANNEL_NAME = 'twodo-email-verification'
 const EMAIL_VERIFICATION_STORAGE_KEY = 'twodo-email-verification-signal'
 
-type EmailVerificationListener = () => void
+interface EmailVerificationListener {
+  (): void
+}
 
 const createChannel = () => {
   if (typeof window === 'undefined' || !('BroadcastChannel' in window)) {
@@ -11,6 +16,9 @@ const createChannel = () => {
   return new BroadcastChannel(EMAIL_VERIFICATION_CHANNEL_NAME)
 }
 
+/**
+ * 發送 email 驗證完成訊號，通知其他頁籤重新檢查驗證狀態。
+ */
 const emitEmailVerificationSignal = () => {
   if (typeof window === 'undefined') {
     return
@@ -23,6 +31,12 @@ const emitEmailVerificationSignal = () => {
   window.localStorage.setItem(EMAIL_VERIFICATION_STORAGE_KEY, `${Date.now()}`)
 }
 
+/**
+ * 訂閱 email 驗證完成訊號。
+ *
+ * @param listener - 收到驗證訊號時執行的回呼。
+ * @returns 取消訂閱函式。
+ */
 const subscribeEmailVerificationSignal = (listener: EmailVerificationListener) => {
   if (typeof window === 'undefined') {
     return () => {}

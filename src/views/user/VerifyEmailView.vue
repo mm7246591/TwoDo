@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useAuthStore } from "@/pinia/auth";
 import { useUserStore } from "@/pinia/user";
-import { resolvePostAuthRouteName } from "@/services/authNavigation";
-import { subscribeEmailVerificationSignal } from "@/services/emailVerificationSignal";
-import { showErrorMessage, showSuccessMessage } from "@/services/uiFeedback";
+import { resolvePostAuthRouteName } from "@/router/authNavigation";
+import { subscribeEmailVerificationSignal } from "@/composables/useEmailVerificationSignal";
+import { showErrorMessage, showSuccessMessage } from "@/composables/useMessage";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
@@ -206,11 +206,7 @@ const handleBackToLogin = async () => {
         <p
           class="m-[0px] text-[14px] font-[700] leading-[1.35rem] text-[var(--auth-primary)]"
         >
-          {{
-            isChecking
-              ? "正在重新檢查..."
-              : "完成驗證後，點這裡重新檢查。"
-          }}
+          {{ isChecking ? "正在重新檢查..." : "完成驗證後，點這裡重新檢查。" }}
         </p>
       </div>
 
@@ -236,4 +232,3 @@ const handleBackToLogin = async () => {
     </section>
   </main>
 </template>
-

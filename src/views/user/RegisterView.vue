@@ -1,119 +1,138 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
-import { useErrorToast } from '@/composables/useErrorToast'
-import { useAuthStore } from '@/pinia/auth'
-import { PASSWORD_MIN_LENGTH } from '@/services/authValidation'
-import { showSuccessMessage } from '@/services/uiFeedback'
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { RouterLink, useRouter } from "vue-router";
+import { useErrorToast } from "@/composables/useErrorToast";
+import { useAuthStore } from "@/pinia/auth";
+import { showSuccessMessage } from "@/composables/useMessage";
 
-const authStore = useAuthStore()
-const router = useRouter()
+/** 註冊頁密碼最小長度。 */
+const PASSWORD_MIN_LENGTH = 8;
 
-useErrorToast(() => authStore.errorMessage)
+const authStore = useAuthStore();
+const router = useRouter();
 
-const displayName = ref('')
-const email = ref('')
-const password = ref('')
-const isEmailSubmitting = ref(false)
-const isViewActive = ref(true)
-const hasSubmitted = ref(false)
-const hasDisplayNameBlurred = ref(false)
-const hasEmailBlurred = ref(false)
-const hasPasswordBlurred = ref(false)
+useErrorToast(() => authStore.errorMessage);
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const trimmedDisplayName = computed(() => displayName.value.trim())
-const trimmedEmail = computed(() => email.value.trim())
-const trimmedPassword = computed(() => password.value.trim())
-const isDisplayNameReady = computed(() => trimmedDisplayName.value !== '')
-const isEmailReady = computed(() => trimmedEmail.value !== '')
-const isEmailFormatValid = computed(() => emailPattern.test(trimmedEmail.value))
-const isPasswordReady = computed(() => trimmedPassword.value.length >= PASSWORD_MIN_LENGTH)
+const displayName = ref("");
+const email = ref("");
+const password = ref("");
+const isEmailSubmitting = ref(false);
+const isViewActive = ref(true);
+const hasSubmitted = ref(false);
+const hasDisplayNameBlurred = ref(false);
+const hasEmailBlurred = ref(false);
+const hasPasswordBlurred = ref(false);
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const trimmedDisplayName = computed(() => displayName.value.trim());
+const trimmedEmail = computed(() => email.value.trim());
+const trimmedPassword = computed(() => password.value.trim());
+const isDisplayNameReady = computed(() => trimmedDisplayName.value !== "");
+const isEmailReady = computed(() => trimmedEmail.value !== "");
+const isEmailFormatValid = computed(() =>
+  emailPattern.test(trimmedEmail.value),
+);
+const isPasswordReady = computed(
+  () => trimmedPassword.value.length >= PASSWORD_MIN_LENGTH,
+);
 
 const displayNameErrorMessage = computed(() => {
   if (!isDisplayNameReady.value) {
-    return '請輸入暱稱'
+    return "請輸入暱稱";
   }
 
-  return ''
-})
+  return "";
+});
 
 const emailErrorMessage = computed(() => {
   if (!isEmailReady.value) {
-    return '請輸入電子信箱'
+    return "請輸入電子信箱";
   }
 
   if (!isEmailFormatValid.value) {
-    return '請輸入有效的電子信箱'
+    return "請輸入有效的電子信箱";
   }
 
-  return ''
-})
+  return "";
+});
 
 const passwordErrorMessage = computed(() => {
   if (!trimmedPassword.value) {
-    return '請輸入密碼'
+    return "請輸入密碼";
   }
 
   if (!isPasswordReady.value) {
-    return `密碼至少需要 ${PASSWORD_MIN_LENGTH} 個字元`
+    return `密碼至少需要 ${PASSWORD_MIN_LENGTH} 個字元`;
   }
 
-  return ''
-})
+  return "";
+});
 
 const canCreateAccount = computed(
-  () => !displayNameErrorMessage.value && !emailErrorMessage.value && !passwordErrorMessage.value,
-)
+  () =>
+    !displayNameErrorMessage.value &&
+    !emailErrorMessage.value &&
+    !passwordErrorMessage.value,
+);
 const shouldShowDisplayNameError = computed(
-  () => Boolean(displayNameErrorMessage.value) && (hasSubmitted.value || hasDisplayNameBlurred.value),
-)
+  () =>
+    Boolean(displayNameErrorMessage.value) &&
+    (hasSubmitted.value || hasDisplayNameBlurred.value),
+);
 const shouldShowEmailError = computed(
-  () => Boolean(emailErrorMessage.value) && (hasSubmitted.value || hasEmailBlurred.value),
-)
+  () =>
+    Boolean(emailErrorMessage.value) &&
+    (hasSubmitted.value || hasEmailBlurred.value),
+);
 const shouldShowPasswordError = computed(
-  () => Boolean(passwordErrorMessage.value) && (hasSubmitted.value || hasPasswordBlurred.value),
-)
+  () =>
+    Boolean(passwordErrorMessage.value) &&
+    (hasSubmitted.value || hasPasswordBlurred.value),
+);
 
 onMounted(() => {
-  isViewActive.value = true
-  hasSubmitted.value = false
-  hasDisplayNameBlurred.value = false
-  hasEmailBlurred.value = false
-  hasPasswordBlurred.value = false
-  authStore.clearError()
-})
+  isViewActive.value = true;
+  hasSubmitted.value = false;
+  hasDisplayNameBlurred.value = false;
+  hasEmailBlurred.value = false;
+  hasPasswordBlurred.value = false;
+  authStore.clearError();
+});
 
 onBeforeUnmount(() => {
-  isViewActive.value = false
-  isEmailSubmitting.value = false
-  authStore.clearError()
-})
+  isViewActive.value = false;
+  isEmailSubmitting.value = false;
+  authStore.clearError();
+});
 
 const handleSignUp = async () => {
   if (isEmailSubmitting.value) {
-    return
+    return;
   }
 
-  hasSubmitted.value = true
+  hasSubmitted.value = true;
 
   if (!canCreateAccount.value) {
-    return
+    return;
   }
 
   try {
-    isEmailSubmitting.value = true
-    await authStore.signUp(trimmedEmail.value, trimmedPassword.value, trimmedDisplayName.value)
-    showSuccessMessage('帳號建立成功，請先驗證你的電子信箱')
-    await router.push({ name: 'verify-email' })
+    isEmailSubmitting.value = true;
+    await authStore.signUp(
+      trimmedEmail.value,
+      trimmedPassword.value,
+      trimmedDisplayName.value,
+    );
+    showSuccessMessage("帳號建立成功，請先驗證你的電子信箱");
+    await router.push({ name: "verify-email" });
   } catch {
     if (!isViewActive.value) {
-      authStore.clearError()
+      authStore.clearError();
     }
   } finally {
-    isEmailSubmitting.value = false
+    isEmailSubmitting.value = false;
   }
-}
+};
 </script>
 
 <template>
@@ -135,11 +154,16 @@ const handleSignUp = async () => {
         <div
           class="absolute inset-[0px] bg-gradient-to-t from-[color:color-mix(in_srgb,var(--auth-surface-tint)_40%,transparent)] to-transparent"
         />
-        <div class="relative z-10 flex flex-col items-center p-[40px] text-center">
+        <div
+          class="relative z-10 flex flex-col items-center p-[40px] text-center"
+        >
           <div
             class="mb-[24px] flex h-[64px] w-[64px] items-center justify-center rounded-full bg-[color:color-mix(in_srgb,var(--auth-surface-container-lowest)_80%,transparent)] shadow-lg backdrop-blur-md"
           >
-            <span class="material-symbols-outlined fill text-[32px] text-[var(--auth-primary)]" aria-hidden="true">
+            <span
+              class="material-symbols-outlined fill text-[32px] text-[var(--auth-primary)]"
+              aria-hidden="true"
+            >
               favorite
             </span>
           </div>
@@ -156,14 +180,22 @@ const handleSignUp = async () => {
         </div>
       </aside>
 
-      <div class="flex w-full flex-col justify-center p-[40px] md:w-[28px]/12 md:p-[64px]">
+      <div
+        class="flex w-full flex-col justify-center p-[40px] md:w-[28px]/12 md:p-[64px]"
+      >
         <RouterLink
           class="mb-[40px] flex items-center gap-[4px] text-[var(--auth-primary)] no-underline md:hidden"
           :to="{ name: 'login' }"
           aria-label="TwoDo 登入"
         >
-          <span class="material-symbols-outlined fill text-[24px]" aria-hidden="true">favorite</span>
-          <span class="font-['Plus_Jakarta_Sans'] text-[24px] font-[900] leading-[32px] tracking-tighter">
+          <span
+            class="material-symbols-outlined fill text-[24px]"
+            aria-hidden="true"
+            >favorite</span
+          >
+          <span
+            class="font-['Plus_Jakarta_Sans'] text-[24px] font-[900] leading-[32px] tracking-tighter"
+          >
             TwoDo
           </span>
         </RouterLink>
@@ -182,7 +214,11 @@ const handleSignUp = async () => {
           </p>
         </header>
 
-        <form class="flex flex-col gap-[24px]" novalidate @submit.prevent="handleSignUp">
+        <form
+          class="flex flex-col gap-[24px]"
+          novalidate
+          @submit.prevent="handleSignUp"
+        >
           <div class="flex flex-col gap-[16px]">
             <label class="flex flex-col gap-[4px]">
               <span
@@ -194,9 +230,14 @@ const handleSignUp = async () => {
                 v-model="displayName"
                 class="w-full rounded-lg border border-transparent bg-[var(--auth-surface-container)] px-[24px] py-[12px] font-['Plus_Jakarta_Sans'] text-[16px] font-[400] leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[color:color-mix(in_srgb,var(--auth-outline)_60%,transparent)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
                 :class="{
-                  'border-[var(--auth-error)] focus:ring-[var(--auth-error)]': shouldShowDisplayNameError,
+                  'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
+                    shouldShowDisplayNameError,
                 }"
-                :aria-describedby="shouldShowDisplayNameError ? 'register-display-name-error' : undefined"
+                :aria-describedby="
+                  shouldShowDisplayNameError
+                    ? 'register-display-name-error'
+                    : undefined
+                "
                 :aria-invalid="shouldShowDisplayNameError"
                 autocomplete="nickname"
                 placeholder="請輸入暱稱"
@@ -231,9 +272,12 @@ const handleSignUp = async () => {
                 v-model="email"
                 class="w-full rounded-lg border border-transparent bg-[var(--auth-surface-container)] px-[24px] py-[12px] font-['Plus_Jakarta_Sans'] text-[16px] font-[400] leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[color:color-mix(in_srgb,var(--auth-outline)_60%,transparent)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
                 :class="{
-                  'border-[var(--auth-error)] focus:ring-[var(--auth-error)]': shouldShowEmailError,
+                  'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
+                    shouldShowEmailError,
                 }"
-                :aria-describedby="shouldShowEmailError ? 'register-email-error' : undefined"
+                :aria-describedby="
+                  shouldShowEmailError ? 'register-email-error' : undefined
+                "
                 :aria-invalid="shouldShowEmailError"
                 autocomplete="email"
                 placeholder="請輸入電子信箱"
@@ -268,9 +312,14 @@ const handleSignUp = async () => {
                 v-model="password"
                 class="w-full rounded-lg border border-transparent bg-[var(--auth-surface-container)] px-[24px] py-[12px] font-['Plus_Jakarta_Sans'] text-[16px] font-[400] leading-[24px] text-[var(--auth-on-surface)] outline-none ring-[0px] transition-[background-color,box-shadow] duration-200 placeholder:text-[color:color-mix(in_srgb,var(--auth-outline)_60%,transparent)] focus:border-transparent focus:bg-[var(--auth-surface-container-lowest)] focus:shadow-[0_4px_12px_rgba(255,158,133,0.15)] focus:outline-none focus:ring-[2px] focus:ring-[var(--auth-primary-container)] focus:ring-offset-[0px] focus-visible:outline-none"
                 :class="{
-                  'border-[var(--auth-error)] focus:ring-[var(--auth-error)]': shouldShowPasswordError,
+                  'border-[var(--auth-error)] focus:ring-[var(--auth-error)]':
+                    shouldShowPasswordError,
                 }"
-                :aria-describedby="shouldShowPasswordError ? 'register-password-error' : undefined"
+                :aria-describedby="
+                  shouldShowPasswordError
+                    ? 'register-password-error'
+                    : undefined
+                "
                 :aria-invalid="shouldShowPasswordError"
                 autocomplete="new-password"
                 :placeholder="`請輸入密碼，至少 ${PASSWORD_MIN_LENGTH} 個字元`"
@@ -302,8 +351,12 @@ const handleSignUp = async () => {
               type="submit"
               :disabled="isEmailSubmitting"
             >
-              {{ isEmailSubmitting ? '建立中...' : '建立帳號' }}
-              <span class="material-symbols-outlined text-[20px]" aria-hidden="true">arrow_forward</span>
+              {{ isEmailSubmitting ? "建立中..." : "建立帳號" }}
+              <span
+                class="material-symbols-outlined text-[20px]"
+                aria-hidden="true"
+                >arrow_forward</span
+              >
             </button>
 
             <p

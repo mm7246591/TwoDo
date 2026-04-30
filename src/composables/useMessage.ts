@@ -2,7 +2,7 @@
  * 管理共用的使用者回饋訊息與危險操作確認流程。
  */
 import { Dialog } from 'vant'
-import { hideAppToast, showAppToast } from '@/services/appToast'
+import { hideAppToast, showAppToast } from '@/composables/useAppToast'
 
 /**
  * 顯示成功狀態的應用內提示訊息。

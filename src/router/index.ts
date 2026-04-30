@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import { pinia } from "@/pinia";
 import { useAuthStore } from "@/pinia/auth";
 import { useUserStore } from "@/pinia/user";
-import { resolvePostAuthRouteName } from "@/services/authNavigation";
+import { resolvePostAuthRouteName } from "@/router/authNavigation";
+import { updateRouteTransitionName } from "@/composables/useRouteTransition";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -176,6 +177,10 @@ router.beforeEach(async (to) => {
       ),
     };
   }
+});
+
+router.afterEach((to, from) => {
+  updateRouteTransitionName(to, from);
 });
 
 export default router;

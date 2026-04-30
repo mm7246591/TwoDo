@@ -11,8 +11,8 @@ import {
   canConfirmTask,
   isCoupleTask,
   isWaitingForOtherParticipant,
-} from "@/services/taskWorkflow";
-import { showSuccessMessage } from "@/services/uiFeedback";
+} from "@/views/task/utils/taskWorkflow";
+import { showSuccessMessage } from "@/composables/useMessage";
 import type { Task } from "@/views/task/types/interface";
 import type {
   HomeDashboardRouteName,
