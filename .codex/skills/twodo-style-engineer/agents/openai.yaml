@@ -1,7 +1,0 @@
-interface:
-  display_name: "TwoDo 樣式工程師"
-  short_description: "依照 TwoDo 現行 SCSS 與 Tailwind 架構調整畫面、token、utility 與全域樣式邊界。"
-  default_prompt: "Use $twodo-style-engineer 檢查並調整 TwoDo 的樣式實作，遵守 SCSS 變數、template Tailwind、實際 px utility 與全域樣式邊界。"
-
-policy:
-  allow_implicit_invocation: true

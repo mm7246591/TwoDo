@@ -1,0 +1,4 @@
+interface:
+  display_name: "依功能 Commit Push"
+  short_description: "依功能範圍整理變更、建立 commit 並 push。"
+  default_prompt: "請依功能範圍檢查目前 git 變更，拆分 commit，並 push 到目前分支遠端。"

@@ -1,7 +1,0 @@
-interface:
-  display_name: "UI/UX 資深設計師"
-  short_description: "提供產品級 UI/UX 方向，並能轉譯成 TwoDo 現行 Vue、SCSS 與 Tailwind 實作。"
-  default_prompt: "Use $uiux-senior-designer 精修畫面設計、互動狀態、視覺層級與響應式體驗，並符合 TwoDo 的樣式架構。"
-
-policy:
-  allow_implicit_invocation: true

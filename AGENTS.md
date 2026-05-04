@@ -7,6 +7,7 @@
 ## 行為準則
 
 - 一律使用繁體中文進行回答。
+- 生成skill時請轉為中文
 - 每次開始執行時，都使用`conversation-task-journal` Skills 記錄任務執行的順序與細節。
 - 在每次程式碼改動完成之後，都需要使用 `code-change-reason-reporter` Skills 告知使用者改動的內容與原因。
 - 在每次程式碼改動完成之後，若本回合有修改 `.ts` 檔，或修改 `.vue` 的 `script lang="ts"` 區塊，必須使用 `tsdoc-manager` Skills 補寫或更新 TSDoc。
