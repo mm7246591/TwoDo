@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useUserStore } from "@/pinia/user";
+import { useSettingView } from "./composables/useSettingView";
 import MobileAppShell from "@/components/common/MobileAppShell.vue";
 import SettingEmptyProfileState from "@/components/setting/profile/SettingEmptyProfileState.vue";
 import SettingProfileDetailsPanel from "@/components/setting/profile/SettingProfileDetailsPanel.vue";
 import SettingTopBar from "@/components/setting/SettingTopBar.vue";
-import { useUserStore } from "@/pinia/user";
-import { useSettingView } from "./composables/useSettingView";
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -62,7 +62,6 @@ watch(
   },
   { immediate: true },
 );
-
 </script>
 
 <template>
@@ -110,7 +109,7 @@ watch(
 
 - 1. 使用者進入個人資料路由時，顯示個人資料頁面。
 - 2. 使用者進入夥伴設定路由時，顯示夥伴設定頁面。
-- 3. 個人資料與夥伴設定頁面只顯示暱稱、email、邀請碼。
+- 3. 個人資料與夥伴設定頁面顯示暱稱、email、邀請碼與綁定天數。
 - 4. 個人資料頁面可編輯暱稱並顯示刪除帳號按鈕。
 - 5. 夥伴設定頁面不可編輯暱稱，且不顯示刪除帳號按鈕。
 - 6. 使用者點擊返回時，導頁使用淡入淡出並由左往右的轉場。

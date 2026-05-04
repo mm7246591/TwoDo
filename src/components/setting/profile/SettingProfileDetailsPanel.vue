@@ -177,7 +177,7 @@ const hasFields = computed(() => props.fields.length > 0);
 - 1) 使用者從個人資料進入時，顯示個人資料介面。
 - 2) 使用者從夥伴設定進入時，顯示夥伴設定介面。
 - 3) 介面切換時，內容以 slide 動畫進入與離開。
-- 4) 兩種介面都只顯示暱稱、email、邀請碼。
+- 4) 兩種介面都顯示暱稱、email、邀請碼與綁定天數。
 - 5) 個人暱稱預設顯示為純文字，點擊鉛筆按鈕後切換為輸入欄位。
 - 6) 使用者儲存暱稱時，向上送出儲存事件；取消時回復純文字顯示。
 - 7) 個人資料介面顯示刪除帳號按鈕；夥伴設定介面不顯示刪除帳號按鈕。
@@ -187,7 +187,7 @@ const hasFields = computed(() => props.fields.length > 0);
 ## 3. 對接口
 - props：title：面板標題。
 - props：display-name：暱稱顯示文字。
-- props：fields：email 與邀請碼欄位清單。
+- props：fields：email、邀請碼與綁定天數欄位清單。
 - props：is-partner-mode：是否為夥伴設定模式。
 - props：is-editing-display-name：是否正在編輯本人暱稱。
 - props：can-save-display-name：是否可儲存暱稱。

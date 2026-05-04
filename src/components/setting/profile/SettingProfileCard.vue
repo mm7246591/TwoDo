@@ -37,50 +37,6 @@ defineEmits<{
     >
       {{ partnerStatusText }}
     </p>
-
-    <div class="mt-[18px] grid w-full grid-cols-2 gap-[16px]">
-      <article
-        class="grid min-h-[118px] place-items-center rounded-[20px] bg-[var(--app-surface-muted)] p-[12px]"
-      >
-        <span
-          class="material-symbols-outlined fill text-[28px] text-[var(--app-accent)]"
-          aria-hidden="true"
-        >
-          calendar_clock
-        </span>
-        <strong
-          class="text-[24px] font-[800] leading-[32px] tracking-[0] text-[var(--app-text-strong)]"
-        >
-          {{ connectionDays }} 天
-        </strong>
-        <span
-          class="text-[12px] font-[700] leading-[16px] tracking-[0] text-[var(--app-text-muted)]"
-        >
-          {{ connectionLabel }}
-        </span>
-      </article>
-
-      <article
-        class="grid min-h-[118px] place-items-center rounded-[20px] bg-[var(--app-surface-muted)] p-[12px]"
-      >
-        <span
-          class="material-symbols-outlined fill text-[28px] text-[var(--app-success-text)]"
-          aria-hidden="true"
-        >
-          stars
-        </span>
-        <strong
-          class="text-[24px] font-[800] leading-[32px] tracking-[0] text-[var(--app-text-strong)]"
-        >
-          {{ points }} 分
-        </strong>
-        <span
-          class="text-[12px] font-[700] leading-[16px] tracking-[0] text-[var(--app-text-muted)]"
-        >
-          總點數
-        </span>
-      </article>
-    </div>
   </section>
 </template>
 

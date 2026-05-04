@@ -79,7 +79,7 @@ export const useSettingView = () => {
     );
   });
   const connectionLabel = computed(() =>
-    hasPairedPartner.value ? "在一起" : "使用天數",
+    hasPairedPartner.value ? "綁定天數" : "使用天數",
   );
   const points = computed(() => userStore.profile?.points ?? 0);
   const unreadNotificationsText = computed(() =>
@@ -137,11 +137,16 @@ export const useSettingView = () => {
     );
   });
   const activeDetailsFields = computed<SettingInfoField[]>(() => {
+    const bindingDaysField: SettingInfoField = {
+      label: connectionLabel.value,
+      value: `${connectionDays.value} 天`,
+    };
+
     if (isPartnerDetailsMode.value) {
-      return buildUserProfileFields(partnerProfile.value);
+      return [...buildUserProfileFields(partnerProfile.value), bindingDaysField];
     }
 
-    return buildUserProfileFields(userStore.profile);
+    return [...buildUserProfileFields(userStore.profile), bindingDaysField];
   });
   const detailsEmptyText = computed(() =>
     isPartnerDetailsMode.value
@@ -168,28 +173,7 @@ export const useSettingView = () => {
     ];
   };
 
-  watch(
-    () => userStore.profile?.partnerUid ?? "",
-    async (partnerUid) => {
-      partnerProfile.value = null;
 
-      if (!partnerUid) {
-        isPartnerProfileLoading.value = false;
-        return;
-      }
-
-      isPartnerProfileLoading.value = true;
-
-      try {
-        partnerProfile.value = await getUserProfile(partnerUid);
-      } catch {
-        partnerProfile.value = null;
-      } finally {
-        isPartnerProfileLoading.value = false;
-      }
-    },
-    { immediate: true },
-  );
 
   useErrorToast(() => authStore.errorMessage);
   useErrorToast(() => coupleStore.errorMessage);
@@ -336,6 +320,29 @@ export const useSettingView = () => {
       await router.push({ name: "login" });
     } catch { }
   };
+
+    watch(
+    () => userStore.profile?.partnerUid ?? "",
+    async (partnerUid) => {
+      partnerProfile.value = null;
+
+      if (!partnerUid) {
+        isPartnerProfileLoading.value = false;
+        return;
+      }
+
+      isPartnerProfileLoading.value = true;
+
+      try {
+        partnerProfile.value = await getUserProfile(partnerUid);
+      } catch {
+        partnerProfile.value = null;
+      } finally {
+        isPartnerProfileLoading.value = false;
+      }
+    },
+    { immediate: true },
+  );
 
   return {
     activeDetailsFields,
