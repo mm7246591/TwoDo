@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { Field, Picker, Popup } from "vant";
+import { RouterLink } from "vue-router";
 import type { CreateTaskInput } from "@/pinia/tasks/types/interface";
 import type {
   TaskAssigneeOption,
@@ -321,16 +322,28 @@ watch(
     class="grid gap-[24px] text-[#211a18]"
     aria-labelledby="task-composer-title"
   >
-    <div class="grid gap-[4px] px-[4px]">
-      <h2
-        id="task-composer-title"
-        class="m-[0px] text-[32px] font-[800] leading-[1.18] text-[#211a18]"
+    <div class="flex items-start justify-between gap-[16px] px-[4px]">
+      <div class="grid min-w-[0px] gap-[4px]">
+        <h2
+          id="task-composer-title"
+          class="m-[0px] text-[32px] font-[800] leading-[1.18] text-[#211a18]"
+        >
+          新任務
+        </h2>
+        <p class="m-[0px] text-[16px] leading-normal text-[#54433e]">
+          今天想計畫些什麼？
+        </p>
+      </div>
+
+      <RouterLink
+        class="inline-grid h-[44px] w-[44px] flex-none place-items-center rounded-full bg-[var(--app-surface)] text-[var(--app-text-muted)] no-underline shadow-[var(--app-shadow-card)] transition-[color,transform,box-shadow] duration-[180ms] hover:text-[var(--app-accent)] active:scale-[0.96] [&_.material-symbols-outlined]:text-[24px]"
+        :to="{ name: 'task-list' }"
+        aria-label="返回任務頁"
       >
-        新任務
-      </h2>
-      <p class="m-[0px] text-[16px] leading-normal text-[#54433e]">
-        今天想計畫些什麼？
-      </p>
+        <span class="material-symbols-outlined" aria-hidden="true">
+          arrow_back
+        </span>
+      </RouterLink>
     </div>
 
     <form
@@ -443,7 +456,7 @@ watch(
         <span class="material-symbols-outlined fill" aria-hidden="true">
           favorite
         </span>
-        {{ isSubmitting ? "建立中..." : "建立冒險" }}
+        {{ isSubmitting ? "建立中..." : "建立任務" }}
       </button>
     </form>
 
@@ -512,11 +525,12 @@ watch(
 ## 2. 功能需求
 
 - 1. 使用者輸入名稱後，表單才可送出；詳細內容與截止日期可留空。
-- 2. 使用者點擊「指派」欄位時，開啟 Vant 選擇器並可選擇我、夥伴或一起。
-- 3. 選擇我或夥伴時，提交單人任務並帶入對應使用者；選擇一起時，提交共同任務且不帶單一指派者。
-- 4. 使用者以滑桿調整獎勵點數，範圍為 0 到 100，每次調整 5 點。
-- 5. 使用者透過 Vant Picker 選擇月份、日期、小時與分鐘並按確認後，日期選單關閉且欄位顯示本地化日期時間；系統以目前年份組成截止時間，若結果早於目前時間則自動改用下一年；清除日期後，送出時日期為空。
-- 6. 送出成功後，表單重設為預設指派對象、25 點、空白內容與未選日期。
+- 2. 使用者點擊標題列的返回 icon 按鈕時，導回任務清單頁。
+- 3. 使用者點擊「指派」欄位時，開啟 Vant 選擇器並可選擇我、夥伴或一起。
+- 4. 選擇我或夥伴時，提交單人任務並帶入對應使用者；選擇一起時，提交共同任務且不帶單一指派者。
+- 5. 使用者以滑桿調整獎勵點數，範圍為 0 到 100，每次調整 5 點。
+- 6. 使用者透過 Vant Picker 選擇月份、日期、小時與分鐘並按確認後，日期選單關閉且欄位顯示本地化日期時間；系統以目前年份組成截止時間，若結果早於目前時間則自動改用下一年；清除日期後，送出時日期為空。
+- 7. 送出成功後，表單重設為預設指派對象、25 點、空白內容與未選日期。
 
 ## 3. 對接口
 

@@ -58,37 +58,7 @@ const useTasksDashboard = () => {
   const cancelledTasks = computed(() => tasksStore.getCancelledTasks);
   const assigneeLabel = computed(() => partnerDisplayName.value || "另一半");
 
-  watch(
-    () => userStore.profile?.coupleId,
-    (coupleId) => {
-      if (!coupleId) {
-        tasksStore.reset();
-        return;
-      }
 
-      void tasksStore.syncTasks(coupleId);
-    },
-    { immediate: true },
-  );
-
-  watch(
-    () => userStore.profile?.partnerUid ?? "",
-    async (partnerUid) => {
-      partnerDisplayName.value = "";
-
-      if (!partnerUid) {
-        return;
-      }
-
-      try {
-        const partnerProfile = await getUserProfile(partnerUid);
-        partnerDisplayName.value = partnerProfile?.displayName?.trim() || "";
-      } catch {
-        partnerDisplayName.value = "";
-      }
-    },
-    { immediate: true },
-  );
 
   const handleCreateTask = async (
     payload: Omit<CreateTaskInput, "coupleId" | "createdBy">,
@@ -151,6 +121,38 @@ const useTasksDashboard = () => {
 
     showSuccessMessage("待辦已取消");
   };
+
+    watch(
+    () => userStore.profile?.coupleId,
+    (coupleId) => {
+      if (!coupleId) {
+        tasksStore.reset();
+        return;
+      }
+
+      void tasksStore.syncTasks(coupleId);
+    },
+    { immediate: true },
+  );
+
+  watch(
+    () => userStore.profile?.partnerUid ?? "",
+    async (partnerUid) => {
+      partnerDisplayName.value = "";
+
+      if (!partnerUid) {
+        return;
+      }
+
+      try {
+        const partnerProfile = await getUserProfile(partnerUid);
+        partnerDisplayName.value = partnerProfile?.displayName?.trim() || "";
+      } catch {
+        partnerDisplayName.value = "";
+      }
+    },
+    { immediate: true },
+  );
 
   return {
     assigneeLabel,
