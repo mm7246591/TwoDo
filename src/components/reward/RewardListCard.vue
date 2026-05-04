@@ -14,9 +14,6 @@ const props = defineProps<{
   reward: Reward;
 }>();
 
-const getStatusText = computed(() =>
-  props.reward.isActive ? "可兌換" : "已停用",
-);
 const getCanRedeem = computed(() => {
   if (!props.reward.isActive) {
     return false;
@@ -127,7 +124,6 @@ const getRedeemHint = computed(() => {
 - emit：redeem(reward)：要求兌換獎勵；toggleAvailability(reward, isActive)：要求切換獎勵上架狀態。
 - defineModel：無。
 </spec>
-
 
 
 
