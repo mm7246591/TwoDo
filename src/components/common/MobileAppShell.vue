@@ -1,42 +1,44 @@
 ﻿<script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import AppHeader from '@/components/common/AppHeader.vue'
-import AppBottomDock from '@/components/common/AppBottomDock.vue'
-import { useKeyboardInset } from '@/composables/useKeyboardInset'
+import { computed, onBeforeUnmount, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import AppHeader from "@/components/common/AppHeader.vue";
+import AppBottomDock from "@/components/common/AppBottomDock.vue";
+import { useKeyboardInset } from "@/composables/useKeyboardInset";
 
-const {
-  keyboardInset,
-  startKeyboardInsetTracking,
-  stopKeyboardInsetTracking,
-} = useKeyboardInset()
-const route = useRoute()
+const { keyboardInset, startKeyboardInsetTracking, stopKeyboardInsetTracking } =
+  useKeyboardInset();
+const route = useRoute();
 
 /** 是否顯示登入後主要頁面的頂部列與底部導覽。 */
 const showAppChrome = computed(
   () => Boolean(route.meta.requiresAuth) && !route.meta.hideAppChrome,
-)
+);
 
 /** 提供給 shell 樣式使用的鍵盤底部位移 CSS 變數。 */
 const shellStyle = computed(() => ({
-  '--keyboard-inset': `${keyboardInset.value}px`,
-}))
+  "--keyboard-inset": `${keyboardInset.value}px`,
+}));
 
 onMounted(() => {
-  startKeyboardInsetTracking()
-})
+  startKeyboardInsetTracking();
+});
 
 onBeforeUnmount(() => {
-  stopKeyboardInsetTracking()
-})
+  stopKeyboardInsetTracking();
+});
 </script>
 
 <template>
-  <main class="bg-[var(--app-shell-bg)] relative isolate w-full mobile-page-scroll flex min-h-dvh flex-col"
-    :style="shellStyle">
-    <div class="relative overflow-hidden shrink-0 mx-auto flex w-full max-w-md min-h-full flex-1 flex-col">
+  <main
+    class="bg-[var(--app-shell-bg)] relative isolate w-full mobile-page-scroll flex min-h-dvh flex-col"
+    :style="shellStyle"
+  >
+    <div
+      class="relative overflow-hidden shrink-0 mx-auto flex w-full max-w-md min-h-full flex-1 flex-col"
+    >
       <div
-        class="bg-[var(--relative overflow-hidden shrink-0 min-h-full-gloss)] pointer-events-none absolute inset-x-[0px] top-[0px] h-[112px]" />
+        class="bg-[var(--relative overflow-hidden shrink-0 min-h-full-gloss)] pointer-events-none absolute inset-x-[0px] top-[0px] h-[112px]"
+      />
       <AppHeader v-if="showAppChrome" />
       <slot />
       <AppBottomDock v-if="showAppChrome" />
