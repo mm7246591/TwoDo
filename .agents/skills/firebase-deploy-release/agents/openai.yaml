@@ -1,0 +1,4 @@
+interface:
+  display_name: "Firebase 打包上版"
+  short_description: "協助檢查、建置並部署 TwoDo 到 Firebase。"
+  default_prompt: "請使用 firebase-deploy-release skill 協助我打包並上版到 Firebase。"
