@@ -1,0 +1,4 @@
+interface:
+  display_name: "專案 Code Review"
+  short_description: "檢查變更風險、維護性與專案一致性。"
+  default_prompt: "請使用 $project-code-reviewer 檢查目前修改過的邏輯是否有風險、是否好維護延伸，並確認 coding style 是否符合專案規範。"
