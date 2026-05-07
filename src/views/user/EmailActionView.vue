@@ -70,11 +70,10 @@ const handleEmailVerification = async (actionCode: string) => {
 onMounted(async () => {
   authStore.clearError();
 
-  const mode = typeof route.query.mode === "string" ? route.query.mode : "";
   const actionCode =
     typeof route.query.oobCode === "string" ? route.query.oobCode : "";
 
-  if (mode !== "verifyEmail" || !actionCode) {
+  if (!actionCode) {
     status.value = "error";
     feedbackMessage.value = "驗證資訊不完整，請回到 App 重新開啟驗證連結。";
     return;
@@ -149,3 +148,25 @@ onBeforeUnmount(() => {
     </section>
   </main>
 </template>
+
+<spec lang="md">
+## 1. 說明
+
+- 處理 Firebase 信箱驗證 action 連結。
+- 根據 oobCode 顯示處理中、成功或錯誤狀態。
+
+## 2. 功能需求
+
+- 1. 進入頁面時讀取路由查詢中的 oobCode。
+- 2. 若 oobCode 存在，套用 Firebase action code 完成信箱驗證。
+- 3. 信箱驗證成功後重新整理目前使用者、送出驗證完成訊號、顯示成功訊息並切換完成畫面。
+- 4. 若 oobCode 缺漏或驗證失敗，顯示錯誤狀態與重新操作提示。
+- A1：處理中狀態顯示進度提示，讓使用者知道連結正在驗證。
+
+## 3. 對接口
+
+- props：無。
+- emit：無。
+- defineModel：無。
+- 外部依賴：Firebase Auth 套用 action code；auth store 重新整理目前使用者並清理錯誤；email verification signal 通知等待頁同步驗證狀態。
+</spec>

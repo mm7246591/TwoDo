@@ -76,29 +76,6 @@ const handleVisibilityChange = () => {
   }
 };
 
-onMounted(() => {
-  isViewActive.value = true;
-  authStore.clearError();
-  window.addEventListener("focus", handleWindowFocus);
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-  unsubscribeEmailVerificationSignal = subscribeEmailVerificationSignal(() => {
-    void syncVerificationStatus({ silent: true });
-  });
-  void syncVerificationStatus({ silent: true });
-});
-
-onBeforeUnmount(() => {
-  isViewActive.value = false;
-  isChecking.value = false;
-  isResending.value = false;
-  isLeaving.value = false;
-  window.removeEventListener("focus", handleWindowFocus);
-  document.removeEventListener("visibilitychange", handleVisibilityChange);
-  unsubscribeEmailVerificationSignal?.();
-  unsubscribeEmailVerificationSignal = null;
-  authStore.clearError();
-});
-
 const handleResendVerification = async () => {
   if (isActionPending.value) {
     return;
@@ -140,6 +117,29 @@ const handleBackToLogin = async () => {
     isLeaving.value = false;
   }
 };
+
+onMounted(() => {
+  isViewActive.value = true;
+  authStore.clearError();
+  window.addEventListener("focus", handleWindowFocus);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  unsubscribeEmailVerificationSignal = subscribeEmailVerificationSignal(() => {
+    void syncVerificationStatus({ silent: true });
+  });
+  void syncVerificationStatus({ silent: true });
+});
+
+onBeforeUnmount(() => {
+  isViewActive.value = false;
+  isChecking.value = false;
+  isResending.value = false;
+  isLeaving.value = false;
+  window.removeEventListener("focus", handleWindowFocus);
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
+  unsubscribeEmailVerificationSignal?.();
+  unsubscribeEmailVerificationSignal = null;
+  authStore.clearError();
+});
 </script>
 
 <template>
@@ -232,3 +232,27 @@ const handleBackToLogin = async () => {
     </section>
   </main>
 </template>
+
+<spec lang="md">
+## 1. 說明
+
+- 顯示註冊後的信箱驗證等待頁，協助使用者完成電子信箱驗證。
+- 支援重新檢查驗證狀態、重新寄送驗證信與返回登入。
+
+## 2. 功能需求
+
+- 1. 頁面顯示目前帳號信箱，提示使用者前往信箱點擊驗證連結。
+- 2. 頁面載入、視窗重新聚焦、頁籤回到可見狀態或收到驗證訊號時，自動重新檢查驗證狀態。
+- 3. 若目前沒有登入 session，導向登入頁。
+- 4. 若信箱已完成驗證，顯示成功訊息並導向登入後應進入的頁面。
+- 5. 使用者可重新寄送驗證信；若檢查時已完成驗證，改走驗證完成流程。
+- A1：檢查、寄送或返回登入期間停用其他操作，避免流程互相干擾。
+- A2：使用者可登出並返回登入頁。
+
+## 3. 對接口
+
+- props：無。
+- emit：無。
+- defineModel：無。
+- 外部依賴：auth store 提供目前使用者、重新整理 session、重新寄送驗證信與登出；user store 與 authNavigation 決定驗證後路由；email verification signal 觸發跨頁同步。
+</spec>
