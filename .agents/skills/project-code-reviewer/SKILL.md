@@ -1,6 +1,6 @@
 ---
 name: project-code-reviewer
-description: 協助 TwoDo 專案進行程式碼審查，檢查已修改邏輯是否有風險、回歸可能、可讀性、可維護性、可延伸性，以及 coding style 是否符合專案規範。當使用者要求 code review、檢查目前變更、審查修改過的邏輯、確認命名/檔案位置/TypeScript/Vue/Tailwind/spec/TSDoc 是否符合專案風格時使用。
+description: 協助 TwoDo 專案進行程式碼審查，檢查已修改邏輯是否有風險、回歸可能、可讀性、可維護性、可延伸性，以及 coding style 是否符合專案規範。完成任何程式碼修改、新增元件、撰寫邏輯後必須自動執行；若使用 agent 模式或子代理協助調整程式碼，也必須在整合前後檢查 agent 產出的 diff。當使用者要求 code review、檢查目前變更、審查修改過的邏輯、確認命名/檔案位置/TypeScript/Vue/Tailwind/spec/TSDoc 是否符合專案風格時也使用。
 ---
 
 # 專案 Code Review
@@ -15,6 +15,7 @@ description: 協助 TwoDo 專案進行程式碼審查，檢查已修改邏輯是
 - 若沒有明確問題，要直接說明未發現阻擋項，並列出未驗證的殘餘風險。
 - 不主動修改程式碼；此 skill 的輸出是審查結論與修正建議。
 - 不要求新增測試；若缺少驗證會影響信心，只在殘餘風險中說明。
+- 若本回合使用 agent 模式或子代理調整程式碼，整合 agent 結果前後都要檢查相關 diff，確認沒有引入與主線需求不一致的改動。
 
 ## 審查流程
 
@@ -23,6 +24,7 @@ description: 協助 TwoDo 專案進行程式碼審查，檢查已修改邏輯是
    - `git diff --name-status`
    - `git diff --stat`
    - 必要時針對檔案讀取 `git diff -- path/to/file`
+   - 若有 agent 模式或子代理產出的程式碼，先鎖定 agent 實際改動檔案，不把未相關的既有 dirty changes 混入審查。
 2. 判斷變更目的：
    - 依使用者需求、任務紀錄、spec、TSDoc、型別與實作推回改動意圖。
    - 若 diff 無法判斷意圖，明確列為待確認，不要猜測。
@@ -38,7 +40,7 @@ description: 協助 TwoDo 專案進行程式碼審查，檢查已修改邏輯是
 
 - Vue 檔案：
   - 修改 `.vue` 前後要確認 `<spec lang="md">` 是否與行為一致。
-  - 若有 `<script setup lang="ts">`，檢查型別與 TSDoc 是否同步。
+  - 若有 `<script setup lang="ts">`，檢查型別是否符合資料流；TSDoc 只檢查本回合實際修改的 `.ts` 檔。
   - 避免在 composable 中寫生命週期。
   - 優先使用 Composition API，不引入 Options API 風格。
 - TypeScript：
