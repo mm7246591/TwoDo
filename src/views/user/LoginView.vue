@@ -6,6 +6,7 @@ import { useAuthStore } from "@/pinia/auth";
 import { useUserStore } from "@/pinia/user";
 import { resolvePostAuthRouteName } from "@/router/authNavigation";
 import { showSuccessMessage } from "@/composables/useMessage";
+import { useEmailField } from "@/views/user/composables/useEmailField";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
@@ -14,33 +15,23 @@ const router = useRouter();
 
 useErrorToast(() => authStore.errorMessage);
 
-const email = ref("");
 const password = ref("");
 const isEmailSubmitting = ref(false);
 const isGoogleSubmitting = ref(false);
 const isViewActive = ref(true);
 const hasSubmitted = ref(false);
-const hasEmailBlurred = ref(false);
 const hasPasswordBlurred = ref(false);
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const trimmedEmail = computed(() => email.value.trim());
+const {
+  email,
+  trimmedEmail,
+  emailErrorMessage,
+  hasEmailBlurred,
+  shouldShowEmailError,
+  resetEmail,
+} = useEmailField(hasSubmitted);
+
 const trimmedPassword = computed(() => password.value.trim());
-const isEmailReady = computed(() => trimmedEmail.value !== "");
-const isEmailFormatValid = computed(() =>
-  emailPattern.test(trimmedEmail.value),
-);
-const emailErrorMessage = computed(() => {
-  if (!isEmailReady.value) {
-    return "請輸入電子郵件";
-  }
-
-  if (!isEmailFormatValid.value) {
-    return "請輸入有效的電子郵件格式";
-  }
-
-  return "";
-});
 const passwordErrorMessage = computed(() => {
   if (!trimmedPassword.value) {
     return "請輸入密碼";
@@ -54,36 +45,11 @@ const canUseEmailAuth = computed(
 const isAuthActionPending = computed(
   () => isEmailSubmitting.value || isGoogleSubmitting.value,
 );
-const shouldShowEmailError = computed(
-  () =>
-    Boolean(emailErrorMessage.value) &&
-    (hasSubmitted.value || hasEmailBlurred.value),
-);
 const shouldShowPasswordError = computed(
   () =>
     Boolean(passwordErrorMessage.value) &&
     (hasSubmitted.value || hasPasswordBlurred.value),
 );
-
-onMounted(() => {
-  isViewActive.value = true;
-  hasSubmitted.value = false;
-  hasEmailBlurred.value = false;
-  hasPasswordBlurred.value = false;
-  authStore.clearError();
-
-  if (route.query.verified === "1") {
-    showSuccessMessage("信箱已驗證，請登入繼續。");
-    void router.replace({ name: "login" });
-  }
-});
-
-onBeforeUnmount(() => {
-  isViewActive.value = false;
-  isEmailSubmitting.value = false;
-  isGoogleSubmitting.value = false;
-  authStore.clearError();
-});
 
 const goToPostAuthRoute = async () => {
   await router.push({
@@ -144,9 +110,34 @@ const handleGoogleSignIn = async () => {
   }
 };
 
-const handleForgotPasswordPreview = () => {
-  showSuccessMessage("重設密碼功能即將開放。");
+const handleResetPassword = () => {
+  router.push({ name: "reset-password" });
 };
+
+const initForm = () => {
+  hasSubmitted.value = false;
+  password.value = "";
+  hasPasswordBlurred.value = false;
+  resetEmail();
+};
+
+onMounted(() => {
+  isViewActive.value = true;
+  initForm();
+  authStore.clearError();
+
+  if (route.query.verified === "1") {
+    showSuccessMessage("信箱已驗證，請登入繼續。");
+    void router.replace({ name: "login" });
+  }
+});
+
+onBeforeUnmount(() => {
+  isViewActive.value = false;
+  isEmailSubmitting.value = false;
+  isGoogleSubmitting.value = false;
+  authStore.clearError();
+});
 </script>
 
 <template>
@@ -255,7 +246,7 @@ const handleForgotPasswordPreview = () => {
         <label class="flex flex-col gap-[8px]">
           <span
             class="pl-[4px] text-[12px] font-[500] leading-[16px] text-[var(--auth-on-surface-variant)]"
-            >電子郵件</span
+            >電子信箱</span
           >
           <input
             v-model="email"
@@ -269,7 +260,7 @@ const handleForgotPasswordPreview = () => {
             "
             :aria-invalid="shouldShowEmailError"
             autocomplete="email"
-            placeholder="請輸入電子郵件"
+            placeholder="請輸入電子信箱"
             type="email"
             @blur="hasEmailBlurred = true"
           />
@@ -331,7 +322,7 @@ const handleForgotPasswordPreview = () => {
           <button
             class="flex min-h-[0px] items-center justify-end border-[0px] bg-transparent p-[0px] text-[12px] font-[500] leading-[16px] text-[var(--auth-primary)] transition-colors"
             type="button"
-            @click="handleForgotPasswordPreview"
+            @click="handleResetPassword"
           >
             忘記密碼
           </button>
@@ -360,3 +351,27 @@ const handleForgotPasswordPreview = () => {
     </section>
   </main>
 </template>
+
+<spec lang="md">
+## 1. 說明
+
+- 提供使用者登入 TwoDo 的入口，支援電子信箱密碼與 Google 帳號登入。
+- 登入成功後依使用者狀態導向信箱驗證頁或登入後首頁。
+
+## 2. 功能需求
+
+- 1. 使用者輸入電子信箱與密碼並送出表單。
+- 2. 若欄位為空或電子信箱格式錯誤，顯示對應錯誤並保留在登入表單。
+- 3. 若帳密登入成功且帳號仍需信箱驗證，顯示提示並導向信箱驗證頁。
+- 4. 若帳密登入成功且不需信箱驗證，顯示歡迎訊息並導向登入後應進入的頁面。
+- 5. 使用者可點擊 Google 登入，成功後顯示歡迎訊息並導向登入後應進入的頁面。
+- A1：使用者可點擊忘記密碼前往重設密碼申請頁。
+- A2：路由帶有 verified 為 1 時，顯示信箱已驗證提示並清理查詢參數。
+
+## 3. 對接口
+
+- props：無。
+- emit：無。
+- defineModel：無。
+- 外部依賴：auth store 提供登入、Google 登入、信箱驗證狀態與錯誤訊息；user store 與 authNavigation 決定登入後路由。
+</spec>

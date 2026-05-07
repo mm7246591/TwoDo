@@ -2,7 +2,7 @@
  * 管理共用的使用者回饋訊息與危險操作確認流程。
  */
 import { Dialog } from 'vant'
-import { hideAppToast, showAppToast } from '@/composables/useAppToast'
+import { showAppToast } from '@/composables/useAppToast'
 
 /**
  * 顯示成功狀態的應用內提示訊息。
@@ -29,26 +29,6 @@ const showErrorMessage = (message: string) => {
 }
 
 /**
- * 顯示不可手動關閉的載入提示訊息。
- *
- * @param message - 載入期間顯示給使用者的提示文字。
- */
-const showLoadingMessage = (message: string) => {
-  showAppToast({
-    dismissible: false,
-    message,
-    variant: 'loading',
-  })
-}
-
-/**
- * 關閉目前的載入提示訊息。
- */
-const hideLoadingMessage = () => {
-  hideAppToast()
-}
-
-/**
  * 顯示危險操作確認對話框，並回傳使用者是否確認。
  *
  * @param message - 確認對話框的主要說明文字。
@@ -72,8 +52,6 @@ const confirmDangerAction = async (message: string, title = '請確認') => {
 
 export {
   confirmDangerAction,
-  hideLoadingMessage,
   showErrorMessage,
-  showLoadingMessage,
   showSuccessMessage,
 }

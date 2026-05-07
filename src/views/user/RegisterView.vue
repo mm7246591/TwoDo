@@ -4,9 +4,8 @@ import { RouterLink, useRouter } from "vue-router";
 import { useErrorToast } from "@/composables/useErrorToast";
 import { useAuthStore } from "@/pinia/auth";
 import { showSuccessMessage } from "@/composables/useMessage";
-
-/** 註冊頁密碼最小長度。 */
-const PASSWORD_MIN_LENGTH = 8;
+import { useEmailField } from "@/views/user/composables/useEmailField";
+import { usePasswordField, PASSWORD_MIN_LENGTH } from "@/views/user/composables/usePasswordField";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -14,60 +13,36 @@ const router = useRouter();
 useErrorToast(() => authStore.errorMessage);
 
 const displayName = ref("");
-const email = ref("");
-const password = ref("");
 const isEmailSubmitting = ref(false);
 const isViewActive = ref(true);
 const hasSubmitted = ref(false);
 const hasDisplayNameBlurred = ref(false);
-const hasEmailBlurred = ref(false);
-const hasPasswordBlurred = ref(false);
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const {
+  email,
+  trimmedEmail,
+  emailErrorMessage,
+  hasEmailBlurred,
+  shouldShowEmailError,
+  resetEmail,
+} = useEmailField(hasSubmitted);
+const {
+  password,
+  trimmedPassword,
+  passwordErrorMessage,
+  hasPasswordBlurred,
+  shouldShowPasswordError,
+  resetPassword,
+} = usePasswordField(hasSubmitted);
+
 const trimmedDisplayName = computed(() => displayName.value.trim());
-const trimmedEmail = computed(() => email.value.trim());
-const trimmedPassword = computed(() => password.value.trim());
-const isDisplayNameReady = computed(() => trimmedDisplayName.value !== "");
-const isEmailReady = computed(() => trimmedEmail.value !== "");
-const isEmailFormatValid = computed(() =>
-  emailPattern.test(trimmedEmail.value),
-);
-const isPasswordReady = computed(
-  () => trimmedPassword.value.length >= PASSWORD_MIN_LENGTH,
-);
-
 const displayNameErrorMessage = computed(() => {
-  if (!isDisplayNameReady.value) {
+  if (!trimmedDisplayName.value) {
     return "請輸入暱稱";
   }
 
   return "";
 });
-
-const emailErrorMessage = computed(() => {
-  if (!isEmailReady.value) {
-    return "請輸入電子信箱";
-  }
-
-  if (!isEmailFormatValid.value) {
-    return "請輸入有效的電子信箱";
-  }
-
-  return "";
-});
-
-const passwordErrorMessage = computed(() => {
-  if (!trimmedPassword.value) {
-    return "請輸入密碼";
-  }
-
-  if (!isPasswordReady.value) {
-    return `密碼至少需要 ${PASSWORD_MIN_LENGTH} 個字元`;
-  }
-
-  return "";
-});
-
 const canCreateAccount = computed(
   () =>
     !displayNameErrorMessage.value &&
@@ -79,31 +54,6 @@ const shouldShowDisplayNameError = computed(
     Boolean(displayNameErrorMessage.value) &&
     (hasSubmitted.value || hasDisplayNameBlurred.value),
 );
-const shouldShowEmailError = computed(
-  () =>
-    Boolean(emailErrorMessage.value) &&
-    (hasSubmitted.value || hasEmailBlurred.value),
-);
-const shouldShowPasswordError = computed(
-  () =>
-    Boolean(passwordErrorMessage.value) &&
-    (hasSubmitted.value || hasPasswordBlurred.value),
-);
-
-onMounted(() => {
-  isViewActive.value = true;
-  hasSubmitted.value = false;
-  hasDisplayNameBlurred.value = false;
-  hasEmailBlurred.value = false;
-  hasPasswordBlurred.value = false;
-  authStore.clearError();
-});
-
-onBeforeUnmount(() => {
-  isViewActive.value = false;
-  isEmailSubmitting.value = false;
-  authStore.clearError();
-});
 
 const handleSignUp = async () => {
   if (isEmailSubmitting.value) {
@@ -133,6 +83,26 @@ const handleSignUp = async () => {
     isEmailSubmitting.value = false;
   }
 };
+
+const initForm = () => {
+  hasSubmitted.value = false;
+  displayName.value = "";
+  hasDisplayNameBlurred.value = false;
+  resetEmail();
+  resetPassword();
+};
+
+onMounted(() => {
+  isViewActive.value = true;
+  initForm();
+  authStore.clearError();
+});
+
+onBeforeUnmount(() => {
+  isViewActive.value = false;
+  isEmailSubmitting.value = false;
+  authStore.clearError();
+});
 </script>
 
 <template>
@@ -376,3 +346,26 @@ const handleSignUp = async () => {
     </section>
   </main>
 </template>
+
+<spec lang="md">
+## 1. 說明
+
+- 提供使用者建立 TwoDo 帳號的註冊頁。
+- 註冊成功後要求使用者先完成電子信箱驗證。
+
+## 2. 功能需求
+
+- 1. 使用者輸入暱稱、電子信箱與密碼後送出表單。
+- 2. 若暱稱或電子信箱為空、電子信箱格式錯誤、密碼未滿最小長度，顯示對應欄位錯誤。
+- 3. 欄位驗證通過後呼叫註冊流程，建立帳號並送出驗證信。
+- 4. 註冊成功後顯示帳號建立成功提示，並導向信箱驗證頁。
+- A1：提交中時停用建立帳號按鈕，避免重複送出。
+- A2：使用者可透過登入連結返回登入頁。
+
+## 3. 對接口
+
+- props：無。
+- emit：無。
+- defineModel：無。
+- 外部依賴：auth store 提供註冊、送出驗證信與錯誤訊息；router 負責導向信箱驗證頁。
+</spec>
