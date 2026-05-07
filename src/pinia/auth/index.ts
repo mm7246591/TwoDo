@@ -4,6 +4,7 @@ import {
   deleteUser,
   onAuthStateChanged,
   sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -40,6 +41,8 @@ const AUTH_ERROR_MESSAGES: AuthErrorMessages = {
   'auth/user-not-found': '找不到這個帳號，請先註冊。',
   'auth/weak-password': '密碼強度不足，請至少輸入 8 個字元。',
   'auth/wrong-password': '密碼不正確，請重新輸入。',
+  'auth/expired-action-code': '這個連結已過期，請重新申請重設密碼。',
+  'auth/invalid-action-code': '這個連結無效或已使用過，請重新申請重設密碼。',
 }
 
 const shouldRequireEmailVerification = (user: User) => {
@@ -119,11 +122,6 @@ const useAuthStore = defineStore('auth', () => {
 
   const waitForAuthStateProcessing = async () => {
     await authStateProcessingPromise
-  }
-
-  const syncAuthSessionFromCurrentUser = () => {
-    authSession.value = mapAuthSession(firebaseAuth.currentUser)
-    return authSession.value
   }
 
   const init = () => {
@@ -310,6 +308,21 @@ const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const sendPasswordReset = async (email: string) => {
+    state.value.isSubmitting = true
+    clearError()
+
+    try {
+      await sendPasswordResetEmail(firebaseAuth, email)
+    } catch (error) {
+      state.value.errorMessage = normalizeAuthError(error)
+      throw error
+    } finally {
+      state.value.isSubmitting = false
+    }
+  }
+
+
   /**
    * 刪除目前登入中的 Firebase Auth 帳號。
    */
@@ -344,13 +357,13 @@ const useAuthStore = defineStore('auth', () => {
     getUserUid,
     deleteCurrentAccount,
     init,
+    sendPasswordReset,
     signIn,
     signInWithGoogle,
     signOutUser,
     signUp,
     refreshCurrentUser,
     resendVerificationEmail,
-    syncAuthSessionFromCurrentUser,
     waitForAuthStateProcessing,
   }
 })

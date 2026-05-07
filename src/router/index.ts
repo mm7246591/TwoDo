@@ -50,6 +50,22 @@ const router = createRouter({
       },
     },
     {
+      path: "/reset-password",
+      name: "reset-password",
+      component: () => import("@/views/user/ResetPasswordView.vue"),
+      meta: {
+        requiresGuest: true,
+      },
+    },
+    {
+      path: "/verify-password",
+      name: "verify-password",
+      component: () => import("@/views/user/VerifyPasswordView.vue"),
+      meta: {
+        allowsUnverifiedEmail: true,
+      },
+    },
+    {
       path: "/pairing",
       name: "pairing",
       component: () => import("@/views/pairing/PairingView.vue"),
